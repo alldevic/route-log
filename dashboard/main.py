@@ -2,7 +2,8 @@ import dash
 from dash.dependencies import Input, Output
 from plotly import graph_objs as go
 
-from .layout import base_layout
+from layout import base_layout
+
 
 app = dash.Dash(
     __name__,
@@ -64,3 +65,7 @@ def init_graph(vl):
             ],
         ),
     )
+
+
+if __name__ == "__main__":
+    app.run_server(debug=True)
