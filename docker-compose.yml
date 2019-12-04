@@ -14,6 +14,20 @@ services:
     networks:
       private_network:
 
+  xlsx_service:
+    container_name: xlsx_service
+    env_file: .env
+    user: ${CURRENT_UID}
+    build:
+      context: ./xlsx_service
+    volumes:
+      - ./xlsx_service:/app
+    restart: on-failure
+    ports:
+      - 8000:8000
+    networks:
+      private_network:
+
   dashboard:
     container_name: dashboard
     env_file: .env
@@ -25,6 +39,9 @@ services:
     restart: on-failure
     depends_on:
       - nav_client
+      - xlsx_service
+    ports:
+      - 8050:8050
     networks:
       private_network:
 
