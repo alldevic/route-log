@@ -25,9 +25,9 @@ def init_graph(vl):
             showlegend=False,
             mapbox=dict(
                 style="open-street-map",
-                # center=dict(lat=latInitial, lon=lonInitial),  # 40.7272  # -73.991251
-                # bearing=bearing,
-                # zoom=zoom,
+                center=dict(lat=53.757607, lon=87.136101),
+                bearing=0,
+                zoom=12,
             ),
             updatemenus=[
                 dict(
