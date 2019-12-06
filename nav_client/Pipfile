@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 zeep = "*"
+fastapi = "*"
 
 [dev-packages]
 flake8 = "*"

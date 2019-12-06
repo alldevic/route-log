@@ -5,12 +5,14 @@ services:
   nav_client:
     container_name: nav_client
     env_file: .env
-    user: ${CURRENT_UID}
+    # user: ${CURRENT_UID}
     build:
       context: ./nav_client
     volumes:
       - ./nav_client:/app
     restart: on-failure
+    ports:
+      - 80:80
     networks:
       private_network:
 
