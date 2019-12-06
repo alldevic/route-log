@@ -1,4 +1,5 @@
 import dash
+import requests
 from dash.dependencies import Input, Output
 from plotly import graph_objs as go
 
@@ -16,13 +17,13 @@ app.layout = base_layout
 
 
 @app.callback(Output("map-graph", "figure"),
-              [Input("car-dropdown", "value")])
+              [Input("options-checklist", "value")])
 def init_graph(vl):
-    return go.Figure(
+    fig = go.Figure(
         data=go.Scattermapbox(),
         layout=go.Layout(
             autosize=True,
-            margin=go.layout.Margin(l=0, t=35, r=0, b=35),
+            margin=go.layout.Margin(l=0, t=0, r=0, b=50),
             showlegend=False,
             mapbox=dict(
                 style="open-street-map",
@@ -65,6 +66,36 @@ def init_graph(vl):
             ],
         ),
     )
+
+    if "borders" in vl:
+        resp = requests.get("http://nav_client/getAllGeoZones").json()
+        lat_a = []
+        lon_a = []
+        name_a = []
+
+        for x in resp:
+            y = x["__values__"]
+            for z in y["points"]:
+                zz = z["__values__"]
+                lat_a.append(zz["lat"])
+                lon_a.append(zz["lon"])
+                name_a.append(f"{y['id']}, {y['name']}")
+            lat_a.append(None)
+            lon_a.append(None)
+            name_a.append(None)
+
+        fig.add_trace(
+            go.Scattermapbox(
+                fill="toself",
+                lon=lon_a,
+                lat=lat_a,
+                marker={"size": 1, "color": "orange"},
+                showlegend=False,
+                text=name_a,
+                hoverinfo='text',
+            ))
+
+    return fig
 
 
 if __name__ == "__main__":

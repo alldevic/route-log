@@ -1,6 +1,20 @@
 import dash_core_components as dcc
 import dash_html_components as html
 from datetime import datetime as dt
+import requests
+
+
+def get_options():
+    resp = requests.get("http://nav_client/getAllDevices").json()
+    res = []
+    for x in resp:
+        y = x['__values__']
+        res.append(dict(
+            label=y['name'],
+            value=y['id'],
+        ))
+    return res
+
 
 base_layout = html.Div(
     children=[
@@ -18,6 +32,19 @@ base_layout = html.Div(
                         html.H2("Маршрутный журнал"),
                         html.P(
                             """Выберите день, автомобиль и прочее"""
+                        ),
+                        html.Div(
+                            className="div-for-options",
+                            children=[
+                                dcc.Checklist(
+                                    id="options-checklist",
+                                    options=[
+                                        {'label': 'Границы площадок',
+                                            'value': 'borders'},
+                                    ],
+                                    value=[]
+                                )
+                            ]
                         ),
                         html.Div(
                             className="div-for-dropdown",
@@ -39,6 +66,7 @@ base_layout = html.Div(
                                 dcc.Dropdown(
                                     id="car-dropdown",
                                     placeholder="Выберите автомобиль",
+                                    options=get_options()
                                 )
                             ],
                         ),
