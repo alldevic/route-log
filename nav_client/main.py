@@ -5,6 +5,7 @@ from requests.auth import HTTPBasicAuth
 import zeep
 from zeep.transports import Transport
 import os
+from datetime import datetime as dt
 
 env = os.environ
 cache = InMemoryCache()
@@ -54,3 +55,15 @@ def get_all_geo_zones():
 @app.get("/getChannelDescriptors/{device_id}")
 def get_channel_descriptors(device_id: int):
     return client.service.getChannelDescriptors(device_id)
+
+
+@app.get("/getFlatTableSimple/{device_id},{year},{month},{day}")
+def get_flat_table_simple(device_id: int, year: int, month: int, day: int):
+    day0 = day-1
+    if day < 10:
+        day = f"0{day}"
+        day0 = f"0{day0}"
+    date_from = f"{year}-{month}-{day0}T16:00:00"
+    date_to = f"{year}-{month}-{day}T16:59:59"
+    return client.service.getFlatTableSimple(device_id, date_from, date_to,
+                                             10000, [0, ], ['Rw', ])

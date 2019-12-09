@@ -2,7 +2,7 @@ import dash
 import requests
 from dash.dependencies import Input, Output
 from plotly import graph_objs as go
-
+import datetime
 from layout import base_layout
 
 
@@ -17,8 +17,11 @@ app.layout = base_layout
 
 
 @app.callback(Output("map-graph", "figure"),
-              [Input("options-checklist", "value")])
-def init_graph(vl):
+              [Input("options-checklist", "value"),
+               Input("date-picker", "date"),
+               Input("car-dropdown", "value")
+               ])
+def init_graph(vl, date, car):
     fig = go.Figure(
         data=go.Scattermapbox(),
         layout=go.Layout(
@@ -66,6 +69,38 @@ def init_graph(vl):
             ],
         ),
     )
+
+    if car is not None:
+        try:
+            dt = datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%S.%f')
+        except Exception as e:
+            dt = datetime.datetime.strptime(date, '%Y-%m-%d')
+
+        resp = requests.get(
+            f"http://nav_client/getFlatTableSimple/{car},{dt.year},{dt.month},{dt.day}").json()
+
+        lat_b = []
+        lon_b = []
+        name_b = []
+
+        for x in resp["__values__"]["rows"]:
+            for y in x["__values__"]["values"]:
+                lat_b.append(y["__values__"]["pointValue"]
+                             ["__values__"]["lat"])
+                lon_b.append(y["__values__"]["pointValue"]
+                             ["__values__"]["lon"])
+                name_b.append(x["__values__"]["utc"])
+
+        fig.add_trace(
+            go.Scattermapbox(
+                mode="markers+lines",
+                lon=lon_b,
+                lat=lat_b,
+                marker={"size": 8, "color": "blue"},
+                showlegend=False,
+                text=name_b,
+                hoverinfo='text',
+            ))
 
     if "borders" in vl:
         resp = requests.get("http://nav_client/getAllGeoZones").json()

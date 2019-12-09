@@ -51,10 +51,7 @@ base_layout = html.Div(
                             children=[
                                 dcc.DatePickerSingle(
                                     id="date-picker",
-                                    min_date_allowed=dt(2019, 4, 1),
-                                    max_date_allowed=dt(2019, 9, 30),
-                                    initial_visible_month=dt(2019, 4, 1),
-                                    date=dt(2019, 4, 1).date(),
+                                    date=dt.now(),
                                     display_format="MMMM D, YYYY",
                                     style={"border": "0px solid black"},
                                 )
