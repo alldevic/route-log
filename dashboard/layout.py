@@ -25,10 +25,10 @@ base_layout = html.Div(
                 html.Div(
                     className="three columns div-user-controls",
                     children=[
-                        # html.Img(
-                        #     className="logo",
-                        #     src=app.get_asset_url("logo.png")
-                        # ),
+                        html.Img(
+                            className="logo",
+                            src="./assets/logo.png"
+                        ),
                         html.H2("Маршрутный журнал"),
                         html.P(
                             """Выберите день, автомобиль и прочее"""

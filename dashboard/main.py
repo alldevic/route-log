@@ -73,7 +73,7 @@ def init_graph(vl, date, car):
     if car is not None:
         try:
             dt = datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%S.%f')
-        except Exception as e:
+        except Exception:
             dt = datetime.datetime.strptime(date, '%Y-%m-%d')
 
         resp = requests.get(

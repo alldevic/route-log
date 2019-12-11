@@ -5,7 +5,6 @@ from requests.auth import HTTPBasicAuth
 import zeep
 from zeep.transports import Transport
 import os
-from datetime import datetime as dt
 
 env = os.environ
 cache = InMemoryCache()
