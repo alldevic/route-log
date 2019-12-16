@@ -77,7 +77,7 @@ def init_graph(vl, date, car):
             dt = datetime.datetime.strptime(date, '%Y-%m-%d')
 
         resp = requests.get(
-            f"http://nav_client/getFlatTableSimple/{car},{dt.year},{dt.month},{dt.day}").json()
+            f"http://nav_client:8080/getFlatTableSimple/{car},{dt.year},{dt.month},{dt.day}").json()
 
         lat_b = []
         lon_b = []
@@ -103,7 +103,7 @@ def init_graph(vl, date, car):
             ))
 
     if "borders" in vl:
-        resp = requests.get("http://nav_client/getAllGeoZones").json()
+        resp = requests.get("http://nav_client:8080/getAllGeoZones").json()
         lat_a = []
         lon_a = []
         name_a = []

@@ -5,7 +5,7 @@ import requests
 
 
 def get_options():
-    resp = requests.get("http://nav_client/getAllDevices").json()
+    resp = requests.get("http://nav_client:8080/getAllDevices").json()
     res = []
     for x in resp:
         y = x['__values__']
