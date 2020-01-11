@@ -90,11 +90,17 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(
             'getFlatTableSimple - SOAP - SUCCESS'))
 
-        rows = [FlatTableRow.objects.create(
-            sync_date=sync_date,
-            utc=str(x.utc),
-            values=str(x.values[0]['pointValue'])
-        ) for x in res.rows]
+        rows = []
+        for row in res.rows:
+            point_value = Point.objects.create(
+                sync_date=sync_date,
+                lat=row.values[0]['pointValue'].lat,
+                lon=row.values[0]['pointValue'].lon)
+            tmp = FlatTableRow.objects.create(
+                sync_date=sync_date,
+                utc=str(row.utc),
+                point_value=point_value)
+            rows.append(tmp)
 
         tmp = FlatTable.objects.create(
             sync_date=sync_date,

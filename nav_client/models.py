@@ -204,10 +204,10 @@ class FlatTableRow(models.Model):
                            blank=True,
                            null=True)
 
-    values = models.CharField("values",
-                              max_length=150,
-                              blank=True,
-                              null=True)
+    point_value = models.ForeignKey(Point,
+                                    on_delete=models.CASCADE,
+                                    verbose_name="точка",
+                                    related_name="flattablerows",)
 
     class Meta(object):
         verbose_name = "FlatTableRow"
