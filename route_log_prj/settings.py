@@ -102,5 +102,9 @@ USE_L10N = True
 
 USE_TZ = True
 
+NAV_HOST = env.str('SOAP_WSDL')
+NAV_USER = env.str('SOAP_USER')
+NAV_PASS = env.str('SOAP_PASS')
+
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
