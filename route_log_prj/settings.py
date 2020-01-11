@@ -1,14 +1,18 @@
 import os
+import environ
+
+env = environ.Env()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = '(pt#3^)gwk)!7t@*=6132#k8zl(cj4$1x%7n!jcmd#821^8evr'
+SECRET_KEY = env.str('SECRET_KEY',
+                     '(pt#3^)gwk)!7t@*=6132#k8zl(cj4$1x%7n!jcmd#821^8evr')
 
-DEBUG = True
+DEBUG = env.bool('DEBUG', True)
 
 ALLOWED_HOSTS = ["*"]
 
-INSTALLED_APPS = [
+DJANGO_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -16,6 +20,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
+
+THIRD_PARTY_APPS = []
+
+LOCAL_APPS = []
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -84,3 +94,4 @@ USE_L10N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')

@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 django = "==2.2.9"
+django-environ = "==0.4.5"
 
 [dev-packages]
 autopep8 = "*"
