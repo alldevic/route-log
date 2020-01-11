@@ -2,7 +2,7 @@ FROM alpine:3.11.2 AS build
 ARG DEBUG
 ENV PYTHONUNBUFFERED 1
 RUN mkdir -p /app
-RUN apk add --no-cache python3 postgresql-libs jpeg zlib
+RUN apk add --no-cache python3 postgresql-libs jpeg zlib py3-lxml
 RUN if [ ! -e /usr/bin/python ]; then ln -sf python3 /usr/bin/python ; fi
 RUN apk add --no-cache --virtual .build-deps python3-dev gcc musl-dev postgresql-dev jpeg-dev zlib-dev libffi-dev
 RUN pip3 install --disable-pip-version-check --no-cache-dir pipenv
@@ -24,11 +24,17 @@ RUN if [[ "$DEBUG" == "TRUE" ]] || [[ "$DEBUG" == "True" ]] || [[ "$DEBUG" == "1
     /etc/apk/ /usr/share/apk/ /lib/apk/ /sbin/apk \
     /media /usr/lib/terminfo /usr/share/terminfo \
     /usr/lib/python*/ensurepip \
-    /usr/lib/python*/turtledemo /usr/lib/python*/turtle.py /usr/lib/python*/__pycache__/turtle.*  && \
+    /usr/lib/python*/turtledemo /usr/lib/python*/turtle.py /usr/lib/python*/__pycache__/turtle.* \
+    /var/cache/apk \
+    /var/lib/apk && \
     if [[ "$DEBUG" != "TRUE" ]] && [[ "$DEBUG" != "True" ]] && [[ "$DEBUG" != "1" ]]; then \
     find /usr/lib/python*/* | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf; \
     python3 -m compileall -b /usr/lib/python*; \
     find /usr/lib/python*/* -name "*.py"|xargs rm -rf; \
+    find /usr/lib/python*/* -name '*.c' -delete; \
+    find /usr/lib/python*/* -name '*.pxd' -delete; \
+    find /usr/lib/python*/* -name '*.pyd' -delete; \
+    find /usr/lib/python*/* -name '__pycache__' | xargs rm -r; \
     fi && \
     find /usr/lib/python*/site-packages/django/conf/locale ! -name __pycache__ ! -name __init__.py ! -name ru ! -name en -mindepth 1 -maxdepth 1  -type d -print0 | xargs -0 rm -rf && \
     find /usr/lib/python*/site-packages/django/contrib/admin/locale ! -name ru ! -name en* -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 rm -rf && \
