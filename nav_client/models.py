@@ -76,8 +76,164 @@ class Device(models.Model):
                               null=True)
 
     class Meta(object):
+        verbose_name = "машина"
+        verbose_name_plural = "машины"
+
+    def __str__(self):
+        return self.name
+
+
+class Driver(models.Model):
+    sync_date = models.ForeignKey(SyncDate,
+                                  on_delete=models.CASCADE,
+                                  verbose_name="дата синхронизации",
+                                  related_name="drivers",)
+
+    fname = models.CharField("fname",
+                             max_length=150,
+                             blank=True,
+                             null=True)
+
+    mname = models.CharField("mname",
+                             max_length=150,
+                             blank=True,
+                             null=True)
+
+    lname = models.CharField("lname",
+                             max_length=150,
+                             blank=True,
+                             null=True)
+
+    licence_nr = models.CharField("licenceNr",
+                                  max_length=150,
+                                  blank=True,
+                                  null=True)
+
+    phone = models.CharField("phone",
+                             max_length=150,
+                             blank=True,
+                             null=True)
+
+    category = models.CharField("category",
+                                max_length=150,
+                                blank=True,
+                                null=True)
+
+    internal_nr = models.CharField("internalNr",
+                                   max_length=150,
+                                   blank=True,
+                                   null=True)
+
+    driver_cat = models.CharField("driverCat",
+                                  max_length=150,
+                                  blank=True,
+                                  null=True)
+
+    nav_id = models.CharField("id",
+                              max_length=150,
+                              blank=True,
+                              null=True)
+
+    class Meta(object):
         verbose_name = "водитель"
         verbose_name_plural = "водители"
 
     def __str__(self):
+        return f"{self.lname} {self.fname} {self.mname}"
+
+
+class Point(models.Model):
+    sync_date = models.ForeignKey(SyncDate,
+                                  on_delete=models.CASCADE,
+                                  verbose_name="дата синхронизации",
+                                  related_name="points",)
+
+    lon = models.CharField("lon",
+                           max_length=20,
+                           blank=True,
+                           null=True)
+
+    lat = models.CharField("lat",
+                           max_length=20,
+                           blank=True,
+                           null=True)
+
+    class Meta(object):
+        verbose_name = "точка"
+        verbose_name_plural = "точки"
+
+    def __str__(self):
+        return f"{self.lat} {self.lon}"
+
+
+class GeoZone(models.Model):
+    sync_date = models.ForeignKey(SyncDate,
+                                  on_delete=models.CASCADE,
+                                  verbose_name="дата синхронизации",
+                                  related_name="geozones",)
+
+    name = models.CharField("name",
+                            max_length=150,
+                            blank=True,
+                            null=True)
+
+    points = models.ManyToManyField(Point,
+                                    verbose_name="Точки")
+
+    nav_id = models.CharField("id",
+                              max_length=150,
+                              blank=True,
+                              null=True)
+
+    class Meta(object):
+        verbose_name = "геозона"
+        verbose_name_plural = "геозоны"
+
+    def __str__(self):
         return self.name
+
+
+class FlatTableRow(models.Model):
+    sync_date = models.ForeignKey(SyncDate,
+                                  on_delete=models.CASCADE,
+                                  verbose_name="дата синхронизации",
+                                  related_name="flattablerows",)
+
+    utc = models.CharField("utc",
+                           max_length=150,
+                           blank=True,
+                           null=True)
+
+    values = models.CharField("values",
+                              max_length=150,
+                              blank=True,
+                              null=True)
+
+    class Meta(object):
+        verbose_name = "FlatTableRow"
+        verbose_name_plural = "FlatTableRows"
+
+    def __str__(self):
+        return self.utc
+
+
+class FlatTable(models.Model):
+    sync_date = models.ForeignKey(SyncDate,
+                                  on_delete=models.CASCADE,
+                                  verbose_name="дата синхронизации",
+                                  related_name="flattables",)
+
+    ts = models.CharField("ts",
+                          max_length=150,
+                          blank=True,
+                          null=True)
+
+    rows = models.ManyToManyField(FlatTableRow,
+                                  verbose_name="FlatTableRows")
+
+    class Meta(object):
+        verbose_name = "FlatTable"
+        verbose_name_plural = "FlatTables"
+
+    def __str__(self):
+        return self.ts
