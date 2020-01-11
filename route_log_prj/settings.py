@@ -23,7 +23,9 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = []
 
-LOCAL_APPS = []
+LOCAL_APPS = [
+    'user_profile.apps.UserProfileConfig'
+]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -67,6 +69,8 @@ DATABASES = {
         'PORT': 5432
     }
 }
+
+AUTH_USER_MODEL = 'user_profile.UserProfile'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
