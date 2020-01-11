@@ -21,7 +21,9 @@ DJANGO_APPS = [
     'django.contrib.staticfiles',
 ]
 
-THIRD_PARTY_APPS = []
+THIRD_PARTY_APPS = [
+    'import_export',
+]
 
 LOCAL_APPS = [
     'user_profile.apps.UserProfileConfig',
