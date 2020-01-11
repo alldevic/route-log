@@ -1,8 +1,8 @@
 version: "3.4"
 
 services:
-  route_log:
-    container_name: route_log
+  django:
+    container_name: django
     env_file: .env
     user: ${CURRENT_UID}
     build:
@@ -20,9 +20,23 @@ services:
     networks:
       private_network:
 
+  postgres:
+    container_name: postgres
+    env_file: .env
+    image: postgres:11-alpine
+    restart: on-failure
+    volumes:
+      - route_log_db_data:/var/lib/postgresql/data
+    networks:
+      private_network:
+
 networks:
   private_network:
     ipam:
       driver: default
       config:
         - subnet: 172.30.0.0/16
+
+volumes:
+  route_log_db_data:
+    external: True
