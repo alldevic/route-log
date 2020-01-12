@@ -23,6 +23,7 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     'import_export',
+    'django_q',
 ]
 
 LOCAL_APPS = [
@@ -110,3 +111,13 @@ NAV_PASS = env.str('SOAP_PASS')
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+Q_CLUSTER = {
+    'name': 'DjangORM',
+    'workers': 4,
+    'timeout': 90,
+    'retry': 120,
+    'queue_limit': 50,
+    'bulk': 10,
+    'orm': 'default'
+}
