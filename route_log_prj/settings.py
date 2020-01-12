@@ -24,6 +24,7 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     'import_export',
     'django_q',
+    'django_sb_admin'
 ]
 
 LOCAL_APPS = [
