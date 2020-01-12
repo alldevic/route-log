@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "==2.2.9"
+django-environ = "==0.4.5"
+psycopg2-binary = "==2.8.4"
+zeep = "==3.4.0"
+django-import-export = "==2.0.0"
+django-q = "==1.0.2"
+django-sb-admin = "==5.5.1.1"
+
+[dev-packages]
+autopep8 = "*"
+flake8 = "*"
+rope = "*"
+
+[requires]
+python_version = "3.7"
