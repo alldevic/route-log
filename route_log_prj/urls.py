@@ -11,5 +11,7 @@ admin.site.index_title = "Маршрутный журнал"
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('sb/', include('django_sb_admin.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('', include('route_log.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) \
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
