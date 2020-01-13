@@ -125,3 +125,6 @@ Q_CLUSTER = {
     'bulk': 10,
     'orm': 'default'
 }
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
