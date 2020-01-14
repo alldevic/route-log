@@ -33,8 +33,8 @@ echo >&2 "Postgres is up - continuing..."
 echo >&2 "Migrating..."
 python3 manage.py migrate
 
-echo >&2 "Load fixtures..."
-python3 manage.py loaddata ./fixtures/q-tasks.json
+# echo >&2 "Load fixtures..."
+# python3 manage.py loaddata ./fixtures/q-tasks.json
 
 echo >&2 "Collect static..."
 python3 manage.py collectstatic --noinput

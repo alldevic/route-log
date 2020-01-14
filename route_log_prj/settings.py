@@ -19,12 +19,14 @@ DJANGO_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
 ]
 
 THIRD_PARTY_APPS = [
     'import_export',
     'django_q',
-    'django_sb_admin'
+    'django_sb_admin',
+    'leaflet',
 ]
 
 LOCAL_APPS = [
@@ -67,7 +69,7 @@ WSGI_APPLICATION = 'route_log_prj.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': env.str('POSTGRES_DB', 'postgres_db'),
         'USER': env.str('POSTGRES_USER', 'postgresuser'),
         'PASSWORD': env.str('POSTGRES_PASSWORD', 'mysecretpass'),
