@@ -111,3 +111,5 @@ profiles/*
 static/*
 
 !.gitkeep
+
+fixtures/navmtid.json

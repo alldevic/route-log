@@ -2,7 +2,7 @@ from django.contrib import admin
 from import_export.admin import ImportExportActionModelAdmin
 
 from .models import SyncDate, Device, Driver, Point, GeoZone, \
-    FlatTableRow, FlatTable
+    FlatTableRow, FlatTable, NavMtId
 
 
 @admin.register(Device)
@@ -46,3 +46,9 @@ class FlatTableAdmin(ImportExportActionModelAdmin):
     list_display = ('ts', 'sync_date')
     list_filter = ('sync_date',)
     filter_horizontal = ("rows",)
+
+
+@admin.register(NavMtId)
+class NavMtIdAdmin(ImportExportActionModelAdmin):
+    list_display = ('name', 'sync_date')
+    list_filter = ('sync_date',)
