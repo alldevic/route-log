@@ -12,7 +12,7 @@ class ContanerUnloadsListView(generics.ListAPIView):
     """
     queryset = ContainerUnloadFact.objects.all()
     serializer_class = ContainerUnloadFactSerializer
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
 
 
 class ReportsViewSet(
@@ -23,11 +23,11 @@ class ReportsViewSet(
 ):
     queryset = Report.objects.all()
     serializer_class = ReportSerializer
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
 
 
 class ExportReportView(views.APIView):
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
 
     def get(self):
         """
