@@ -11,6 +11,7 @@ zeep = "==3.4.0"
 django-import-export = "==2.0.0"
 django-q = "==1.0.2"
 django-sb-admin = "==5.5.1.1"
+django-leaflet = "==0.26.0"
 
 [dev-packages]
 autopep8 = "*"

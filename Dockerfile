@@ -2,7 +2,7 @@ FROM alpine:3.11.2 AS build
 ARG DEBUG
 ENV PYTHONUNBUFFERED 1
 RUN mkdir -p /app
-RUN apk add --no-cache python3 postgresql-libs jpeg zlib py3-lxml
+RUN apk add --no-cache python3 postgresql-libs jpeg zlib py3-lxml gdal
 RUN if [ ! -e /usr/bin/python ]; then ln -sf python3 /usr/bin/python ; fi
 RUN apk add --no-cache --virtual .build-deps python3-dev gcc musl-dev postgresql-dev jpeg-dev zlib-dev libffi-dev
 RUN pip3 install --disable-pip-version-check --no-cache-dir pipenv

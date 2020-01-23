@@ -237,3 +237,28 @@ class FlatTable(models.Model):
 
     def __str__(self):
         return self.ts
+
+
+class NavMtId(models.Model):
+    sync_date = models.ForeignKey(SyncDate,
+                                  on_delete=models.CASCADE,
+                                  verbose_name="дата синхронизации",
+                                  related_name="navmtids",)
+
+    name = models.CharField("name",
+                            max_length=150,
+                            blank=True,
+                            null=True)
+
+    nav_id = models.IntegerField("nav_id")
+
+    mt_id = models.IntegerField("mt_id",
+                                blank=True,
+                                null=True)
+
+    class Meta(object):
+        verbose_name = "площадка МТ"
+        verbose_name_plural = "площадки МТ"
+
+    def __str__(self):
+        return self.name

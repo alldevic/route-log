@@ -19,12 +19,14 @@ DJANGO_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
 ]
 
 THIRD_PARTY_APPS = [
     'import_export',
     'django_q',
-    'django_sb_admin'
+    'django_sb_admin',
+    'leaflet',
 ]
 
 LOCAL_APPS = [
@@ -50,7 +52,7 @@ ROOT_URLCONF = 'route_log_prj.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -67,7 +69,7 @@ WSGI_APPLICATION = 'route_log_prj.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': env.str('POSTGRES_DB', 'postgres_db'),
         'USER': env.str('POSTGRES_USER', 'postgresuser'),
         'PASSWORD': env.str('POSTGRES_PASSWORD', 'mysecretpass'),
@@ -114,6 +116,9 @@ NAV_PASS = env.str('SOAP_PASS')
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 Q_CLUSTER = {
     'name': 'DjangORM',
     'workers': 4,
@@ -122,3 +127,6 @@ Q_CLUSTER = {
     'bulk': 10,
     'orm': 'default'
 }
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
