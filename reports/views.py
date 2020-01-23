@@ -27,10 +27,14 @@ class ReportsViewSet(
 
 
 class ExportReportView(views.APIView):
+    """
+    Экспорт отчета в виде файла
+    Id - идентификатор отчета
+    """
     permission_classes = (IsAuthenticated,)
 
-    def get(self):
+    def get(self, request, id, *args, **kwargs):
         """
         TODO: Включить логику формирования документа по ContainerUnloadFact
         """
-        return Response()
+        return Response(data={'id': id})
