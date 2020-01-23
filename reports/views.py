@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from reports.models import ContainerUnloadFact, Report
 from reports.serializers import ContainerUnloadFactSerializer, ReportSerializer, GenerateReportSerializer
+from reports.filter import ContainerUnloadFactFilter
 
 
 class ContanerUnloadsListView(generics.ListAPIView):
@@ -12,6 +13,7 @@ class ContanerUnloadsListView(generics.ListAPIView):
     """
     queryset = ContainerUnloadFact.objects.all()
     serializer_class = ContainerUnloadFactSerializer
+    filterset_class = ContainerUnloadFactFilter
     permission_classes = (IsAuthenticated,)
 
 

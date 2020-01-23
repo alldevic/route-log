@@ -18,6 +18,7 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('', include('route_log.urls')),
     path('reports/', include('reports.urls')),
+    path('nav-client/', include('nav_client.urls')),
     path('auth/', include('djoser.urls.authtoken')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) \
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
