@@ -5,11 +5,15 @@ from reports.models import Report, ContainerUnloadFact
 
 
 class ReportSerializer(serializers.ModelSerializer):
+    device = DeviceSerializer(many=False)
+
     class Meta:
         model = Report
         fields = (
             'id',
             'created_at',
+            'device',
+            'date',
         )
 
     def create(self, validated_data):
@@ -21,14 +25,12 @@ class ReportSerializer(serializers.ModelSerializer):
 
 class ContainerUnloadFactSerializer(serializers.ModelSerializer):
     track_points = PointSerializer(many=True)
-    device = DeviceSerializer(many=False)
     geozone = GeozoneSerializer(many=False)
 
     class Meta:
         model = ContainerUnloadFact
         fields = (
             'id',
-            'device',
             'geozone',
             'track_points',
             'datetime_entry',
