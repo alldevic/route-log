@@ -27,12 +27,18 @@ THIRD_PARTY_APPS = [
     'django_q',
     'django_sb_admin',
     'leaflet',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'drf_yasg',
+    'djoser',
+    'corsheaders',
 ]
 
 LOCAL_APPS = [
     'user_profile.apps.UserProfileConfig',
     'nav_client',
     'route_log',
+    'reports',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -40,6 +46,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -109,9 +116,9 @@ USE_L10N = True
 
 USE_TZ = True
 
-NAV_HOST = env.str('SOAP_WSDL')
-NAV_USER = env.str('SOAP_USER')
-NAV_PASS = env.str('SOAP_PASS')
+NAV_HOST = env.str('SOAP_WSDL', 'http://test/test?wsdl')
+NAV_USER = env.str('SOAP_USER', 'username')
+NAV_PASS = env.str('SOAP_PASS', 'pass')
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
@@ -130,3 +137,25 @@ Q_CLUSTER = {
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 30,
+}
+
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': False,
+    'DEFAULT_AUTO_SCHEMA_CLASS': 'drf_yasg.inspectors.SwaggerAutoSchema',
+    'SECURITY_DEFINITIONS': {
+        'Token': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    },
+}
+
+CORS_ORIGIN_ALLOW_ALL = True
