@@ -111,3 +111,4 @@ profiles/*
 static/*
 
 !.gitkeep
+.idea/
