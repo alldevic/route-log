@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from reports.models import ContainerUnloadFact, Report
-from reports.serializers import ContainerUnloadFactSerializer, ReportSerializer
+from reports.serializers import ContainerUnloadFactSerializer, ReportSerializer, GenerateReportSerializer
 
 
 class ContanerUnloadsListView(generics.ListAPIView):
@@ -23,6 +23,11 @@ class ReportsViewSet(
 ):
     queryset = Report.objects.all()
     serializer_class = ReportSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class GenerateReportView(generics.CreateAPIView):
+    serializer_class = GenerateReportSerializer
     permission_classes = (IsAuthenticated,)
 
 

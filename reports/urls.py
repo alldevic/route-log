@@ -10,5 +10,6 @@ router.register(r'', views.ReportsViewSet)
 urlpatterns = [
     path('container-unloads/', views.ContanerUnloadsListView.as_view()),
     path('export-report/<int:id>/', views.ExportReportView.as_view()),
+    path('make-report/', views.GenerateReportView.as_view()),
     path('', include(router.urls)),
 ]
