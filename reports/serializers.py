@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from nav_client.serializers import ArrayPointSerializer, DeviceSerializer, GeozoneSerializer
+from nav_client.serializers import DeviceSerializer, GeozoneSerializer, PointSerializer
 
 from reports.models import Report, ContainerUnloadFact, Device
 
@@ -51,7 +51,7 @@ class GenerateReportSerializer(serializers.ModelSerializer):
 
 
 class ContainerUnloadFactSerializer(serializers.ModelSerializer):
-    track_points = ArrayPointSerializer(many=True, read_only=True)
+    track_points = PointSerializer(many=True, read_only=True)
     geozone = GeozoneSerializer(many=False, read_only=True)
 
     class Meta:

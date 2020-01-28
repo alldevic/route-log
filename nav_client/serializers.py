@@ -21,7 +21,7 @@ class PointSerializer(serializers.ModelSerializer):
 
 
 class GeozoneSerializer(serializers.ModelSerializer):
-    points = PointSerializer(many=True)
+    points = ArrayPointSerializer(queryset=Point.objects.all(), many=True)
 
     class Meta:
         model = GeoZone
