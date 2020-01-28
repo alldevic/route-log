@@ -1,4 +1,4 @@
-name: CI
+name: clrn stage CI
 
 on:
   push:
@@ -6,9 +6,18 @@ on:
       - develop
   
 jobs:
-  build:
+  deploy:
     runs-on: self-hosted
     steps:
     - uses: actions/checkout@v2
+    - name: Create .env
+      run: cp /opt/containers/route-log/.env ./.env
+    - name: Create volumes
+      run: |
+        docker volume create route_log_db_data
+    - name: Fix docker-compose.yml
+      run: |
+        rm ./docker-compose.yml
+        cp /opt/containers/route-log/docker-compose.yml ./docker-compose.yml
     - name: Make upb
       run: make upb
