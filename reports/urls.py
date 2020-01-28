@@ -5,10 +5,10 @@ from reports import views
 
 
 router = DefaultRouter()
-router.register(r'', views.ReportsViewSet)
+router.register(r'reports-set', views.ReportsViewSet)
+router.register(r'unloads-set', views.ContanerUnloadsListView)
 
 urlpatterns = [
-    path('container-unloads/', views.ContanerUnloadsListView.as_view()),
     path('export-report/<int:id>/', views.ExportReportView.as_view()),
     path('make-report/', views.GenerateReportView.as_view()),
     path('', include(router.urls)),

@@ -7,7 +7,7 @@ from reports.serializers import ContainerUnloadFactSerializer, ReportSerializer,
 from reports.filter import ContainerUnloadFactFilter
 
 
-class ContanerUnloadsListView(generics.ListAPIView):
+class ContanerUnloadsListView(viewsets.ModelViewSet):
     """
     Список фактов отгрузки
     """
