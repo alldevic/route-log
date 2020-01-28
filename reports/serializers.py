@@ -58,6 +58,7 @@ class ContainerUnloadFactSerializer(serializers.ModelSerializer):
         model = ContainerUnloadFact
         fields = (
             'id',
+            'report',
             'geozone',
             'track_points',
             'datetime_entry',
