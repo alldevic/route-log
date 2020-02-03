@@ -129,8 +129,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 Q_CLUSTER = {
     'name': 'DjangORM',
-    'workers': 4,
-    'retry': 1500,
+    'workers': 2,
+    'retry': 3600,
+    'timeout': 3000,
     'queue_limit': 50,
     'bulk': 10,
     'orm': 'default'
