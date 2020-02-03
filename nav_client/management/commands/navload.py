@@ -112,24 +112,27 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--entity', type=str)
 
+    #  TODO: add custom periods, now 1 sync in 24 hours
     def handle(self, *args, **options):
-        sync_date = SyncDate.objects.create()
-        # if options['entity']:
-        #     self.stdout.write(
-        #         self.style.SUCCESS(f'Hello {options["entity"]}'))
-        # else:
-        #     # self.stdout.write(
-        #     #     self.style.SUCCESS('Hello all!'))
-        self.getAllDevices(sync_date)
-        self.stdout.write(self.style.SUCCESS('getAllDevices - SUCCESS'))
-        self.getAllDrivers(sync_date)
-        self.stdout.write(self.style.SUCCESS('getAllDrivers - SUCCESS'))
-        self.getAllGeoZones(sync_date)
-        self.stdout.write(self.style.SUCCESS('getAllGeoZones - SUCCESS'))
-        for device in Device.objects.filter(sync_date=sync_date):
-            self.getFlatTableSimple(sync_date,
-                                    device.nav_id,
-                                    datetime.datetime.now())
-            self.stdout.write(
-                self.style.SUCCESS(
-                    f'getFlatTableSimple - {device.nav_id} - SUCCESS'))
+        sync_date = SyncDate.objects.last()
+
+        if sync_date is None or \
+           sync_date.datetime.year != datetime.datetime.now().year or \
+           sync_date.datetime.month != datetime.datetime.now().month or \
+           sync_date.datetime.day != datetime.datetime.now().day:
+            sync_date = SyncDate.objects.create()
+            self.getAllDevices(sync_date)
+            self.stdout.write(self.style.SUCCESS('getAllDevices - SUCCESS'))
+            self.getAllDrivers(sync_date)
+            self.stdout.write(self.style.SUCCESS('getAllDrivers - SUCCESS'))
+            self.getAllGeoZones(sync_date)
+            self.stdout.write(self.style.SUCCESS('getAllGeoZones - SUCCESS'))
+            for device in Device.objects.filter(sync_date=sync_date):
+                self.getFlatTableSimple(sync_date,
+                                        device.nav_id,
+                                        datetime.datetime.now())
+                self.stdout.write(
+                    self.style.SUCCESS(
+                        f'getFlatTableSimple - {device.nav_id} - SUCCESS'))
+        else:
+            self.stdout.write(self.style.SUCCESS('Sync already done!'))
