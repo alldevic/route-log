@@ -84,19 +84,19 @@ class Command(BaseCommand):
         dt0 = dt - datetime.timedelta(days=1)
         dt0month_str = dt0.month
         if dt0.month < 10:
-            dt0month_str = '0' + dt0month_str
+            dt0month_str = '0' + str(dt0month_str)
 
         dt0day_str = dt0.day
         if dt0.day < 10:
-            dt0day_str = '0' + dt0day_str
+            dt0day_str = '0' + str(dt0day_str)
 
         dtmonth_str = dt.month
         if dt.month < 10:
-            dtmonth_str = '0' + dtmonth_str
+            dtmonth_str = '0' + str(dtmonth_str)
 
         dtday_str = dt.day
         if dt.day < 10:
-            dtday_str = '0' + dtday_str
+            dtday_str = '0' + str(dtday_str)
 
         date_from = f"{dt0.year}-{dt0month_str}-{dt0day_str}T16:00:00"
         date_to = f"{dt.year}-{dt.month}-{dt.day}T16:59:59"
