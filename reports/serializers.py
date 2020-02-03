@@ -1,8 +1,11 @@
 from rest_framework import serializers
 
-from nav_client.serializers import DeviceSerializer, GeozoneSerializer, PointSerializer
+from nav_client.serializers import DeviceSerializer,  \
+    GeozoneSerializer, PointSerializer
 
-from reports.models import Report, ContainerUnloadFact, Device
+from reports.models import Report, ContainerUnloadFact
+
+from nav_client.models import Device, SyncDate
 
 
 class ReportSerializer(serializers.ModelSerializer):
@@ -27,7 +30,9 @@ class GenerateReportSerializer(serializers.ModelSerializer):
         (REQUESTS, 'Заявки'),
     )
 
-    device = serializers.PrimaryKeyRelatedField(queryset=Device.objects.all())
+    device = serializers.PrimaryKeyRelatedField(
+        queryset=Device.objects.filter(
+            sync_date=SyncDate.objects.last()))
     date = serializers.DateField()
     file = serializers.FileField(write_only=True)
     file_type = serializers.ChoiceField(choices=FILE_TYPES, write_only=True)
@@ -47,7 +52,8 @@ class GenerateReportSerializer(serializers.ModelSerializer):
         """
         TODO: Включить логику формирования отчета
         """
-        return Report.objects.create(date=validated_data['date'], device=validated_data['device'])
+        return Report.objects.create(date=validated_data['date'],
+                                     device=validated_data['device'])
 
 
 class ContainerUnloadFactSerializer(serializers.ModelSerializer):

@@ -99,7 +99,7 @@ class Command(BaseCommand):
             dtday_str = '0' + str(dtday_str)
 
         date_from = f"{dt0.year}-{dt0month_str}-{dt0day_str}T16:00:00"
-        date_to = f"{dt.year}-{dt.month}-{dt.day}T16:59:59"
+        date_to = f"{dt.year}-{dtmonth_str}-{dtday_str}T16:59:59"
 
         res = self.client.service.getFlatTableSimple(device_id,
                                                      date_from, date_to,

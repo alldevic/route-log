@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from nav_client.models import Point, GeoZone, Device
+from nav_client.models import Point, GeoZone, Device, SyncDate
 
 
 class ArrayPointSerializer(serializers.RelatedField):
@@ -21,7 +21,9 @@ class PointSerializer(serializers.ModelSerializer):
 
 
 class GeozoneSerializer(serializers.ModelSerializer):
-    points = ArrayPointSerializer(queryset=Point.objects.all(), many=True)
+    points = ArrayPointSerializer(queryset=Point.objects.filter(
+        sync_date=SyncDate.objects.last()),
+        many=True)
 
     class Meta:
         model = GeoZone
