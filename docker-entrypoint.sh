@@ -48,6 +48,7 @@ else
         -k egg:meinheld#gunicorn_worker \
         --name route_log_prj \
         --bind 0.0.0.0:8000 \
+        --access-logfile - \
         --workers 3 \
         "$@"
 fi
