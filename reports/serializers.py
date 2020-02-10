@@ -1,11 +1,13 @@
+from datetime import datetime
+
 from rest_framework import serializers
 
-from nav_client.serializers import DeviceSerializer,  \
-    GeozoneSerializer, PointSerializer
+from nav_client.models import Device, GeoZone, SyncDate
+from nav_client.serializers import (DeviceSerializer, GeozoneSerializer,
+                                    PointSerializer)
+from reports.models import ContainerUnloadFact, Report
 
-from reports.models import Report, ContainerUnloadFact
-
-from nav_client.models import Device, SyncDate
+from . import attachment_parser
 
 
 class ReportSerializer(serializers.ModelSerializer):
@@ -22,20 +24,12 @@ class ReportSerializer(serializers.ModelSerializer):
 
 
 class GenerateReportSerializer(serializers.ModelSerializer):
-    P2_DOCUMENT = 0
-    REQUESTS = 1
-
-    FILE_TYPES = (
-        (P2_DOCUMENT, 'Приложение №2'),
-        (REQUESTS, 'Заявки'),
-    )
-
     device = serializers.PrimaryKeyRelatedField(
         queryset=Device.objects.filter(
             sync_date=SyncDate.objects.last()))
     date = serializers.DateField()
-    file = serializers.FileField(write_only=True)
-    file_type = serializers.ChoiceField(choices=FILE_TYPES, write_only=True)
+    attachment = serializers.FileField(write_only=True, required=False)
+    application = serializers.FileField(write_only=True, required=False)
 
     class Meta:
         model = Report
@@ -44,16 +38,41 @@ class GenerateReportSerializer(serializers.ModelSerializer):
             'created_at',
             'device',
             'date',
-            'file',
-            'file_type',
+            'attachment',
+            'application'
         )
 
     def create(self, validated_data):
-        """
-        TODO: Включить логику формирования отчета
-        """
-        return Report.objects.create(date=validated_data['date'],
-                                     device=validated_data['device'])
+        report = Report.objects.create(date=validated_data['date'],
+                                       device=Device.objects.filter(
+                                           nav_id=validated_data['device'])
+                                       .last()
+                                       )
+
+        attachment = validated_data.get('attachment', None)
+        if attachment:
+            for row in attachment_parser.parse(attachment):
+                geozone = GeoZone.objects.filter(
+                    sync_date=SyncDate.objects.last(),
+                    nav_id=row["geozone"]).first()
+
+                ContainerUnloadFact.objects.create(report=report,
+                                                   geozone=GeoZone.objects.get(
+                                                       pk=80915),
+                                                   datetime_entry=datetime.now(),
+                                                   datetime_exit=datetime.now(),
+                                                   is_unloaded=True,
+                                                   value=row["value"],
+                                                   container_type=row["ct_type"],
+                                                   directory="geozone",
+                                                   count=row["count"])
+                print('created')
+
+        application = validated_data.get('application', None)
+        if application:
+            print('Application')
+
+        return report
 
 
 class ContainerUnloadFactSerializer(serializers.ModelSerializer):

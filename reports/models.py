@@ -8,7 +8,8 @@ class Report(models.Model):
     """
     created_at = models.DateTimeField(auto_now_add=True)
     name = models.CharField('Наименование', max_length=500, default='Отчет')
-    device = models.ForeignKey(Device, verbose_name='Транспорт', on_delete=models.SET_NULL, null=True)
+    device = models.ForeignKey(
+        Device, verbose_name='Транспорт', on_delete=models.SET_NULL, null=True)
     date = models.DateField('Дата')
 
     def __str__(self):
@@ -23,8 +24,10 @@ class ContainerUnloadFact(models.Model):
     """
     Факт отгрузки контейнера
     """
-    report = models.ForeignKey(Report, verbose_name='Отчет', on_delete=models.CASCADE)
-    geozone = models.ForeignKey(GeoZone, verbose_name='Платформа', on_delete=models.SET_NULL, null=True)
+    report = models.ForeignKey(
+        Report, verbose_name='Отчет', on_delete=models.CASCADE)
+    geozone = models.ForeignKey(
+        GeoZone, verbose_name='Платформа', on_delete=models.SET_NULL, null=True)
     track_points = models.ManyToManyField(Point, verbose_name='Точки маршрута')
 
     datetime_entry = models.DateTimeField('Время въезда')
@@ -36,7 +39,7 @@ class ContainerUnloadFact(models.Model):
     count = models.IntegerField('Количество отгрузок')
 
     def __str__(self):
-        return str(self.geozone.name)
+        return str(self.geozone)
 
     class Meta:
         verbose_name = 'Факт отгрузки'

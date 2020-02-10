@@ -10,3 +10,8 @@ class ContainerUnloadInline(admin.StackedInline):
 @admin.register(Report)
 class ReportsAdmin(admin.ModelAdmin):
     inlines = [ContainerUnloadInline]
+
+
+@admin.register(ContainerUnloadFact)
+class ContainerUnloadFactAdmin(admin.ModelAdmin):
+    pass
