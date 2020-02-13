@@ -1,0 +1,24 @@
+{
+  "cars": [
+    {
+      "id": 0,
+      "name": "A401СС"
+    },
+    {
+      "id": 1,
+      "name": "C123VV"
+    },
+    {
+      "id": 2,
+      "name": "G634TT"
+    }
+  ],
+  "reports": [
+    {
+      "id": 0,
+      "date": "01-23-2020",
+      "fileType": "attachment",
+      "car": 0
+    }
+  ]
+}

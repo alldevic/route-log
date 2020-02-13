@@ -1,0 +1,163 @@
+{
+  "platforms": {
+    "items": [
+      {
+        "id": 321,
+        "address": "Россия, Кемеровская область, Новокузнецк, проспект Металлургов 19",
+        "lot": 342,
+        "status": 0,
+        "containersNumbers": 34532,
+        "volume": 300,
+        "volumeShipped": 450,
+        "coords": [53.753336, 87.116532]
+      },
+      {
+        "id": 322,
+        "address": "Россия, Кемеровская область, Мыски, ул.Советская 23",
+        "lot": 342,
+        "status": 1,
+        "containersNumbers": 34532,
+        "volume": 300,
+        "volumeShipped": 450,
+        "coords": [54.004638, 86.639320]
+      },
+      {
+        "id": 323,
+        "address": "Россия, Кемеровская область, Мыски, ул.Советская 25",
+        "lot": 342,
+        "status": 2,
+        "containersNumbers": 34532,
+        "volume": 300,
+        "volumeShipped": 450,
+        "coords": [54.004638, 86.639320]
+      },
+      {
+        "id": 324,
+        "address": "Россия, Кемеровская область, Мыски, ул.Советская 25",
+        "lot": 342,
+        "status": 2,
+        "containersNumbers": 34532,
+        "volume": 300,
+        "volumeShipped": 450,
+        "coords": [54.004638, 86.639320]
+      },
+      {
+        "id": 325,
+        "address": "Россия, Кемеровская область, Мыски, ул.Советская 25",
+        "lot": 342,
+        "status": 2,
+        "containersNumbers": 34532,
+        "volume": 300,
+        "volumeShipped": 450,
+        "coords": [54.004638, 86.639320]
+      },
+      {
+        "id": 326,
+        "address": "Россия, Кемеровская область, Мыски, ул.Советская 25",
+        "lot": 342,
+        "status": 2,
+        "containersNumbers": 34532,
+        "volume": 300,
+        "volumeShipped": 450,
+        "coords": [54.004638, 86.639320]
+      },
+      {
+        "id": 327,
+        "address": "Россия, Кемеровская область, Мыски, ул.Советская 25",
+        "lot": 342,
+        "status": 2,
+        "containersNumbers": 34532,
+        "volume": 300,
+        "volumeShipped": 450,
+        "coords": [54.004638, 86.639320]
+      },
+      {
+        "id": 328,
+        "address": "Россия, Кемеровская область, Мыски, ул.Советская 25",
+        "lot": 342,
+        "status": 2,
+        "containersNumbers": 34532,
+        "volume": 300,
+        "volumeShipped": 450,
+        "coords": [54.004638, 86.639320]
+      },
+      {
+        "id": 329,
+        "address": "Россия, Кемеровская область, Мыски, ул.Советская 25",
+        "lot": 342,
+        "status": 2,
+        "containersNumbers": 34532,
+        "volume": 300,
+        "volumeShipped": 450,
+        "coords": [54.004638, 86.639320]
+      },
+      {
+        "id": 331,
+        "address": "Россия, Кемеровская область, Мыски, ул.Советская 25",
+        "lot": 342,
+        "status": 2,
+        "containersNumbers": 34532,
+        "volume": 300,
+        "volumeShipped": 450,
+        "coords": [54.004638, 86.639320]
+      },
+      {
+        "id": 332,
+        "address": "Россия, Кемеровская область, Мыски, ул.Советская 25",
+        "lot": 342,
+        "status": 2,
+        "containersNumbers": 34532,
+        "volume": 300,
+        "volumeShipped": 450,
+        "coords": [54.004638, 86.639320]
+      },
+      {
+        "id": 333,
+        "address": "Россия, Кемеровская область, Мыски, ул.Советская 25",
+        "lot": 342,
+        "status": 2,
+        "containersNumbers": 34532,
+        "volume": 300,
+        "volumeShipped": 450,
+        "coords": [54.004638, 86.639320]
+      }
+    ]
+  },
+  "containers": {
+    "items": [
+      {
+        "id": 321,
+        "imageUrls": [
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhdKeBUWt0QnP3aFyEG_Ipieawr92eNJJq9A8R55q6OTZhdhTB&s.jpg"
+        ],
+        "basicInfo": [
+          {
+            "title": "Тип и объём (план. / факт.)",
+            "text": "Пластик 1.1 / Металл 0.6"
+          },
+          {
+            "title": "Имя массива",
+            "text": "Дворы спартака 14"
+          },
+          {
+            "title": "Имя маршрута",
+            "text": "O321AA"
+          }
+        ],
+        "shipmentInfo": [
+          {
+            "title": "Имя массива",
+            "text": "Дворы спартака 14"
+          }
+        ],
+        "dataInfo": [],
+        "schedule": [],
+        "frontQR": "",
+        "backQR": ""
+      }
+    ]
+  },
+  "routes": {
+      
+  }
+}
