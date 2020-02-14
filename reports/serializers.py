@@ -1,8 +1,8 @@
-from datetime import datetime
+from django.utils import timezone
 
 from rest_framework import serializers
 
-from nav_client.models import Device, GeoZone, SyncDate
+from nav_client.models import Device, SyncDate
 from nav_client.serializers import (DeviceSerializer, GeozoneSerializer,
                                     PointSerializer)
 from reports.models import ContainerUnloadFact, Report
@@ -52,19 +52,15 @@ class GenerateReportSerializer(serializers.ModelSerializer):
         attachment = validated_data.get('attachment', None)
         if attachment:
             for row in attachment_parser.parse(attachment):
-                geozone = GeoZone.objects.filter(
-                    sync_date=SyncDate.objects.last(),
-                    nav_id=row["geozone"]).first()
 
                 ContainerUnloadFact.objects.create(report=report,
-                                                   geozone=GeoZone.objects.get(
-                                                       pk=80915),
-                                                   datetime_entry=datetime.now(),
-                                                   datetime_exit=datetime.now(),
+                                                   geozone=row["geozone"],
+                                                   datetime_entry=timezone.now(),
+                                                   datetime_exit=timezone.now(),
                                                    is_unloaded=True,
                                                    value=row["value"],
                                                    container_type=row["ct_type"],
-                                                   directory="geozone",
+                                                   directory=row["directory"],
                                                    count=row["count"])
                 print('created')
 

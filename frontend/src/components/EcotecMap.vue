@@ -11,7 +11,7 @@
         url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"
       )
       l-polygon(
-        :latLngs="[geozone.points]"
+        :latLngs="[points]"
       )
       template(v-for="(point, index) in trackPoints")
         l-marker(
@@ -63,6 +63,7 @@ export default Vue.extend({
       coordorder: "latlong",
       version: "2.1"
     },
+    points: null as any,
     mapCoords: null as any,
     geozone: null as any,
     trackPoints: null as any
@@ -78,7 +79,9 @@ export default Vue.extend({
     item(value: any) {
       if (value) {
         this.geozone = value.geozone;
-        const [firstPoints] = value.geozone.points;
+        const points = this.geozone.points.map(item => item.reverse());
+        const [firstPoints] = points;
+        this.points = points;
         this.mapCoords = firstPoints;
         this.trackPoints = value.track_points;
       }
