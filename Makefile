@@ -14,14 +14,14 @@ upb:
 down:
 	docker-compose down
 sh:
-	docker exec -it /django /bin/sh
+	docker exec -it /rl_backend /bin/sh
 migrations:
-	docker exec -it /django python3 manage.py makemigrations
+	docker exec -it /rl_backend python3 manage.py makemigrations
 su:
-	docker exec -it /django python3 manage.py createsuperuser
+	docker exec -it /rl_backend python3 manage.py createsuperuser
 dump:
-	docker exec -it /django python3 manage.py dumpdata -o $(filter-out $@,$(MAKECMDGOALS))
+	docker exec -it /rl_backend python3 manage.py dumpdata -o $(filter-out $@,$(MAKECMDGOALS))
 load:
-	docker exec -it /django python3 manage.py loaddata $(filter-out $@,$(MAKECMDGOALS))
+	docker exec -it /rl_backend python3 manage.py loaddata $(filter-out $@,$(MAKECMDGOALS))
 %:
 	@:
