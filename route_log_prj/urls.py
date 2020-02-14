@@ -18,7 +18,7 @@ urlpatterns = [
     path('api/', include('route_log.urls')),
     path('api/reports/', include('reports.urls')),
     path('api/nav-client/', include('nav_client.urls')),
-    path('auth/', include('djoser.urls.authtoken')),
+    path('api/auth/', include('djoser.urls.authtoken')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) \
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
