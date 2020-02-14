@@ -2,7 +2,7 @@
 
 if [[ ${DEBUG} == 'TRUE' ]] || [[ ${DEBUG} == 'True' ]] || [[ ${DEBUG} == '1' ]]; then
     echo >&2 "Starting debug server..."
-    npm ci
+    npm i
     npm run serve
 else
     echo >&2 "Starting prod server..."

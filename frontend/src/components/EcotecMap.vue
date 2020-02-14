@@ -8,7 +8,7 @@
       :center="mapCoords"
     )
       l-tile-layer(
-        url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"
+        url="http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       )
       l-polygon(
         :latLngs="[points]"
@@ -79,7 +79,11 @@ export default Vue.extend({
     item(value: any) {
       if (value) {
         this.geozone = value.geozone;
-        const points = this.geozone.points.map(item => item.reverse());
+        const points = this.geozone.points.map((item: any) => [
+          item[1],
+          item[0]
+        ]);
+        console.log(points);
         const [firstPoints] = points;
         this.points = points;
         this.mapCoords = firstPoints;

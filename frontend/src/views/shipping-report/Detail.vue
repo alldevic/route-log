@@ -29,6 +29,12 @@
         span(v-if="item.is_unloaded === false") Нет
         span(v-if="item.is_unloaded === undefined")
           | Информация отсутствует
+          
+      template(v-slot:item.datetime_entry="{ item }")
+        span {{ item.datetime_entry | date }}
+
+      template(v-slot:item.datetime_exit="{ item }")
+        span {{ item.datetime_exit | date }}
 
       template(v-slot:top)
         v-toolbar(flat color="white")
@@ -183,13 +189,23 @@
                           required
                           :rules="countRules"
                         )
-
                 v-card-actions
                   v-spacer
                   v-btn(color="blue darken-1" text @click="close")
                     | Отменить
                   v-btn(color="primary" :disabled="!valid" @click="validate")
                     | Добавить
+      //- template(v-slot:body="{ items, expand, isExpanded }")
+      //-   tbody
+      //-     tr(v-for="item in items" :key="item.name" @click="expand(!isExpanded)")
+      //-       td(v-if="!isExpanded") {{ item.id }}
+      //-       td {{ item.datetime_entry | date }}
+      //-       td {{ item.datetime_exit | date }}
+      //-       td {{ item.is_unloaded }}
+      //-       td {{ item.value }}
+      //-       td {{ item.container_type }}
+      //-       td {{ item.directory }}
+      //-       td {{ item.count }}
 </template>
 
 <script lang="ts">
@@ -329,6 +345,7 @@ export default Vue.extend({
         pageNumber
       );
       this.containerUnloads = response.data.results;
+      console.log(this.containerUnloads);
       this.pageCount = response.data.count;
       this.isLoadingContainerUnloads = false;
     },

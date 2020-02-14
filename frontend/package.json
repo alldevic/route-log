@@ -22,7 +22,8 @@
     "vue-router": "^3.0.3",
     "vue2-leaflet": "^2.4.3",
     "vuetify": "^2.0.19",
-    "vuex": "^3.0.1"
+    "vuex": "^3.0.1",
+    "date-fns": "^2.9.0"
   },
   "devDependencies": {
     "@types/leaflet": "^1.5.8",
