@@ -103,6 +103,7 @@ export default Vue.extend({
 
 .map-wrapper {
   flex: 0 0 auto;
+  z-index: 1;
   position: relative;
 }
 

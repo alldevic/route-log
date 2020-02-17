@@ -78,6 +78,7 @@
                             v-model="dateEntry"
                             color="primary"
                             no-title
+                            first-day-of-week=1
                             @input="datePickerEntryMenu = false"
                           )
                         v-menu(
@@ -129,6 +130,7 @@
                             v-model="dateExit"
                             color="primary"
                             no-title
+                            first-day-of-week=1
                             @input="datePickerExitMenu = false"
                           )
                         v-menu(

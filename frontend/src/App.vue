@@ -35,6 +35,7 @@
               v-date-picker(
                 v-model="date"
                 no-title
+                first-day-of-week=1
                 @input="datePickerMenu = false"
               )
         v-divider(v-if="date")
