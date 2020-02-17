@@ -16,7 +16,7 @@ export default {
   getContainerUnloads(id: number, page: number) {
     return Repository.get(`${resource}unloads-set/?report=${id}&page=${page || 1}`);
   },
-  get() {
-    return Repository.get(`${resource}reports-set/`);
+  get(page: number) {
+    return Repository.get(`${resource}reports-set/?page=${page || 1}`);
   },
 };

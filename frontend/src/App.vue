@@ -85,12 +85,21 @@
       color="blue-grey darken-3"
     )
       v-app-bar-nav-icon(@click.stop="drawer = !drawer")
+      v-btn.mx-2(
+        v-if="backButton"
+        @click="routeBack"
+        small depressed
+        color="blue-grey darken-3"
+      )
+        v-icon.mr-1 arrow_back
+        | Назад
       v-spacer
       logout-button
 
     v-content(:style="{ '--appTopHeight': appTopHeight }")
       router-view(
         @setAppBarValue="onSetAppBarValue"
+        @activateBackButton="onActivateBackButton"
         @setNavigationDrawerValue="onSetNavigationDrawerValue"
       )
 </template>
@@ -130,7 +139,8 @@ export default Vue.extend({
     selectedDevice: null as any,
     reportId: null as any,
     isLoadingDevices: false,
-    toggleFiles: false
+    toggleFiles: false,
+    backButton: false
   }),
   watch: {
     reportId(value: any) {
@@ -153,6 +163,9 @@ export default Vue.extend({
     test() {
       console.log(123);
     },
+    routeBack() {
+      this.$router.go(-1);
+    },
     onUploadFiles({ file, id }: any) {
       if (file) {
         // if cars is empty
@@ -160,6 +173,9 @@ export default Vue.extend({
           this.getDevices();
         }
       }
+    },
+    onActivateBackButton(backButton: boolean) {
+      this.backButton = backButton;
     },
     onSetNavigationDrawerValue(value: boolean) {
       this.navDrawer = value;

@@ -307,6 +307,7 @@ export default Vue.extend({
         this.report = Number(route.params.id);
         this.page = Number(route.query.page);
         this.getContainerUnloads();
+        this.activateBackButton();
       },
       immediate: true
     },
@@ -377,6 +378,10 @@ export default Vue.extend({
         params: { id: this.report },
         query: { page: pageNumber }
       });
+    },
+    activateBackButton() {
+      const backButton = true;
+      this.$emit("activateBackButton", backButton);
     }
     // updatePage(pageNumber: any) {
     //   this.$router.push({

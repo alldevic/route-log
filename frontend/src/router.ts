@@ -29,7 +29,7 @@ export default new Router({
   routes: [
     {
       path: '/',
-      redirect: '/shipping-report-list/',
+      redirect: '/shipping-report-list',
     },
     {
       path: '/login',
@@ -39,7 +39,7 @@ export default new Router({
       beforeEnter: ifNotAuthenticated,
     },
     {
-      path: '/shipping-report-list/',
+      path: '/shipping-report-list',
       name: 'shipping-report-list',
       component: ShippingReportList,
       beforeEnter: ifAuthenticated,
