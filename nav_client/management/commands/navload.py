@@ -10,7 +10,7 @@ from zeep.transports import Transport
 from route_log_prj import settings as settings
 
 from ...models import Device, Driver, GeoZone, Point, SyncDate, \
-    FlatTableRow, FlatTable
+    FlatTableRow, FlatTable, NavMtId
 
 
 class Command(BaseCommand):
@@ -126,6 +126,16 @@ class Command(BaseCommand):
         tmp.rows.set(rows)
         tmp.save()
 
+    def updateNavMt(self, sync_date):
+        res = NavMtId.objects.filter(sync_date=SyncDate.objects.first())
+        for row in res:
+            NavMtId.objects.create(
+                sync_date=sync_date,
+                name=row.name,
+                nav_id=row.nav_id,
+                mt_id=row.mt_id
+            )
+
     def add_arguments(self, parser):
         parser.add_argument('--entity', type=str)
 
@@ -138,6 +148,9 @@ class Command(BaseCommand):
            sync_date.datetime.month != datetime.datetime.now().month or \
            sync_date.datetime.day != datetime.datetime.now().day:
             sync_date = SyncDate.objects.create()
+            self.stdout.write(self.style.SUCCESS('BEGIN ALL'))
+            self.updateNavMt(sync_date)
+            self.stdout.write(self.style.SUCCESS('NavMt - SUCCESS'))
             self.getAllDevices(sync_date)
             self.stdout.write(self.style.SUCCESS('getAllDevices - SUCCESS'))
             self.getAllDrivers(sync_date)
@@ -151,5 +164,6 @@ class Command(BaseCommand):
                 self.stdout.write(
                     self.style.SUCCESS(
                         f'getFlatTableSimple - {device.nav_id} - SUCCESS'))
+            self.stdout.write(self.style.SUCCESS('END ALL'))
         else:
             self.stdout.write(self.style.SUCCESS('Sync already done!'))
