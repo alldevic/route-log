@@ -50,9 +50,10 @@ class GenerateReportSerializer(serializers.ModelSerializer):
                                        )
 
         attachment = validated_data.get('attachment', None)
-        if attachment:
-            for row in attachment_parser.parse(attachment):
+        date = validated_data.get('date', None)
 
+        if attachment and date:
+            for row in attachment_parser.parse(attachment, date):
                 ContainerUnloadFact.objects.create(report=report,
                                                    geozone=row["geozone"],
                                                    datetime_entry=timezone.now(),
@@ -62,7 +63,6 @@ class GenerateReportSerializer(serializers.ModelSerializer):
                                                    container_type=row["ct_type"],
                                                    directory=row["directory"],
                                                    count=row["count"])
-                print('created')
 
         application = validated_data.get('application', None)
         if application:

@@ -2,12 +2,15 @@ from openpyxl import load_workbook
 from nav_client.models import NavMtId, GeoZone, SyncDate
 
 
-def parse(file):
+def parse(file, date):
     worksheet = load_workbook(file).worksheets[0]
     for row in worksheet.rows:
-        print(int(row[1].value))
         geozone = NavMtId.objects.filter(
             mt_id=int(row[1].value)).first()
+
+        if not check_schedule(row[7].value, date):
+            continue
+
         if geozone is not None:
             report_row = {}
             report_row["directory"] = geozone.name or "geozone"
@@ -18,3 +21,35 @@ def parse(file):
             report_row["value"] = str(row[5].value).split(' ')[0]
             report_row["ct_type"] = str(row[5].value).split(' ')[1]
             yield report_row
+
+
+def check_schedule(schedule, date):
+    schedule = str(schedule).lower()
+    if schedule == "ежедневно":
+        return True
+
+    if (schedule == "чет" or schedule == "четн" or schedule == "четные")\
+            and date.day % 2 == 0:
+        return True
+
+    if (schedule == "нечет" or schedule == "нечетн" or schedule == "нечетные")\
+            and date.day % 2 == 1:
+        return True
+
+    if is_days_numbers(schedule) and f'{date.day:02}' in schedule:
+        return True
+
+    if DAYS_NAMES_SHORT[date.weekday()] in schedule:
+        return True
+
+    return False
+
+
+def is_days_numbers(prep_list):
+    for day in prep_list:
+        if not day.isnumeric():
+            return False
+    return True
+
+
+DAYS_NAMES_SHORT = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс']
