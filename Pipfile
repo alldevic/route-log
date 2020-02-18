@@ -28,6 +28,7 @@ django-filter = "*"
 autopep8 = "*"
 flake8 = "*"
 rope = "*"
+mypy = "*"
 
 [requires]
 python_version = "3.7"
