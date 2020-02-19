@@ -20,9 +20,15 @@ class PointSerializer(serializers.ModelSerializer):
         )
 
 
+try:
+    last_sync_date = SyncDate.objects.last()
+except Exception:
+    last_sync_date = SyncDate.objects.all()
+
+
 class GeozoneSerializer(serializers.ModelSerializer):
     points = ArrayPointSerializer(queryset=Point.objects.filter(
-        sync_date=SyncDate.objects.last()),
+        sync_date=last_sync_date),
         many=True)
 
     class Meta:

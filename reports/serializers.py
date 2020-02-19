@@ -23,10 +23,16 @@ class ReportSerializer(serializers.ModelSerializer):
         )
 
 
+try:
+    last_sync_date = SyncDate.objects.last()
+except Exception:
+    last_sync_date = SyncDate.objects.all()
+
+
 class GenerateReportSerializer(serializers.ModelSerializer):
     device = serializers.PrimaryKeyRelatedField(
         queryset=Device.objects.filter(
-            sync_date=SyncDate.objects.last()))
+            sync_date=last_sync_date))
     date = serializers.DateField()
     attachment = serializers.FileField(write_only=True, required=False)
     application = serializers.FileField(write_only=True, required=False)

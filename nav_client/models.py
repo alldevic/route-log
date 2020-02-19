@@ -9,6 +9,7 @@ class SyncDate(models.Model):
     class Meta(object):
         verbose_name = "дата синхронизации"
         verbose_name_plural = "даты синхронизации"
+        get_latest_by = "datetime"
 
     def __str__(self):
         return str(self.datetime)
