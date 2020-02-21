@@ -222,6 +222,7 @@ export default Vue.extend({
     EcotecMap
   },
   data: () => ({
+    mapZoom: 15,
     report: null as any,
     valid: true,
     init: false,
@@ -348,7 +349,7 @@ export default Vue.extend({
         pageNumber
       );
       this.containerUnloads = response.data.results;
-      console.log(this.containerUnloads);
+      // console.log(this.containerUnloads);
       this.pageCount = response.data.count;
       this.isLoadingContainerUnloads = false;
     },
@@ -359,7 +360,7 @@ export default Vue.extend({
         )
           ? []
           : [item];
-        this.itemActive = this.selectedContainerUnload.length ? true : !true;
+        this.itemActive = !!this.selectedContainerUnload.length;
       }
     },
     close() {

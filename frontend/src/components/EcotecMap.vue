@@ -4,40 +4,66 @@
   )
     l-map#map(
       v-if="mapCoords"
-      :zoom="15"
+      :zoom.sync="zoom"
       :center="mapCoords"
     )
       l-tile-layer(
         url="http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       )
-      l-polygon(
-        :latLngs="[points]"
+
+      l-polyline(
+        :lat-lngs="[trackPoints]"
+        :color="'blue'"
+        :weight="1"
       )
       template(v-for="(point, index) in trackPoints")
-        l-marker(
-          :key="index"
-          :lat-lng="[point.lon, point.lat]"
+        l-circle-marker(
+          :lat-lng="point"
+          :key="index+100"
+          :radius="2"
+          :color="'blue'"
         )
+          l-tooltip(:content="'' + index")
+
+      l-polygon(
+        :lat-lngs="[points]"
+        :color="'orange'"
+        :fillColor="'orange'"
+      )
+
+      template(v-for="(point, index) in points")
+        l-circle-marker(
+          :lat-lng="point"
+          :key="index"
+          :radius="2"
+          :color="'orange'"
+        )
+          l-tooltip(:content="geozone.name")
 </template>
 
 <script lang="ts">
 // Import
 import Vue from "vue";
 import "leaflet/dist/leaflet.css";
-import { Icon } from "leaflet";
-import { LMap, LTileLayer, LPolygon, LMarker } from "vue2-leaflet";
+import { Icon, latLng } from "leaflet";
+import {
+  LMap,
+  LTileLayer,
+  LPolygon,
+  LPolyline,
+  LTooltip,
+  LCircleMarker
+} from "vue2-leaflet";
 
-// eslint-disable-next-line
-//delete Icon.Default.prototype._getIconUrl;
+type D = Icon.Default & {
+  _getIconUrl: string;
+};
 
-const iconRetinaUrl = require("leaflet/dist/images/marker-icon-2x.png");
-const iconUrl = require("leaflet/dist/images/marker-icon.png");
-const shadowUrl = require("leaflet/dist/images/marker-shadow.png");
-
+delete (Icon.Default.prototype as D)._getIconUrl;
 Icon.Default.mergeOptions({
-  iconRetinaUrl,
-  iconUrl,
-  shadowUrl
+  iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
+  iconUrl: require("leaflet/dist/images/marker-icon.png"),
+  shadowUrl: require("leaflet/dist/images/marker-shadow.png")
 });
 
 export default Vue.extend({
@@ -45,7 +71,9 @@ export default Vue.extend({
     LMap,
     LTileLayer,
     LPolygon,
-    LMarker
+    LPolyline,
+    LTooltip,
+    LCircleMarker
   },
   props: {
     item: {
@@ -58,6 +86,7 @@ export default Vue.extend({
     }
   },
   data: () => ({
+    zoom: 15,
     mapSettings: {
       lang: "ru_RU",
       coordorder: "latlong",
@@ -78,16 +107,24 @@ export default Vue.extend({
   watch: {
     item(value: any) {
       if (value) {
+        // console.log(value);
         this.geozone = value.geozone;
         const points = this.geozone.points.map((item: any) => [
           item[1],
           item[0]
         ]);
-        console.log(points);
+
         const [firstPoints] = points;
+        console.log(firstPoints);
         this.points = points;
-        this.mapCoords = firstPoints;
-        this.trackPoints = value.track_points;
+        this.mapCoords = latLng(firstPoints);
+
+        this.trackPoints = value.track_points.map((item: any) => [
+          item.lat,
+          item.lon
+        ]);
+
+        this.zoom = 15;
       }
     }
   }

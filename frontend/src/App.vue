@@ -162,7 +162,7 @@ export default Vue.extend({
   },
   methods: {
     test() {
-      console.log(123);
+      // console.log(123);
     },
     routeBack() {
       this.$router.go(-1);
@@ -208,7 +208,7 @@ export default Vue.extend({
       formData.append("attachment", this.attachment || "");
       formData.append("application", this.application || "");
       formData.append("device", this.selectedDevice);
-      console.log(formData);
+      // console.log(formData);
       const response = await ReportsRepository.createReport(formData);
       this.reportId = response.data.id;
     },
