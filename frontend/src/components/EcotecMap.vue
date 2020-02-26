@@ -16,14 +16,13 @@
         :color="'blue'"
         :weight="1"
       )
-      template(v-for="(point, index) in trackPoints")
+      template(v-for="point in trackPoints")
         l-circle-marker(
           :lat-lng="point"
-          :key="index+100"
           :radius="2"
           :color="'blue'"
         )
-          l-tooltip(:content="'' + index")
+          l-tooltip(:content="'' + point[2].split('+')[0]")
 
       l-polygon(
         :lat-lngs="[points]"
@@ -31,10 +30,9 @@
         :fillColor="'orange'"
       )
 
-      template(v-for="(point, index) in points")
+      template(v-for="point in points")
         l-circle-marker(
           :lat-lng="point"
-          :key="index"
           :radius="2"
           :color="'orange'"
         )
@@ -86,7 +84,7 @@ export default Vue.extend({
     }
   },
   data: () => ({
-    zoom: 15,
+    zoom: 4,
     mapSettings: {
       lang: "ru_RU",
       coordorder: "latlong",
@@ -120,8 +118,9 @@ export default Vue.extend({
         this.mapCoords = latLng(firstPoints);
 
         this.trackPoints = value.track_points.map((item: any) => [
-          item.lat,
-          item.lon
+          item.point_value.lat,
+          item.point_value.lon,
+          item.utc
         ]);
 
         this.zoom = 15;
