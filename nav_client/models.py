@@ -77,11 +77,11 @@ class Device(models.Model):
                               null=True)
 
     class Meta(object):
-        verbose_name = "машина"
-        verbose_name_plural = "машины"
+        verbose_name = "автомобиль"
+        verbose_name_plural = "автомобили"
 
     def __str__(self):
-        return self.name
+        return self.reg_number or self.name
 
 
 class Driver(models.Model):
@@ -199,6 +199,12 @@ class FlatTableRow(models.Model):
                                   on_delete=models.CASCADE,
                                   verbose_name="дата синхронизации",
                                   related_name="flattablerows",)
+
+    device = models.ForeignKey(Device,
+                               on_delete=models.CASCADE,
+                               verbose_name="автомобиль",
+                               related_name="flattablerows",
+                               null=True)
 
     utc = models.CharField("utc",
                            max_length=150,

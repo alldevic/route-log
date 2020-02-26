@@ -1,9 +1,14 @@
 from openpyxl import load_workbook
-from nav_client.models import NavMtId, GeoZone, SyncDate
+from nav_client.models import FlatTableRow, GeoZone, NavMtId, SyncDate
+from django.utils import timezone
 
 
-def parse(file, date):
+def parse(file, date, device):
+    last_sd = SyncDate.objects.last()
+    all_flats = FlatTableRow.objects.filter(device=device, sync_date=last_sd)
+
     worksheet = load_workbook(file).worksheets[0]
+
     for row in worksheet.rows:
         geozone = NavMtId.objects.filter(
             mt_id=int(row[1].value)).first()
@@ -15,11 +20,17 @@ def parse(file, date):
             report_row = {}
             report_row["directory"] = geozone.name or "geozone"
             report_row["geozone"] = GeoZone.objects.filter(
-                sync_date=SyncDate.objects.last(),
+                sync_date=last_sd,
                 nav_id=geozone.nav_id).first()
             report_row["count"] = row[6].value
             report_row["value"] = str(row[5].value).split(' ')[0]
             report_row["ct_type"] = str(row[5].value).split(' ')[1]
+
+            report_row["time_in"] = timezone.now()
+            report_row["time_out"] = timezone.now()
+            report_row["is_unloaded"] = False
+
+            report_row["track_points"] = all_flats
             yield report_row
 
 

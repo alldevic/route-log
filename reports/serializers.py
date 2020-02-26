@@ -1,10 +1,11 @@
-from django.utils import timezone
-
 from rest_framework import serializers
 
 from nav_client.models import Device, SyncDate
-from nav_client.serializers import (DeviceSerializer, GeozoneSerializer,
-                                    PointSerializer)
+from nav_client.serializers import (
+    DeviceSerializer,
+    FlatRowSerializer,
+    GeozoneSerializer,
+    PointSerializer)
 from reports.models import ContainerUnloadFact, Report
 
 from . import attachment_parser
@@ -57,19 +58,20 @@ class GenerateReportSerializer(serializers.ModelSerializer):
 
         attachment = validated_data.get('attachment', None)
         date = validated_data.get('date', None)
+        device = validated_data.get('device', None)
 
         if attachment and date:
-            for row in attachment_parser.parse(attachment, date):
-                ContainerUnloadFact.objects.create(report=report,
-                                                   geozone=row["geozone"],
-                                                   datetime_entry=timezone.now(),
-                                                   datetime_exit=timezone.now(),
-                                                   is_unloaded=True,
-                                                   value=row["value"],
-                                                   container_type=row["ct_type"],
-                                                   directory=row["directory"],
-                                                   count=row["count"])
-
+            for row in attachment_parser.parse(attachment, date, device):
+                obj = ContainerUnloadFact.objects.create(report=report,
+                                                         geozone=row["geozone"],
+                                                         datetime_entry=row["time_in"],
+                                                         datetime_exit=row["time_out"],
+                                                         is_unloaded=row["is_unloaded"],
+                                                         value=row["value"],
+                                                         container_type=row["ct_type"],
+                                                         directory=row["directory"],
+                                                         count=row["count"])
+                obj.track_points.set(row["track_points"])
         application = validated_data.get('application', None)
         if application:
             print('Application')
@@ -78,7 +80,7 @@ class GenerateReportSerializer(serializers.ModelSerializer):
 
 
 class ContainerUnloadFactSerializer(serializers.ModelSerializer):
-    track_points = PointSerializer(many=True, read_only=True)
+    track_points = FlatRowSerializer(many=True, read_only=True)
     geozone = GeozoneSerializer(many=False, read_only=True)
 
     class Meta:

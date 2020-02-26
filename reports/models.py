@@ -1,5 +1,5 @@
 from django.db import models
-from nav_client.models import Device, Point, GeoZone
+from nav_client.models import Device, GeoZone, FlatTableRow
 
 
 class Report(models.Model):
@@ -28,7 +28,8 @@ class ContainerUnloadFact(models.Model):
         Report, verbose_name='Отчет', on_delete=models.CASCADE)
     geozone = models.ForeignKey(
         GeoZone, verbose_name='Платформа', on_delete=models.SET_NULL, null=True)
-    track_points = models.ManyToManyField(Point, verbose_name='Точки маршрута')
+    track_points = models.ManyToManyField(
+        FlatTableRow, verbose_name='Точки маршрута')
 
     datetime_entry = models.DateTimeField('Время въезда')
     datetime_exit = models.DateTimeField('Время выезда')

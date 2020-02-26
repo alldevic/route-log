@@ -37,7 +37,7 @@ class GeoZoneAdmin(ImportExportActionModelAdmin):
 
 @admin.register(FlatTableRow)
 class FlatTableRowAdmin(ImportExportActionModelAdmin):
-    list_display = ('sync_date', 'utc')
+    list_display = ('device', 'utc', 'sync_date')
     list_filter = ('sync_date',)
 
 

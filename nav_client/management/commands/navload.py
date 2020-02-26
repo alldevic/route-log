@@ -108,6 +108,7 @@ class Command(BaseCommand):
             'getFlatTableSimple - SOAP - SUCCESS'))
 
         rows = []
+        car_id = Device.objects.get(nav_id=device_id, sync_date=sync_date)
         for row in res.rows:
             point_value = Point.objects.create(
                 sync_date=sync_date,
@@ -115,6 +116,7 @@ class Command(BaseCommand):
                 lon=row.values[0]['pointValue'].lon)
             tmp = FlatTableRow.objects.create(
                 sync_date=sync_date,
+                device=car_id,
                 utc=str(row.utc),
                 point_value=point_value)
             rows.append(tmp)

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from nav_client.models import Point, GeoZone, Device, SyncDate
+from nav_client.models import Point, GeoZone, Device, SyncDate, FlatTableRow
 
 
 class ArrayPointSerializer(serializers.RelatedField):
@@ -24,6 +24,17 @@ try:
     last_sync_date = SyncDate.objects.last()
 except Exception:
     last_sync_date = SyncDate.objects.all()
+
+
+class FlatRowSerializer(serializers.ModelSerializer):
+    point_value = PointSerializer()
+
+    class Meta:
+        model = FlatTableRow
+        fields = (
+            'point_value',
+            'utc'
+        )
 
 
 class GeozoneSerializer(serializers.ModelSerializer):

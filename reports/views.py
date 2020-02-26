@@ -3,7 +3,10 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from reports.models import ContainerUnloadFact, Report
-from reports.serializers import ContainerUnloadFactSerializer, ReportSerializer, GenerateReportSerializer
+from reports.serializers import (
+    ContainerUnloadFactSerializer,
+    ReportSerializer,
+    GenerateReportSerializer)
 from reports.filter import ContainerUnloadFactFilter
 
 
