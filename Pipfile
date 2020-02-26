@@ -14,7 +14,6 @@ lxml = "==4.4.2"
 djangorestframework = "==3.11.0"
 drf-yasg = "==1.17.1"
 djoser = "==2.0.3"
-openpyxl = "==3.0.3"
 django-filter = "==2.2.0"
 
 [dev-packages]

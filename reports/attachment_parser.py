@@ -1,4 +1,4 @@
-from openpyxl import load_workbook
+import xlrd
 from nav_client.models import FlatTableRow, GeoZone, NavMtId, SyncDate
 from django.utils import timezone
 
@@ -7,9 +7,9 @@ def parse(file, date, device):
     last_sd = SyncDate.objects.last()
     all_flats = FlatTableRow.objects.filter(device=device, sync_date=last_sd)
 
-    worksheet = load_workbook(file).worksheets[0]
+    worksheet = xlrd.open_workbook(file_contents=file.read()).sheet_by_index(0)
 
-    for row in worksheet.rows:
+    for row in worksheet.get_rows():
         geozone = NavMtId.objects.filter(
             mt_id=int(row[1].value)).first()
 
