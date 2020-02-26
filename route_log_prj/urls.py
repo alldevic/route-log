@@ -14,7 +14,6 @@ admin.site.index_title = "Маршрутный журнал"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('sb/', include('django_sb_admin.urls')),
     path('api/', include('route_log.urls')),
     path('api/reports/', include('reports.urls')),
     path('api/nav-client/', include('nav_client.urls')),
@@ -25,11 +24,11 @@ urlpatterns = [
 # Swagger
 schema_view = get_schema_view(
     openapi.Info(
-        title="Snippets API",
+        title="Route Log API",
         default_version='v1',
         terms_of_service="https://www.google.com/policies/terms/",
-        contact=openapi.Contact(email="contact@snippets.local"),
-        license=openapi.License(name="BSD License"),
+        contact=openapi.Contact(email="beliy_ns@kuzro.ru"),
+        license=openapi.License(name="MIT License"),
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
