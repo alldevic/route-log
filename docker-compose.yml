@@ -53,8 +53,6 @@ services:
     volumes:
       - ./frontend:/app/
     command: ./docker-entrypoint.sh
-    ports:
-      - 8080:8080
     networks:
       private_network:
       default:
