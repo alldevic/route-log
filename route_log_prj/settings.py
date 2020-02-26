@@ -25,7 +25,6 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     'import_export',
     'django_q',
-    'leaflet',
     'rest_framework',
     'rest_framework.authtoken',
     'drf_yasg',

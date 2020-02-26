@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "1a8fb4654039660591c25d48cd5ff831e27fcb6885aa3ed829b93afe49c776bc"
+            "sha256": "d728ca0a926e72c87d5cac9fd65d1106effc5270545de9124b586edb3aed0b80"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -117,18 +117,11 @@
         },
         "django-import-export": {
             "hashes": [
-                "sha256:5e318287c36c76df34e8278cee2162a2a1b7a362084d8358cb7d4772d71a6a45",
-                "sha256:e2c3596049f744cbbfd9a2f8af6b449e661e34a6986e24d8966a24deebab04bf"
+                "sha256:399cd1fb76b9cca89de67d5ab8e9257380f0f9a8bf61f1fab9d62b5230fb4587",
+                "sha256:9efd6291e9fd77a9aa9aaed8bfe5e9d5374b9a5903b83c6eeb12f234008f2053"
             ],
             "index": "pypi",
-            "version": "==2.0.0"
-        },
-        "django-leaflet": {
-            "hashes": [
-                "sha256:b90ea16f69e94cb89254569b5f3e1875602e4c028365acf2e5a1271d80bc6035"
-            ],
-            "index": "pypi",
-            "version": "==0.26.0"
+            "version": "==2.0.2"
         },
         "django-picklefield": {
             "hashes": [
@@ -258,7 +251,6 @@
             "hashes": [
                 "sha256:1adee2c0a542af378fe84548ff6f6b0168f3cb7f426b46961038a2bcfaad0d5f"
             ],
-            "index": "pypi",
             "version": "==1.14"
         },
         "markupsafe": {
@@ -304,7 +296,6 @@
                 "sha256:db766a6e59c5103212f3cc92ec8dd50a0f3a02790233ed0b52148b70d3c438ec",
                 "sha256:fc3b8d1bc098eba4a0fda865a76d9d1e577c4ceec771426bcb169a82c5e9dfe0"
             ],
-            "index": "pypi",
             "version": "==1.4.1"
         },
         "openpyxl": {
@@ -394,7 +385,6 @@
                 "sha256:e3a057b7a64f1222b56e47bcff5e4b94c4f61faac04c7c4ecb1985e18caa3994",
                 "sha256:e9f45bd5b92c7974e59bcd2dcc8631a6b6cc380a904725fce7bc08872e691615"
             ],
-            "index": "pypi",
             "version": "==5.3"
         },
         "requests": {
@@ -490,7 +480,6 @@
                 "sha256:546eb36cee8db40c3eaa46c351e67ffee6eeb5fa2650b71bc4c758a29a1b29b2",
                 "sha256:e551fb498759fa3a5384a94ccd4c3c02eb7c00ea424426e212ac0c57be9dfbde"
             ],
-            "index": "pypi",
             "version": "==1.2.0"
         },
         "xlwt": {
@@ -498,7 +487,6 @@
                 "sha256:a082260524678ba48a297d922cc385f58278b8aa68741596a87de01a9c628b2e",
                 "sha256:c59912717a9b28f1a3c2a98fd60741014b06b043936dcecbc113eaaada156c88"
             ],
-            "index": "pypi",
             "version": "==1.3.0"
         },
         "zeep": {
