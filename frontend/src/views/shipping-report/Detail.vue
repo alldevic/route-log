@@ -41,7 +41,7 @@
           v-toolbar-title
             h4 Отчёт
           v-spacer
-          v-btn.mr-2(color="light-green darken-1" dark)
+          v-btn.mr-2(color="light-green darken-1" dark @click="exportExcel")
             | Скачать
           v-dialog(v-model="dialogForAddItem" max-width="500px")
             template(v-slot:activator="{ on }")
@@ -385,6 +385,20 @@ export default Vue.extend({
     activateBackButton() {
       const backButton = true;
       this.$emit("activateBackButton", backButton);
+    },
+    async exportExcel() {
+      console.log(this.report);
+      const response = await ReportsRepository.exportReport(this.report);
+      console.log(response);
+      var fileURL = window.URL.createObjectURL(response.data);
+      var fileLink = document.createElement("a");
+      fileLink.href = fileURL;
+      const filename = response.headers["content-disposition"].split(
+        "filename="
+      )[1];
+      fileLink.setAttribute("download", filename);
+      document.body.appendChild(fileLink);
+      fileLink.click();
     }
     // updatePage(pageNumber: any) {
     //   this.$router.push({

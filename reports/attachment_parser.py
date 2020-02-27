@@ -5,7 +5,8 @@ from django.utils import timezone
 
 def parse(file, date, device):
     last_sd = SyncDate.objects.last()
-    all_flats = FlatTableRow.objects.filter(device=device, sync_date=last_sd)
+    all_flats = FlatTableRow.objects.filter(
+        device=device, sync_date=last_sd)
 
     worksheet = xlrd.open_workbook(file_contents=file.read()).sheet_by_index(0)
 
@@ -30,7 +31,7 @@ def parse(file, date, device):
             report_row["time_out"] = timezone.now()
             report_row["is_unloaded"] = False
 
-            report_row["track_points"] = all_flats
+            report_row["track_points"] = all_flats[:250]
             yield report_row
 
 

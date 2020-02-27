@@ -19,4 +19,10 @@ export default {
   get(page: number) {
     return Repository.get(`${resource}reports-set/?page=${page || 1}`);
   },
+  exportReport(id: number) {
+    return Repository.get(`${resource}export-report/${id}/`, {
+      responseType: 'blob',
+      timeout: 30000,
+    });
+  },
 };

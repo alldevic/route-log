@@ -1,5 +1,4 @@
 from rest_framework import generics, viewsets, views, mixins
-from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from reports.models import ContainerUnloadFact, Report
@@ -8,6 +7,9 @@ from reports.serializers import (
     ReportSerializer,
     GenerateReportSerializer)
 from reports.filter import ContainerUnloadFactFilter
+from django.http import HttpResponse
+import xlsxwriter
+import io
 
 
 class ContanerUnloadsListView(viewsets.ModelViewSet):
@@ -44,7 +46,34 @@ class ExportReportView(views.APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, id, *args, **kwargs):
-        """
-        TODO: Включить логику формирования документа по ContainerUnloadFact
-        """
-        return Response(data={'id': id})
+        output = io.BytesIO()
+        workbook = xlsxwriter.Workbook(output)
+        worksheet = workbook.add_worksheet()
+
+        data = get_simple_table_data()
+
+        for row_num, columns in enumerate(data):
+            for col_num, cell_data in enumerate(columns):
+                worksheet.write(row_num, col_num, cell_data)
+
+        workbook.close()
+
+        output.seek(0)
+
+        filename = f'{id}-django_simple.xlsx'
+        response = HttpResponse(
+            output,
+            content_type='application/vnd.ms-excel'
+        )
+        response['Content-Disposition'] = f'attachment; filename={filename}'
+
+        # response = FileResponse(output)
+        return response
+
+
+def get_simple_table_data():
+    return [['Apples', 10000, 5000, 8000, 6000],
+            ['Pears', 2000, 3000, 4000, 5000],
+            ['Bananas', 6000, 6000, 6500, 6000],
+            ['Oranges', 500, 300, 200, 700],
+            ]
