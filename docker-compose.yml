@@ -11,6 +11,8 @@ services:
         - DEBUG=${DEBUG}
       target: deploy
     restart: on-failure
+    ports: 
+      - 5678:5678
     volumes:
       - .:/app/
       - ./static:/app/static

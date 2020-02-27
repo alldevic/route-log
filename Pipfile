@@ -22,6 +22,7 @@ autopep8 = "*"
 flake8 = "*"
 rope = "*"
 mypy = "*"
+ptvsd = "*"
 
 [requires]
 python_version = "3.7"
