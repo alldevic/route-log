@@ -387,9 +387,7 @@ export default Vue.extend({
       this.$emit("activateBackButton", backButton);
     },
     async exportExcel() {
-      console.log(this.report);
       const response = await ReportsRepository.exportReport(this.report);
-      console.log(response);
       var fileURL = window.URL.createObjectURL(response.data);
       var fileLink = document.createElement("a");
       fileLink.href = fileURL;
