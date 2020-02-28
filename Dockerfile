@@ -56,7 +56,7 @@ FROM scratch AS deploy
 ARG DEBUG
 ENV PYTHONUNBUFFERED 1
 ENV DEBUG ${DEBUG}
-EXPOSE 8000
+EXPOSE 8000 5678
 COPY --from=build / /
 WORKDIR /app
 ENTRYPOINT ["./docker-entrypoint.sh"]
