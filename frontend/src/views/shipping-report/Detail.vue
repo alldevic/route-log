@@ -395,6 +395,7 @@ export default Vue.extend({
         "filename="
       )[1];
       fileLink.setAttribute("download", filename);
+      fileLink.setAttribute("target", "_blank");
       document.body.appendChild(fileLink);
       fileLink.click();
     }
