@@ -113,7 +113,7 @@ export default Vue.extend({
         ]);
 
         const [firstPoints] = points;
-        console.log(firstPoints);
+        // console.log(firstPoints);ro
         this.points = points;
         this.mapCoords = latLng(firstPoints);
 

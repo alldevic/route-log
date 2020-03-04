@@ -1,6 +1,7 @@
 import xlrd
 from nav_client.models import FlatTableRow, GeoZone, NavMtId, SyncDate
 from django.utils import timezone
+import math as m
 
 
 def parse(file, date, device):
@@ -27,11 +28,23 @@ def parse(file, date, device):
             report_row["value"] = str(row[5].value).split(' ')[0]
             report_row["ct_type"] = str(row[5].value).split(' ')[1]
 
-            report_row["time_in"] = timezone.now()
-            report_row["time_out"] = timezone.now()
+            current_flats = []
+            report_row["time_in"] = None
+            report_row["time_out"] = None
             report_row["is_unloaded"] = False
+            m_range = 5000
 
-            report_row["track_points"] = all_flats[:250]
+            for flat in all_flats[:5]:
+                if in_range(flat.point_value, m_range, report_row["geozone"].points.first()):
+                    current_flats.add(flat)
+
+                    if report_row["time_in"] is None:
+                        report_row["time_in"] = flat.utc
+                    elif report_row["time_out"] is None:
+                        report_row["time_out"] = timezone.now()
+                    report_row["is_unloaded"] = False
+
+            report_row["track_points"] = current_flats
             yield report_row
 
 
@@ -65,3 +78,11 @@ def is_days_numbers(prep_list):
 
 
 DAYS_NAMES_SHORT = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс']
+
+
+def in_range(point1, dist_m, point2):
+    return 111100*m.acos(
+        m.sin(float(point1.lat))*m.sin(float(point2.lat)) +
+        m.cos(float(point1.lat))*m.cos(float(point2.lat)) *
+        m.cos(float(point2.lon) - float(point1.lon))
+    ) < dist_m

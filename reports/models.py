@@ -31,8 +31,8 @@ class ContainerUnloadFact(models.Model):
     track_points = models.ManyToManyField(
         FlatTableRow, verbose_name='Точки маршрута')
 
-    datetime_entry = models.DateTimeField('Время въезда')
-    datetime_exit = models.DateTimeField('Время выезда')
+    datetime_entry = models.DateTimeField('Время въезда', null=True)
+    datetime_exit = models.DateTimeField('Время выезда', null=True)
     is_unloaded = models.BooleanField('Отгружено')
     value = models.CharField('Объем контейнера', max_length=500)
     container_type = models.CharField('Тип контейнера', max_length=500)
