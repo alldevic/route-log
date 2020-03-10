@@ -23,6 +23,7 @@ flake8 = "*"
 rope = "*"
 mypy = "*"
 ptvsd = "*"
+django-silk = "*"
 
 [requires]
 python_version = "3.7"

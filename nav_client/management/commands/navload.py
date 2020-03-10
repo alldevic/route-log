@@ -71,10 +71,19 @@ class Command(BaseCommand):
                     lat=pt.lat,
                     lon=pt.lon) for pt in item.points
             ]
+            mt = NavMtId.objects.filter(sync_date=sync_date,
+                                        nav_id=item.id).first()
+
+            if mt is not None:
+                mt_id = mt.mt_id
+            else:
+                mt_id = None
+
             tmp = GeoZone.objects.create(
                 sync_date=sync_date,
                 nav_id=item.id,
                 name=item.name,
+                mt_id=mt_id
             )
             tmp.points.set(points)
             tmp.save()
@@ -130,6 +139,7 @@ class Command(BaseCommand):
 
     def updateNavMt(self, sync_date):
         res = NavMtId.objects.filter(sync_date=SyncDate.objects.first())
+
         for row in res:
             NavMtId.objects.create(
                 sync_date=sync_date,
