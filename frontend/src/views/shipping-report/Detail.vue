@@ -231,7 +231,7 @@ export default Vue.extend({
     isLoadingContainerUnloads: false,
     selectedContainerUnload: [] as Array<any>,
     page: 1,
-    pageCount: 1,
+    pageCount: 0,
     itemsPerPage: 30,
     dialogForAddItem: false,
     datePickerEntryMenu: false,
@@ -307,10 +307,15 @@ export default Vue.extend({
   watch: {
     $route: {
       handler(route: any) {
-        this.report = Number(route.params.id);
-        this.page = Number(route.query.page);
-        this.getContainerUnloads();
-        this.activateBackButton();
+        const reportId = Number(route.params.id);
+        if (route.query.page === undefined && route.params.id !== undefined) {
+          this.$router.push({ path: `/shipping-report-detail/${route.params.id}?page=1` });
+        } else {
+          this.report = reportId;
+          this.page = Number(route.query.page);
+          this.getContainerUnloads();
+          this.activateBackButton();
+        }
       },
       immediate: true
     },
@@ -349,7 +354,6 @@ export default Vue.extend({
         pageNumber
       );
       this.containerUnloads = response.data.results;
-      // console.log(this.containerUnloads);
       this.pageCount = response.data.count;
       this.isLoadingContainerUnloads = false;
     },
