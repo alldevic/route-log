@@ -14,6 +14,7 @@ services:
     volumes:
       - .:/app/
       - ./static:/app/static
+      - ./profiles:/app/profiles
       - route_log_media:/app/media
     networks:
       private_network:

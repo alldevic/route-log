@@ -38,6 +38,17 @@ LOCAL_APPS = [
     'reports',
 ]
 
+if DEBUG:
+    THIRD_PARTY_APPS = ['silk', ] + THIRD_PARTY_APPS
+
+    # Silk settings
+    SILKY_PYTHON_PROFILER = True
+    SILKY_PYTHON_PROFILER_BINARY = True
+    SILKY_PYTHON_PROFILER_RESULT_PATH = os.path.join(BASE_DIR, 'profiles')
+    SILKY_MAX_REQUEST_BODY_SIZE = -1  # Silk takes anything <0 as no limit
+    SILKY_MAX_RESPONSE_BODY_SIZE = -1
+    SILKY_META = True
+
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
@@ -49,6 +60,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if DEBUG:
+    MIDDLEWARE = ['silk.middleware.SilkyMiddleware', ] + MIDDLEWARE
 
 ROOT_URLCONF = 'route_log_prj.urls'
 

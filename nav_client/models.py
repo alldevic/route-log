@@ -1,9 +1,11 @@
 from django.db import models
+from django.utils import timezone
 
 
 class SyncDate(models.Model):
     datetime = models.DateTimeField("Дата синхронизации",
-                                    auto_now=True,
+                                    default=timezone.now,
+                                    auto_now=False,
                                     auto_now_add=False)
 
     class Meta(object):
@@ -185,6 +187,10 @@ class GeoZone(models.Model):
                               max_length=150,
                               blank=True,
                               null=True)
+
+    mt_id = models.IntegerField("mt_id",
+                                blank=True,
+                                null=True)
 
     class Meta(object):
         verbose_name = "геозона"
