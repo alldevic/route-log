@@ -79,9 +79,9 @@
               @click="createReport"
               color="primary"
               depressed
+              :loading="reportIsCreated"
               :disabled="!selectedDevice"
             ) Сформировать отчет
-
     v-app-bar(
       v-if="appBar"
       app dark flat
@@ -105,6 +105,9 @@
         @activateBackButton="onActivateBackButton"
         @setNavigationDrawerValue="onSetNavigationDrawerValue"
       )
+
+      v-overlay(absolute :value="reportIsCreated")
+        v-progress-circular(indeterminate size="64")
 </template>
 
 <script lang="ts">
@@ -143,7 +146,8 @@ export default Vue.extend({
     reportId: null as any,
     isLoadingDevices: false,
     toggleFiles: false,
-    backButton: false
+    backButton: false,
+    reportIsCreated: false,
   }),
   watch: {
     reportId(value: any) {
@@ -157,7 +161,17 @@ export default Vue.extend({
     },
     date(value: any) {
       this.fileType = null;
-    }
+    },
+    application(value: any) {
+      if (!value) {
+        this.selectedDevice = null;
+      }
+    },
+    attachment(value: any) {
+      if (!value) {
+        this.selectedDevice = null;
+      }
+    },
   },
   created() {
     this.appTopHeight = this.$vuetify.application.top;
@@ -205,6 +219,7 @@ export default Vue.extend({
       this.isLoadingDevices = false;
     },
     async createReport() {
+      this.reportIsCreated = true;
       const formData = new FormData();
       formData.append("date", this.date);
       formData.append("file_type", this.fileType);
@@ -213,7 +228,9 @@ export default Vue.extend({
       formData.append("device", this.selectedDevice);
       // console.log(formData);
       const response = await ReportsRepository.createReport(formData);
+      this.selectedDevice = null;
       this.reportId = response.data.id;
+      this.reportIsCreated = false;
     },
     async autoLogout() {
       Repository.interceptors.response.use(

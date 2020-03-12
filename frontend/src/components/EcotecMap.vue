@@ -5,7 +5,8 @@
     l-map#map(
       v-if="mapCoords"
       :zoom.sync="zoom"
-      :center="mapCoords"
+      :center.sync="mapCoords"
+      @update:center="centerUpdated"
     )
       l-tile-layer(
         url="http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -105,7 +106,6 @@ export default Vue.extend({
   watch: {
     item(value: any) {
       if (value) {
-        // console.log(value);
         this.geozone = value.geozone;
         const points = this.geozone.points.map((item: any) => [
           item[1],
@@ -113,7 +113,6 @@ export default Vue.extend({
         ]);
 
         const [firstPoints] = points;
-        // console.log(firstPoints);ro
         this.points = points;
         this.mapCoords = latLng(firstPoints);
 
@@ -126,6 +125,11 @@ export default Vue.extend({
         this.zoom = 15;
       }
     }
+  },
+  methods: {
+    centerUpdated() {
+      this.zoom = 15;
+    },
   }
 });
 </script>
