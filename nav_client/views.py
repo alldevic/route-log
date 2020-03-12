@@ -27,7 +27,7 @@ class GeozoneListView(generics.ListAPIView):
     queryset = GeoZone.objects.all()
     serializer_class = GeozoneSerializer
     filterset_class = GeozoneFilter
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
 
 
 class NavMtIdListView(generics.ListAPIView):
@@ -37,4 +37,4 @@ class NavMtIdListView(generics.ListAPIView):
     queryset = NavMtId.objects.all()
     serializer_class = NavMtIdSerializer
     filterset_class = NavMtIdFilter
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
