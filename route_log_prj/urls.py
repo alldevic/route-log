@@ -7,8 +7,8 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
-admin.site.site_header = "Адмнистрирование маршрутного журнала"
-admin.site.site_title = "Адмнистрирование маршрутного журнала"
+admin.site.site_header = "Администрирование маршрутного журнала"
+admin.site.site_title = "Администрирование маршрутного журнала"
 admin.site.index_title = "Маршрутный журнал"
 
 
