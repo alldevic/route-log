@@ -30,6 +30,8 @@
         template(v-if="!reportsIsNotEmpty && !isLoadingReports")
           h4.px-4 {{ message }}
 
+    v-overlay(absolute :value="isLoadingReports")
+      v-progress-circular(indeterminate size="64")
 </template>
 
 <script lang="ts">

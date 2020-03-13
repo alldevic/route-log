@@ -10,6 +10,12 @@ export default {
   addUnloadsSet(option: any) {
     return Repository.post(`${resource}unloads-set/`, option);
   },
+  deleteUnload(id: number) {
+    return Repository.delete(`${resource}unloads-set/${id}/`);
+  },
+  saveUnloadChanges(id: number, option: any) {
+    return Repository.put(`${resource}unloads-set/${id}/`, option);
+  },
   getReport(id: number) {
     return Repository.get(`${resource}${id}/`);
   },

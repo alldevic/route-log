@@ -18,7 +18,8 @@
     "types": [
       "webpack-env",
       "leafleat",
-      "vuetify"
+      "vuetify",
+      "lodash"
     ],
     "paths": {
       "typings/*": ["typings/*"],

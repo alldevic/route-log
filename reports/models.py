@@ -16,6 +16,7 @@ class Report(models.Model):
         return f'Отчет "{self.name}" за {self.date}'
 
     class Meta:
+        ordering = ['-date']
         verbose_name = 'Отчет'
         verbose_name_plural = 'Отчеты'
 
