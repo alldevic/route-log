@@ -31,6 +31,10 @@
         span(v-if="item.is_unloaded === undefined")
           | Информация отсутствует
 
+      template(v-slot:item.nav_mt_id="{ item }")
+        span(v-if="item.nav_mt_id") {{ item.nav_mt_id }}
+        span(v-else) Нет данных
+
       template(v-slot:item.datetime_entry="{ item }")
         span {{ item.datetime_entry | date }}
 
@@ -197,22 +201,21 @@
                             prepend-icon="mdi-database-search"
                             return-object
                           )
-                        //- v-col(cols="12")
-                        //-   v-autocomplete(
-                        //-     v-model="editedItem.geozone"
-                        //-     :items="geozones"
-                        //-     :loading="isLoadingGeozones"
-                        //-     :search-input.sync="searchGeozone"
-                        //-     auto-select-first
-                        //-     hide-selected
-                        //-     item-text="name"
-                        //-     item-value="id"
-                        //-     label="Код"
-                        //-     placeholder="Введите код"
-                        //-     prepend-icon="mdi-database-search"
-                        //-     return-object
-                        //-     required
-                        //-   )
+                          p(v-if="editedItem.nav_mt_obj") Найден код площадки из МТ: {{ editedItem.nav_mt_obj.mt_id }}
+                            v-btn.ml-2(
+                              small
+                              :disabled="editedItem.nav_mt_id === editedItem.nav_mt_obj.mt_id"
+                              depressed color="primary"
+                              @click="setNavMtId"
+                            ) Применить?
+                        v-col(cols="12")
+                          v-text-field(
+                            v-model="editedItem.nav_mt_id"
+                            label="Код площадки в МТ"
+                            type="number"
+                            required
+                            :rules="navMtIdRules"
+                          )
                         v-col(cols="12")
                           v-checkbox(v-model="editedItem.is_unloaded" color="primary" label="Отгружено")
                         v-col(cols="12")
@@ -312,11 +315,13 @@ export default Vue.extend({
         id: undefined as any,
         name: null as any,
       },
+      nav_mt_obj: null as any,
       is_unloaded: false as boolean,
       value: null as any,
       container_type: null as any,
       directory: null as any,
       count: null as any,
+      nav_mt_id: null as any,
     },
     defaultItem: {
       date_entry: null as any,
@@ -327,6 +332,7 @@ export default Vue.extend({
         id: undefined as any,
         name: null as any,
       },
+      nav_mt_obj: null as any,
       datetime_entry: null as any,
       datetime_exit: null as any,
       is_unloaded: false as boolean,
@@ -334,6 +340,7 @@ export default Vue.extend({
       container_type: null as any,
       directory: null as any,
       count: null as any,
+      nav_mt_id: null as any,
     },
     dateEntryRules: [(v: any) => !!v || "Дата не выбрана"],
     dateExitRules: [(v: any) => !!v || "Дата не выбрана"],
@@ -343,10 +350,11 @@ export default Vue.extend({
     containerTypeRules: [(v: any) => !!v || "Тип не указан"],
     directoryRules: [(v: any) => !!v || "Муниципальное образование не указано"],
     countRules: [(v: any) => !!v || "Количество не указано"],
+    navMtIdRules: [(v: any) => !!v || "Код не указан"],
     headers: [
       {
-        text: "Код",
-        value: "id",
+        text: "Код площадки в МТ",
+        value: "nav_mt_id",
         sortable: false
       },
       {
@@ -436,6 +444,10 @@ export default Vue.extend({
       handler(val: any) {
         if (val.geozone) {
           this.geozones = [val.geozone];
+
+          if (val.geozone.id) {
+            this.getMtKey(val.geozone.id);
+          }
         }
       },
       deep: true,
@@ -451,6 +463,13 @@ export default Vue.extend({
     }, 300);
   },
   methods: {
+    async getMtKey(id: number) {
+      this.isLoadingMtKey = true;
+      const response = await GeozonesRepository.getMtKey(id);
+      const [firstNavMtObject] = response.data.results;
+      this.editedItem.nav_mt_obj = firstNavMtObject;
+      this.isLoadingMtKey = false;
+    },
     async getGeozonesByName(name: string) {
       this.isLoadingGeozones = true;
       const response = await GeozonesRepository.getByName(name);
@@ -528,6 +547,10 @@ export default Vue.extend({
       this.dialogForDeleteItem = true;
       this.deletedItemId = item.id;
     },
+    setNavMtId() {
+      const id = this.editedItem.nav_mt_obj.mt_id;
+      this.editedItem.nav_mt_id = id;
+    },
     async deleteUnload() {
       const id = this.deletedItemId;
       const response = await ReportsRepository.deleteUnload(id);
@@ -545,7 +568,8 @@ export default Vue.extend({
         value: this.editedItem.value,
         container_type: this.editedItem.container_type,
         directory: this.editedItem.directory,
-        count: this.editedItem.count
+        count: this.editedItem.count,
+        nav_mt_id: this.editedItem.nav_mt_id,
       };
       const response = await ReportsRepository.saveUnloadChanges(id, unloadSet);
       this.closeDialogForEditItem();
@@ -554,10 +578,8 @@ export default Vue.extend({
     closeDialogForEditItem() {
       this.editedItemId = undefined;
       this.dialogForAddItem = false;
-      setTimeout(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-      }, 300);
+      this.editedItem = Object.assign({}, this.defaultItem);
+      this.editedIndex = -1;
     },
     closeDialogForDeleteItem() {
       this.deletedItemId = undefined;

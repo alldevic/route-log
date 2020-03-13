@@ -1,11 +1,12 @@
 import Repository, { baseURL } from '../Repository';
 
-const resource = 'nav-client/geozones-nav/';
-const mainResource = `${baseURL}${resource}`;
-
+const resource = 'nav-client/';
 
 export default {
   getByName(name: string) {
-    return Repository.get(`${resource}?name__contains=${name}`);
+    return Repository.get(`${resource}geozones-nav/?name__contains=${name}`);
+  },
+  getMtKey(id: number) {
+    return Repository.get(`${resource}geozones-mt/?nav_id=${id}`);
   },
 };

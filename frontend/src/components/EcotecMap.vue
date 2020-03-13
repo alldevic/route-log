@@ -9,7 +9,7 @@
       @update:center="centerUpdated"
     )
       l-tile-layer(
-        url="http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        url="http://tile2.maps.2gis.com/tiles?x={x}&y={y}&z={z}"
       )
 
       l-polyline(
