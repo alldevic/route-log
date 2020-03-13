@@ -73,4 +73,5 @@ class NavMtIdSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'name',
+            'mt_id',
         )

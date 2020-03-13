@@ -97,4 +97,5 @@ class ContainerUnloadFactSerializer(serializers.ModelSerializer):
             'container_type',
             'directory',
             'count',
+            'nav_mt_id',
         )
