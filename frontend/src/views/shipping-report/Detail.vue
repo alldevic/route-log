@@ -183,6 +183,37 @@
                               @click:minute="$refs.menuForExitTime.save(editedItem.time_exit)"
                             )
                         v-col(cols="12")
+                          v-autocomplete(
+                            v-model="editedItem.geozone"
+                            :items="geozones"
+                            :loading="isLoadingGeozones"
+                            :search-input.sync="searchGeozone"
+                            auto-select-first
+                            hide-selected
+                            item-text="name"
+                            item-value="id"
+                            label="Площадки"
+                            placeholder="Введите название площадки"
+                            prepend-icon="mdi-database-search"
+                            return-object
+                          )
+                        //- v-col(cols="12")
+                        //-   v-autocomplete(
+                        //-     v-model="editedItem.geozone"
+                        //-     :items="geozones"
+                        //-     :loading="isLoadingGeozones"
+                        //-     :search-input.sync="searchGeozone"
+                        //-     auto-select-first
+                        //-     hide-selected
+                        //-     item-text="name"
+                        //-     item-value="id"
+                        //-     label="Код"
+                        //-     placeholder="Введите код"
+                        //-     prepend-icon="mdi-database-search"
+                        //-     return-object
+                        //-     required
+                        //-   )
+                        v-col(cols="12")
                           v-checkbox(v-model="editedItem.is_unloaded" color="primary" label="Отгружено")
                         v-col(cols="12")
                           v-text-field(
@@ -194,17 +225,17 @@
                           )
                         v-col(cols="12")
                           v-text-field(
-                            v-model="editedItem.container_type"
-                            label="Тип контейнера"
-                            required
-                            :rules="containerTypeRules"
-                          )
-                        v-col(cols="12")
-                          v-text-field(
                             v-model="editedItem.directory"
                             label="Муниципальное образование"
                             required
                             :rules="directoryRules"
+                          )
+                        v-col(cols="12")
+                          v-text-field(
+                            v-model="editedItem.container_type"
+                            label="Тип контейнера"
+                            required
+                            :rules="containerTypeRules"
                           )
                         v-col(cols="12")
                           v-text-field(
@@ -235,10 +266,12 @@
 
 <script lang="ts">
 import Vue from "vue";
+import _ from 'lodash';
 import EcotecMap from "@/components/EcotecMap.vue";
 import RepositoryFactory from "@/api/RepositoryFactory";
 
 const ReportsRepository = RepositoryFactory.get("reports");
+const GeozonesRepository = RepositoryFactory.get("geozones");
 
 export default Vue.extend({
   components: {
@@ -249,8 +282,11 @@ export default Vue.extend({
     report: null as any,
     valid: true,
     init: false,
+    geozones: [] as Array<any>,
+    searchGeozone: null as any,
     containerUnloads: [] as Array<any>,
     itemActive: false,
+    isLoadingGeozones: false,
     isLoadingContainerUnloads: false,
     selectedContainerUnload: [] as Array<any>,
     page: 1,
@@ -272,6 +308,10 @@ export default Vue.extend({
       time_exit: null as any,
       datetime_entry: null as any,
       datetime_exit: null as any,
+      geozone: {
+        id: undefined as any,
+        name: null as any,
+      },
       is_unloaded: false as boolean,
       value: null as any,
       container_type: null as any,
@@ -283,6 +323,10 @@ export default Vue.extend({
       date_exit: null as any,
       time_entry: null as any,
       time_exit: null as any,
+      geozone: {
+        id: undefined as any,
+        name: null as any,
+      },
       datetime_entry: null as any,
       datetime_exit: null as any,
       is_unloaded: false as boolean,
@@ -388,8 +432,31 @@ export default Vue.extend({
         this.itemActive = false;
       }
     },
+    editedItem: {
+      handler(val: any) {
+        if (val.geozone) {
+          this.geozones = [val.geozone];
+        }
+      },
+      deep: true,
+    },
+    searchGeozone(val: string) {
+      if (this.isLoadingGeozones) return;
+      this.debouncedGeozones(val);
+    },
+  },
+  created() {
+    this.debouncedGeozones = _.debounce((name: string) => {
+      this.getGeozonesByName(name);
+    }, 300);
   },
   methods: {
+    async getGeozonesByName(name: string) {
+      this.isLoadingGeozones = true;
+      const response = await GeozonesRepository.getByName(name);
+      this.geozones = response.data.results;
+      this.isLoadingGeozones = false;
+    },
     async addUnloadSet() {
       const reportId = this.report;
       const unloadSet = {
