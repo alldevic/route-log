@@ -9,8 +9,31 @@
       @update:center="centerUpdated"
     )
       l-tile-layer(
-        url="http://tile2.maps.2gis.com/tiles?x={x}&y={y}&z={z}"
+        :url="tiles[selectedTile].url"
       )
+
+      l-control
+        v-menu(offset-y nudge-bottom="10")
+          template(v-slot:activator="{ on }")
+            v-btn(small fab v-on="on" retain-focus-on-click)
+              v-icon map
+          v-list
+            v-list-item-group(v-model="selectedTile" mandatory active-class="primary--text")
+              v-list-item(
+                v-for="(tile, index) in tiles"
+                :key="index"
+              )
+                template(v-slot:default="{ active, toggle }")
+                  v-list-item-content
+                    v-list-item-title {{ tile.title }}
+
+                  v-list-item-action
+                    v-checkbox(
+                      :input-value="active"
+                      :true-value="index"
+                      color="primary"
+                      @click="toggle"
+                    )
 
       l-polyline(
         :lat-lngs="[trackPoints]"
@@ -51,7 +74,8 @@ import {
   LPolygon,
   LPolyline,
   LTooltip,
-  LCircleMarker
+  LCircleMarker,
+  LControl,
 } from "vue2-leaflet";
 
 type D = Icon.Default & {
@@ -72,7 +96,8 @@ export default Vue.extend({
     LPolygon,
     LPolyline,
     LTooltip,
-    LCircleMarker
+    LCircleMarker,
+    LControl,
   },
   props: {
     item: {
@@ -94,7 +119,12 @@ export default Vue.extend({
     points: null as any,
     mapCoords: null as any,
     geozone: null as any,
-    trackPoints: null as any
+    trackPoints: null as any,
+    selectedTile: 0,
+    tiles: [
+      { title: '2GIS карта', url: 'http://tile2.maps.2gis.com/tiles?x={x}&y={y}&z={z}' },
+      { title: 'OSM карта', url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' },
+    ],
   }),
   computed: {
     cssVars() {
