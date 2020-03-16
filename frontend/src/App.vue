@@ -45,6 +45,7 @@
               v-model="attachment"
               show-size
               counter
+              accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
               :label="fileTypesDict[fileTypes.attachment].label"
               @change.sync="onUploadFiles({ file: $event, id: 1 })"
             )
@@ -54,6 +55,7 @@
               v-model="application"
               show-size
               counter
+              accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
               :label="fileTypesDict[fileTypes.application].label"
               @change.sync="onUploadFiles({ file: $event, id: 1 })"
             )
@@ -93,9 +95,9 @@
               @click="createReport"
               color="primary"
               depressed
+              :loading="reportIsCreated"
               :disabled="!selectedDevice"
             ) Сформировать отчет
-
     v-app-bar(
       v-if="appBar"
       app dark flat
@@ -104,7 +106,7 @@
       v-app-bar-nav-icon(@click.stop="drawer = !drawer")
       v-btn.mx-2(
         v-if="backButton"
-        @click="routeBack"
+        @click="routeToReportList"
         small depressed
         color="blue-grey darken-3"
       )
@@ -119,6 +121,9 @@
         @activateBackButton="onActivateBackButton"
         @setNavigationDrawerValue="onSetNavigationDrawerValue"
       )
+
+      v-overlay(absolute :value="reportIsCreated")
+        v-progress-circular(indeterminate size="64")
 </template>
 
 <script lang="ts">
@@ -162,20 +167,32 @@ export default Vue.extend({
     isLoadingDevices: false,
     isLoadingContainerTypes: false,
     toggleFiles: false,
-    backButton: false
+    backButton: false,
+    reportIsCreated: false,
   }),
   watch: {
     reportId(value: any) {
       if (value) {
         this.$router.push({
           name: "shipping-report-detail",
-          params: { id: value }
+          params: { id: value },
+          query: { page: 1 }
         });
       }
     },
     date(value: any) {
       this.fileType = null;
-    }
+    },
+    application(value: any) {
+      if (!value) {
+        this.selectedDevice = null;
+      }
+    },
+    attachment(value: any) {
+      if (!value) {
+        this.selectedDevice = null;
+      }
+    },
   },
   created() {
     this.appTopHeight = this.$vuetify.application.top;
@@ -185,8 +202,8 @@ export default Vue.extend({
     test() {
       // console.log(123);
     },
-    routeBack() {
-      this.$router.go(-1);
+    routeToReportList() {
+      this.$router.push({ name: 'shipping-report-list', query: { page: 1 } });
     },
     onUploadFiles({ file, id }: any) {
       if (file) {
@@ -245,6 +262,7 @@ export default Vue.extend({
       this.isLoadingContainerTypes = false;
     },
     async createReport() {
+      this.reportIsCreated = true;
       const formData = new FormData();
       formData.append("date", this.date);
       formData.append("file_type", this.fileType);
@@ -254,7 +272,9 @@ export default Vue.extend({
       //formData.append("containerTypes", this.selectedContainerTypes);
       // console.log(formData);
       const response = await ReportsRepository.createReport(formData);
+      this.selectedDevice = null;
       this.reportId = response.data.id;
+      this.reportIsCreated = false;
     },
     async autoLogout() {
       Repository.interceptors.response.use(

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from nav_client.models import Point, GeoZone, Device, SyncDate, FlatTableRow
+from nav_client.models import Point, GeoZone, Device, SyncDate, FlatTableRow, NavMtId
 
 
 class ArrayPointSerializer(serializers.RelatedField):
@@ -64,4 +64,14 @@ class DeviceSerializer(serializers.ModelSerializer):
             'phone',
             'sim_number',
             'brand',
+        )
+
+class NavMtIdSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = NavMtId
+        fields = (
+            'id',
+            'name',
+            'mt_id',
         )

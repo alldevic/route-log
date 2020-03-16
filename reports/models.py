@@ -16,6 +16,7 @@ class Report(models.Model):
         return f'Отчет "{self.name}" за {self.date}'
 
     class Meta:
+        ordering = ['-date']
         verbose_name = 'Отчет'
         verbose_name_plural = 'Отчеты'
 
@@ -38,6 +39,7 @@ class ContainerUnloadFact(models.Model):
     container_type = models.CharField('Тип контейнера', max_length=500)
     directory = models.CharField('Муниципальное образование', max_length=500)
     count = models.IntegerField('Количество отгрузок')
+    nav_mt_id = models.IntegerField('Код площадки в МТ', blank=True, null=True)
 
     def __str__(self):
         return str(self.geozone)
