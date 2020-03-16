@@ -79,7 +79,7 @@
               v-model="selectedContainerTypes"
               :items="containerTypes"
               :search-input.sync="searchContainerType"
-              item-text="volume"
+              item-text="text"
               item-value="id"
               hide-no-data
               clearable
@@ -87,8 +87,8 @@
               prepend-icon="flag"
               multiple
               small-chips
+              deletable-chips
             )
-              
         v-list-item
           v-list-item-content
             v-btn(
@@ -168,7 +168,7 @@ export default Vue.extend({
     isLoadingContainerTypes: false,
     toggleFiles: false,
     backButton: false,
-    reportIsCreated: false,
+    reportIsCreated: false
   }),
   watch: {
     reportId(value: any) {
@@ -192,7 +192,7 @@ export default Vue.extend({
       if (!value) {
         this.selectedDevice = null;
       }
-    },
+    }
   },
   created() {
     this.appTopHeight = this.$vuetify.application.top;
@@ -203,7 +203,7 @@ export default Vue.extend({
       // console.log(123);
     },
     routeToReportList() {
-      this.$router.push({ name: 'shipping-report-list', query: { page: 1 } });
+      this.$router.push({ name: "shipping-report-list", query: { page: 1 } });
     },
     onUploadFiles({ file, id }: any) {
       if (file) {
@@ -269,8 +269,10 @@ export default Vue.extend({
       formData.append("attachment", this.attachment || "");
       formData.append("application", this.application || "");
       formData.append("device", this.selectedDevice);
-      //formData.append("containerTypes", this.selectedContainerTypes);
-      // console.log(formData);
+      this.selectedContainerTypes.map((x: any) =>
+        formData.append("container_types", x.id)
+      );
+      console.log(formData);
       const response = await ReportsRepository.createReport(formData);
       this.selectedDevice = null;
       this.reportId = response.data.id;

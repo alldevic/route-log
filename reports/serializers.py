@@ -9,6 +9,7 @@ from nav_client.serializers import (
 from reports.models import ContainerType, ContainerUnloadFact, Report
 
 from . import attachment_parser
+from rest_framework.fields import SerializerMethodField
 
 
 class ReportSerializer(serializers.ModelSerializer):
@@ -37,6 +38,7 @@ class GenerateReportSerializer(serializers.ModelSerializer):
     date = serializers.DateField()
     attachment = serializers.FileField(write_only=True, required=False)
     application = serializers.FileField(write_only=True, required=False)
+    container_types = serializers.ListField(required=False)
 
     class Meta:
         model = Report
@@ -46,7 +48,8 @@ class GenerateReportSerializer(serializers.ModelSerializer):
             'device',
             'date',
             'attachment',
-            'application'
+            'application',
+            'container_types'
         )
 
     def create(self, validated_data):
@@ -59,18 +62,21 @@ class GenerateReportSerializer(serializers.ModelSerializer):
         attachment = validated_data.get('attachment', None)
         date = validated_data.get('date', None)
         device = validated_data.get('device', None)
+        container_types = validated_data.get('container_types', None)
 
         if attachment and date:
-            for row in attachment_parser.parse(attachment, date, device):
-                obj = ContainerUnloadFact.objects.create(report=report,
-                                                         geozone=row["geozone"],
-                                                         datetime_entry=row["time_in"],
-                                                         datetime_exit=row["time_out"],
-                                                         is_unloaded=row["is_unloaded"],
-                                                         value=row["value"],
-                                                         container_type=row["ct_type"],
-                                                         directory=row["directory"],
-                                                         count=row["count"])
+            for row in attachment_parser \
+                    .parse(attachment, date, device, container_types):
+                obj = ContainerUnloadFact.objects \
+                    .create(report=report,
+                            geozone=row["geozone"],
+                            datetime_entry=row["time_in"],
+                            datetime_exit=row["time_out"],
+                            is_unloaded=row["is_unloaded"],
+                            value=row["value"],
+                            container_type=row["ct_type"],
+                            directory=row["directory"],
+                            count=row["count"])
                 obj.track_points.set(row["track_points"])
         application = validated_data.get('application', None)
         if application:
@@ -102,6 +108,11 @@ class ContainerUnloadFactSerializer(serializers.ModelSerializer):
 
 
 class ContainerTypeListSerializer(serializers.ModelSerializer):
+    text = SerializerMethodField()
+
+    def get_text(self, obj):
+        return obj.__str__()
+
     class Meta:
         model = ContainerType
-        fields = ('id', 'material', 'volume')
+        fields = ('id', 'text')
