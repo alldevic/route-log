@@ -64,7 +64,6 @@
 </template>
 
 <script lang="ts">
-// https://a.tile.openstreetmap.org/${z}/${x}/${y}.png
 // Import
 import Vue from "vue";
 import "leaflet/dist/leaflet.css";
@@ -160,9 +159,6 @@ export default Vue.extend({
   methods: {
     centerUpdated() {
       this.zoom = 15;
-    },
-    changeMapTile(url: string) {
-      this.currentTile = url;
     },
   }
 });
