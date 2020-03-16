@@ -45,3 +45,38 @@ class ContainerUnloadFact(models.Model):
     class Meta:
         verbose_name = 'Факт отгрузки'
         verbose_name_plural = 'Факты отгрузки'
+
+
+class Organization(models.Model):
+    """Model definition for Organization."""
+
+    name = models.CharField("Наименование оранизации", max_length=250)
+    details = models.CharField('Реквизиты организации', max_length=500)
+    contacts = models.CharField('Контактные данные', max_length=250)
+
+    class Meta:
+        """Meta definition for Organization."""
+
+        verbose_name = 'Организация'
+        verbose_name_plural = 'Организации'
+
+    def __str__(self):
+        """Unicode representation of Organization."""
+        return self.name
+
+
+class ContainerType(models.Model):
+    """Model definition for ContainerType."""
+
+    material = models.CharField("Материал контейнера", max_length=50)
+    volume = models.CharField("Объем контейнера", max_length=7)
+
+    class Meta:
+        """Meta definition for ContainerType."""
+
+        verbose_name = 'Тип контейнера'
+        verbose_name_plural = 'Типы контейнеров'
+
+    def __str__(self):
+        """Unicode representation of ContainerType."""
+        return f"{self.volume} {self.material}"

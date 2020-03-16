@@ -1,15 +1,23 @@
 from rest_framework import generics, viewsets, views, mixins
 from rest_framework.permissions import IsAuthenticated
 
-from reports.models import ContainerUnloadFact, Report
+from reports.models import ContainerType, ContainerUnloadFact, Report
 from reports.serializers import (
+    ContainerTypeListSerializer,
     ContainerUnloadFactSerializer,
-    ReportSerializer,
-    GenerateReportSerializer)
+    GenerateReportSerializer,
+    ReportSerializer)
 from reports.filter import ContainerUnloadFactFilter
 from django.http import HttpResponse
 import xlsxwriter
 import io
+
+
+class ContainerTypeListView(mixins.ListModelMixin,
+                            viewsets.GenericViewSet):
+    queryset = ContainerType.objects.all()
+    serializer_class = ContainerTypeListSerializer
+    permission_classes = (IsAuthenticated,)
 
 
 class ContanerUnloadsListView(viewsets.ModelViewSet):

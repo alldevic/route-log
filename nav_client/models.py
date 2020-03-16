@@ -2,9 +2,14 @@ from django.db import models
 from django.utils import timezone
 
 
+def current_time():
+    now = timezone.now()
+    return now.strftime("%Y-%m-%d %H:%M:%S")
+
+
 class SyncDate(models.Model):
     datetime = models.DateTimeField("Дата синхронизации",
-                                    default=timezone.now,
+                                    default=current_time,
                                     auto_now=False,
                                     auto_now_add=False)
 
@@ -274,4 +279,26 @@ class NavMtId(models.Model):
         verbose_name_plural = "площадки МТ"
 
     def __str__(self):
+        return self.name
+
+
+class CustomGeoZone(models.Model):
+    """Model definition for CustomGeoZone."""
+
+    name = models.CharField("name",
+                            max_length=150,
+                            blank=True,
+                            null=True)
+
+    points = models.ManyToManyField(Point,
+                                    verbose_name="Точки")
+
+    class Meta:
+        """Meta definition for CustomGeoZone."""
+
+        verbose_name = 'CustomGeoZone'
+        verbose_name_plural = 'CustomGeoZones'
+
+    def __str__(self):
+        """Unicode representation of CustomGeoZone."""
         return self.name

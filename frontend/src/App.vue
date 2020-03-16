@@ -71,6 +71,22 @@
               label="Выберите автомобиль"
               prepend-icon="directions_car"
             )
+        v-list-item(v-if="application || attachment")
+          v-list-item-content
+            v-combobox(
+              v-model="selectedContainerTypes"
+              :items="containerTypes"
+              :search-input.sync="searchContainerType"
+              item-text="volume"
+              item-value="id"
+              hide-no-data
+              clearable
+              label="Выберите типы контейнеров"
+              prepend-icon="flag"
+              multiple
+              small-chips
+            )
+              
         v-list-item
           v-list-item-content
             v-btn(
@@ -115,6 +131,7 @@ import FILE_TYPES from "@/constants/fileTypes";
 import FILE_TYPES_DICT from "@/dictionaries/fileTypesDict";
 
 const DevicesRepository = RepositoryFactory.get("devices");
+const ContainerTypesRepository = RepositoryFactory.get("containerTypes");
 const ReportsRepository = RepositoryFactory.get("reports");
 
 export default Vue.extend({
@@ -136,10 +153,14 @@ export default Vue.extend({
     attachment: null as any,
     application: null as any,
     devices: [] as Array<any>,
+    containerTypes: [] as Array<any>,
     searchDevice: null as any,
+    searchContainerType: null as any,
     selectedDevice: null as any,
+    selectedContainerTypes: [] as Array<any>,
     reportId: null as any,
     isLoadingDevices: false,
+    isLoadingContainerTypes: false,
     toggleFiles: false,
     backButton: false
   }),
@@ -173,6 +194,9 @@ export default Vue.extend({
         if (this.devices.length === 0) {
           this.getDevices();
         }
+        if (this.containerTypes.length === 0) {
+          this.getContainerTypes();
+        }
       }
     },
     onActivateBackButton(backButton: boolean) {
@@ -201,6 +225,25 @@ export default Vue.extend({
       }
       this.isLoadingDevices = false;
     },
+    async getContainerTypes() {
+      this.isLoadingContainerTypes = true;
+      let response = await ContainerTypesRepository.get();
+      let responseTypes = response.data.results;
+      while (response.data.next) {
+        response = await ContainerTypesRepository.get(
+          response.data.next
+            .split("?")
+            .pop()
+            .split("&")
+            .filter((item: string) => ~item.indexOf("page="))[0]
+            .split("=")
+            .pop()
+        );
+        responseTypes.push(...response.data.results);
+      }
+      this.containerTypes = responseTypes;
+      this.isLoadingContainerTypes = false;
+    },
     async createReport() {
       const formData = new FormData();
       formData.append("date", this.date);
@@ -208,6 +251,7 @@ export default Vue.extend({
       formData.append("attachment", this.attachment || "");
       formData.append("application", this.application || "");
       formData.append("device", this.selectedDevice);
+      //formData.append("containerTypes", this.selectedContainerTypes);
       // console.log(formData);
       const response = await ReportsRepository.createReport(formData);
       this.reportId = response.data.id;

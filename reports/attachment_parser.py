@@ -36,7 +36,7 @@ def parse(file, date, device):
 
             for flat in all_flats[:5]:
                 if in_range(flat.point_value, m_range, report_row["geozone"].points.first()):
-                    current_flats.add(flat)
+                    current_flats.append(flat)
 
                     if report_row["time_in"] is None:
                         report_row["time_in"] = flat.utc

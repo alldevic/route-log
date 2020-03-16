@@ -5,8 +5,8 @@ from nav_client.serializers import (
     DeviceSerializer,
     FlatRowSerializer,
     GeozoneSerializer,
-    PointSerializer)
-from reports.models import ContainerUnloadFact, Report
+)
+from reports.models import ContainerType, ContainerUnloadFact, Report
 
 from . import attachment_parser
 
@@ -98,3 +98,9 @@ class ContainerUnloadFactSerializer(serializers.ModelSerializer):
             'directory',
             'count',
         )
+
+
+class ContainerTypeListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContainerType
+        fields = ('id', 'material', 'volume')
