@@ -11,6 +11,7 @@ from reports.filter import ContainerUnloadFactFilter
 from django.http import HttpResponse
 import xlsxwriter
 import io
+from rest_framework.response import Response
 
 
 class ContainerTypeListView(mixins.ListModelMixin,
@@ -28,6 +29,22 @@ class ContanerUnloadsListView(viewsets.ModelViewSet):
     serializer_class = ContainerUnloadFactSerializer
     filterset_class = ContainerUnloadFactFilter
     permission_classes = (IsAuthenticated,)
+
+    def list(self, request, *args, **kwargs):
+        report_id = int(request.query_params["report"])
+
+        queryset = ContainerUnloadFact.objects \
+            .filter(report__id=report_id) \
+            .select_related("geozone") \
+            .prefetch_related("track_points__point_value", "geozone__points")
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.paginator.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class ReportsViewSet(
