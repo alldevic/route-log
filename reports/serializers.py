@@ -76,7 +76,8 @@ class GenerateReportSerializer(serializers.ModelSerializer):
                             value=row["value"],
                             container_type=row["ct_type"],
                             directory=row["directory"],
-                            count=row["count"])
+                            count=row["count"],
+                            nav_mt_id=row["nav_mt_id"])
                 obj.track_points.set(row["track_points"])
         application = validated_data.get('application', None)
         if application:

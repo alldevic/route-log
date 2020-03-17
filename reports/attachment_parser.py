@@ -9,7 +9,6 @@ def parse(file, date, device, container_types):
     types = []
     for ctype in container_types:
         tmp = ContainerType.objects.get(pk=int(ctype))
-
         types.append((tmp.volume, tmp.material))
 
     last_sd = SyncDate.objects.last()
@@ -18,10 +17,8 @@ def parse(file, date, device, container_types):
 
     worksheet = xlrd.open_workbook(file_contents=file.read()).sheet_by_index(0)
 
-    mtids = NavMtId.objects.all()
-    [x for x in mtids]
     for row in worksheet.get_rows():
-        geozone = mtids.filter(mt_id=int(row[1].value)).first()
+        geozone = NavMtId.objects.filter(mt_id=int(row[1].value)).first()
 
         if not check_schedule(row[7].value, date):
             continue
@@ -37,6 +34,7 @@ def parse(file, date, device, container_types):
 
         if geozone is not None:
             report_row = {}
+            report_row["nav_mt_id"] = geozone.mt_id or None
             report_row["directory"] = geozone.name or "geozone"
             report_row["geozone"] = GeoZone.objects.filter(
                 sync_date=last_sd,
