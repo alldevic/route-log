@@ -1,6 +1,5 @@
 import xlrd
 from nav_client.models import FlatTableRow, GeoZone, NavMtId, Point, SyncDate
-from django.utils import timezone
 import math as m
 from reports.models import ContainerType
 
