@@ -65,20 +65,35 @@ class GenerateReportSerializer(serializers.ModelSerializer):
         container_types = validated_data.get('container_types', None)
 
         if attachment and date:
+            bulk_obj = []
+            bulk_tp = []
+
             for row in attachment_parser \
                     .parse(attachment, date, device, container_types):
-                obj = ContainerUnloadFact.objects \
-                    .create(report=report,
-                            geozone=row["geozone"],
-                            datetime_entry=row["time_in"],
-                            datetime_exit=row["time_out"],
-                            is_unloaded=row["is_unloaded"],
-                            value=row["value"],
-                            container_type=row["ct_type"],
-                            directory=row["directory"],
-                            count=row["count"],
-                            nav_mt_id=row["nav_mt_id"])
-                obj.track_points.set(row["track_points"])
+                obj = ContainerUnloadFact(report=report,
+                                          geozone=row["geozone"],
+                                          datetime_entry=row["time_in"],
+                                          datetime_exit=row["time_out"],
+                                          is_unloaded=row["is_unloaded"],
+                                          value=row["value"],
+                                          container_type=row["ct_type"],
+                                          directory=row["directory"],
+                                          count=row["count"],
+                                          nav_mt_id=row["nav_mt_id"])
+                bulk_obj.append(obj)
+                bulk_tp.append(row["track_points"])
+
+            objs = ContainerUnloadFact.objects.bulk_create(bulk_obj)
+
+            ThroughModel = ContainerUnloadFact.track_points.through
+            [print(x) for x in bulk_tp]
+            bulk_tr = [ThroughModel(flattablerow_id=tp.id,
+                                    containerunloadfact_id=item.pk)
+                       for i, item in enumerate(objs)
+                       for tp in bulk_tp[i]
+                       if item and tp]
+            ThroughModel.objects.bulk_create(bulk_tr)
+
         application = validated_data.get('application', None)
         if application:
             print('Application')
