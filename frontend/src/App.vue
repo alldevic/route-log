@@ -176,7 +176,7 @@ export default Vue.extend({
         this.$router.push({
           name: "shipping-report-detail",
           params: { id: value },
-          query: { page: 1 }
+          query: { page: "1" }
         });
       }
     },
@@ -203,7 +203,7 @@ export default Vue.extend({
       // console.log(123);
     },
     routeToReportList() {
-      this.$router.push({ name: "shipping-report-list", query: { page: 1 } });
+      this.$router.push({ name: "shipping-report-list", query: { page: "1" } });
     },
     onUploadFiles({ file, id }: any) {
       if (file) {
