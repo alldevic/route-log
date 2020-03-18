@@ -22,3 +22,6 @@ jobs:
           docker volume create route_log_media
       - name: Make upb
         run: make upb
+      - name: Build frontend
+        run: |
+          docker run -i rl_frontend ash -c "npm run build"
