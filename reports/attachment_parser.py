@@ -59,7 +59,7 @@ def parse(file, date, device, container_types):
             report_row["time_in"] = None
             report_row["time_out"] = None
             report_row["is_unloaded"] = False
-            m_range = 15000
+            m_range = 1000
 
             current_flats = []
             for flat in all_flats:
@@ -129,5 +129,4 @@ def in_range(point1, dist_m, point2):
         m.cos(float(point1.lat))*m.cos(float(point2.lat)) *
         m.cos(float(point2.lon) - float(point1.lon))
     )
-    # print(tmp)
     return tmp < dist_m

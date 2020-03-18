@@ -86,7 +86,7 @@ class GenerateReportSerializer(serializers.ModelSerializer):
             objs = ContainerUnloadFact.objects.bulk_create(bulk_obj)
 
             ThroughModel = ContainerUnloadFact.track_points.through
-            [print(x) for x in bulk_tp]
+
             bulk_tr = [ThroughModel(flattablerow_id=tp.id,
                                     containerunloadfact_id=item.pk)
                        for i, item in enumerate(objs)
