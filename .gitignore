@@ -105,3 +105,15 @@ venv.bak/
 
 # VS Code
 .vscode/
+
+media/*
+profiles/*
+static/*
+
+!.gitkeep
+.idea/
+fixtures/navmtid.json
+
+# Frontend
+**/node_modules/
+/frontend/dist/

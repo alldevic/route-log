@@ -1,0 +1,20 @@
+name: Xeon prod
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v2
+      - name: Create .env
+        run: cp /route-log/_config/.env ./.env
+      - name: Create volumes
+        run: |
+          docker volume create route_log_db_data
+          docker volume create route_log_media
+      - name: Make upb
+        run: make upb

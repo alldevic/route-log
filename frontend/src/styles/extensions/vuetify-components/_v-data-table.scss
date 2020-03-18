@@ -1,0 +1,21 @@
+.theme--light.v-data-table.section-overflow {
+  header {
+    flex-grow: 0;
+  }
+
+  .v-data-table__wrapper {
+    flex-grow: 1;
+
+    tbody {
+      cursor: pointer;
+
+      .v-data-table__selected {
+        background: #ECEFF1;
+      }
+    }
+  }
+
+  .v-data-footer {
+    padding: 8px 0;
+  }
+}

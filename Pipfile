@@ -1,0 +1,29 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+Django = "==2.2.11"
+django-environ = "==0.4.5"
+psycopg2-binary = "==2.8.4"
+zeep = "==3.4.0"
+django-import-export = "==2.0.2"
+django-q = "==1.2.1"
+lxml = "==4.4.2"
+djangorestframework = "==3.11.0"
+drf-yasg = "==1.17.1"
+djoser = "==2.0.3"
+django-filter = "==2.2.0"
+xlsxwriter = "==1.2.8"
+
+[dev-packages]
+autopep8 = "*"
+flake8 = "*"
+rope = "*"
+mypy = "*"
+ptvsd = "*"
+django-silk = "*"
+
+[requires]
+python_version = "3.7"

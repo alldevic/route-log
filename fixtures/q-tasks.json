@@ -1,0 +1,18 @@
+[
+    {
+        "model": "django_q.schedule",
+        "pk": 1,
+        "fields": {
+            "name": "navload",
+            "func": "django.core.management.call_command",
+            "hook": null,
+            "args": "('navload',)",
+            "kwargs": "{}",
+            "schedule_type": "D",
+            "minutes": null,
+            "repeats": -1,
+            "next_run": "2020-01-13T00:05:00Z",
+            "task": "d6cdc57a9b0c4a6f8639b9b342fdfa66"
+        }
+    }
+]
