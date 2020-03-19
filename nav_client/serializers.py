@@ -1,11 +1,12 @@
 from rest_framework import serializers
 
 from nav_client.models import Point, GeoZone, Device, SyncDate, FlatTableRow, NavMtId
+from rest_framework.fields import SerializerMethodField
 
 
 class ArrayPointSerializer(serializers.RelatedField):
     def to_representation(self, value):
-        return value.lon, value.lat
+        return value.lat, value.lon
 
     def to_internal_value(self, data):
         return data.split(',')
@@ -41,6 +42,13 @@ class GeozoneSerializer(serializers.ModelSerializer):
     points = ArrayPointSerializer(queryset=Point.objects.filter(
         sync_date=last_sync_date),
         many=True)
+
+    # points = SerializerMethodField()
+
+    # def get_points(self, obj):
+    #     queryset = Point.objects.filter(sync_date=last_sync_date)
+    #     res = ArrayPointSerializer(queryset, many=True)
+    #     return res.data
 
     class Meta:
         model = GeoZone

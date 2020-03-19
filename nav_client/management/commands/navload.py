@@ -9,8 +9,8 @@ from zeep.transports import Transport
 
 from route_log_prj import settings as settings
 
-from ...models import Device, Driver, GeoZone, Point, SyncDate, \
-    FlatTableRow, FlatTable, NavMtId
+from ...models import (Device, Driver, GeoZone, Point, SyncDate,
+                       FlatTableRow, FlatTable, NavMtId)
 
 from ...BulkCreateManager import BulkCreateManager
 from django.utils import timezone
@@ -162,13 +162,14 @@ class Command(BaseCommand):
         parser.add_argument('--entity', type=str)
 
     #  TODO: add custom periods, now 1 sync in 24 hours
+    #  TODO: fix params
     def handle(self, *args, **options):
         sync_date = SyncDate.objects.last()
 
         if sync_date is None or \
-           (sync_date.datetime.year != datetime.datetime.now().year and
-            sync_date.datetime.month != datetime.datetime.now().month and
-                sync_date.datetime.day != datetime.datetime.now().day):
+           (sync_date.datetime.year != timezone.now().year and
+            sync_date.datetime.month != timezone.now().month and
+                sync_date.datetime.day != timezone.now().day):
             bulk_mgr = BulkCreateManager(chunk_size=100)
             sync_date = SyncDate.objects.create()
             begin_time = timezone.now()
@@ -185,7 +186,7 @@ class Command(BaseCommand):
             for device in Device.objects.filter(sync_date=sync_date):
                 self.getFlatTableSimple(sync_date,
                                         device.nav_id,
-                                        datetime.datetime.now(), bulk_mgr)
+                                        timezone.now(), bulk_mgr)
                 self.stdout.write(
                     self.style.SUCCESS(
                         f'getFlatTableSimple - {device.nav_id} - SUCCESS'))

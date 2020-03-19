@@ -10,12 +10,14 @@ def parse(file, date, device, container_types):
         tmp = ContainerType.objects.get(pk=int(ctype))
         types.append((tmp.volume, tmp.material))
 
-    last_sd = SyncDate.objects.last()
+    sync_date = SyncDate.objects.filter(datetime__year=date.year,
+                                        datetime__month=date.month,
+                                        datetime__day=date.day).first()
     all_flats = [x for x in FlatTableRow.objects
-                 .filter(device=device, sync_date=last_sd)
+                 .filter(device=device, sync_date=sync_date)
                  .prefetch_related('point_value')]
-    mtids = [x for x in NavMtId.objects.filter(sync_date=last_sd)]
-    geozones = [x for x in GeoZone.objects.filter(sync_date=last_sd)]
+    mtids = [x for x in NavMtId.objects.filter(sync_date=sync_date)]
+    geozones = [x for x in GeoZone.objects.filter(sync_date=sync_date)]
 
     worksheet = xlrd.open_workbook(file_contents=file.read()).sheet_by_index(0)
     for row in worksheet.get_rows():

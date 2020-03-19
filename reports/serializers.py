@@ -10,6 +10,8 @@ from reports.models import ContainerType, ContainerUnloadFact, Report
 
 from . import attachment_parser
 from rest_framework.fields import SerializerMethodField
+from datetime import datetime
+from time import strptime
 
 
 class ReportSerializer(serializers.ModelSerializer):
@@ -25,16 +27,9 @@ class ReportSerializer(serializers.ModelSerializer):
         )
 
 
-try:
-    last_sync_date = SyncDate.objects.last()
-except Exception:
-    last_sync_date = SyncDate.objects.all()
-
-
 class GenerateReportSerializer(serializers.ModelSerializer):
     device = serializers.PrimaryKeyRelatedField(
-        queryset=Device.objects.filter(
-            sync_date=last_sync_date))
+        queryset=Device.objects.all())
     date = serializers.DateField()
     attachment = serializers.FileField(write_only=True, required=False)
     application = serializers.FileField(write_only=True, required=False)
@@ -63,13 +58,20 @@ class GenerateReportSerializer(serializers.ModelSerializer):
         date = validated_data.get('date', None)
         device = validated_data.get('device', None)
         container_types = validated_data.get('container_types', None)
+        syncdate = [x for x in SyncDate.objects.all()
+                    if check_syncdate(x.datetime, date)]
+
+        if syncdate is []:
+            return None
 
         if attachment and date:
             bulk_obj = []
             bulk_tp = []
 
-            for row in attachment_parser \
-                    .parse(attachment, date, device, container_types):
+            for row in attachment_parser.parse(attachment,
+                                               syncdate[0].datetime,
+                                               device,
+                                               container_types):
                 obj = ContainerUnloadFact(report=report,
                                           geozone=row["geozone"],
                                           datetime_entry=row["time_in"],
@@ -132,3 +134,9 @@ class ContainerTypeListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContainerType
         fields = ('id', 'text')
+
+
+def check_syncdate(syncdate, ch_date):
+    return syncdate.year == ch_date.year and \
+        syncdate.month == ch_date.month and \
+        syncdate.day == ch_date.day

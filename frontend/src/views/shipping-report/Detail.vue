@@ -296,6 +296,7 @@ export default Vue.extend({
     page: 1,
     pageCount: 0,
     itemsPerPage: 30,
+    isLoadingMtKey: false,
     deletedItemId: undefined as any,
     editedItemId: undefined as any,
     dialogForAddItem: false,
