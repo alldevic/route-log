@@ -1,48 +1,78 @@
 import xlrd
-from nav_client.models import FlatTableRow, GeoZone, NavMtId, SyncDate
-from django.utils import timezone
+from nav_client.models import FlatTableRow, GeoZone, NavMtId, Point, SyncDate
 import math as m
+from reports.models import ContainerType
 
 
-def parse(file, date, device):
+def parse(file, date, device, container_types):
+    types = []
+    for ctype in container_types:
+        tmp = ContainerType.objects.get(pk=int(ctype))
+        types.append((tmp.volume, tmp.material))
+
     last_sd = SyncDate.objects.last()
-    all_flats = FlatTableRow.objects.filter(
-        device=device, sync_date=last_sd)
+    all_flats = [x for x in FlatTableRow.objects
+                 .filter(device=device, sync_date=last_sd)
+                 .prefetch_related('point_value')]
+    mtids = [x for x in NavMtId.objects.filter(sync_date=last_sd)]
+    geozones = [x for x in GeoZone.objects.filter(sync_date=last_sd)]
 
     worksheet = xlrd.open_workbook(file_contents=file.read()).sheet_by_index(0)
-
     for row in worksheet.get_rows():
-        geozone = NavMtId.objects.filter(
-            mt_id=int(row[1].value)).first()
-
         if not check_schedule(row[7].value, date):
+            continue
+
+        fl = True
+        for x in mtids:
+            if x.mt_id == int(row[1].value):
+                geozone = x
+                fl = False
+                break
+        if fl:
+            continue
+
+        row5 = str(row[5].value).split(' ')
+        fl = True
+        for ctype in types:
+            if ctype[0] == row5[0] and ctype[1] == row5[1]:
+                fl = False
+
+        if fl:
             continue
 
         if geozone is not None:
             report_row = {}
+            report_row["nav_mt_id"] = geozone.mt_id or None
             report_row["directory"] = geozone.name or "geozone"
-            report_row["geozone"] = GeoZone.objects.filter(
-                sync_date=last_sd,
-                nav_id=geozone.nav_id).first()
-            report_row["count"] = row[6].value
-            report_row["value"] = str(row[5].value).split(' ')[0]
-            report_row["ct_type"] = str(row[5].value).split(' ')[1]
 
-            current_flats = []
+            for xx in geozones:
+                if int(xx.nav_id) == int(geozone.nav_id):
+                    report_row["geozone"] = xx
+                    report_points = [x for x in xx.points.all()]
+                    break
+
+            report_row["count"] = row[6].value
+            report_row["value"] = row5[0]
+            report_row["ct_type"] = row5[1]
+
             report_row["time_in"] = None
             report_row["time_out"] = None
             report_row["is_unloaded"] = False
-            m_range = 5000
+            m_range = 1000
 
-            for flat in all_flats[:5]:
-                if in_range(flat.point_value, m_range, report_row["geozone"].points.first()):
-                    current_flats.append(flat)
-
+            current_flats = []
+            for flat in all_flats:
+                if in_range(flat.point_value, m_range,
+                            get_center(report_points)):
                     if report_row["time_in"] is None:
                         report_row["time_in"] = flat.utc
-                    elif report_row["time_out"] is None:
-                        report_row["time_out"] = timezone.now()
-                    report_row["is_unloaded"] = False
+                    current_flats.append(flat)
+
+            if report_row["time_in"] is not None:
+                report_row["time_out"] = sorted(
+                    current_flats, key=lambda x: x.utc)[-1].utc
+
+            report_row["is_unloaded"] = False
 
             report_row["track_points"] = current_flats
             yield report_row
@@ -80,9 +110,22 @@ def is_days_numbers(prep_list):
 DAYS_NAMES_SHORT = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс']
 
 
+def get_center(points):
+    lats = 0.0
+    lons = 0.0
+    for point in points:
+        lats += float(point.lat)
+        lons += float(point.lon)
+    lats = lats / len(points)
+    lons = lons / len(points)
+
+    return Point(lat=lats, lon=lons)
+
+
 def in_range(point1, dist_m, point2):
-    return 111100*m.acos(
+    tmp = 111100*m.acos(
         m.sin(float(point1.lat))*m.sin(float(point2.lat)) +
         m.cos(float(point1.lat))*m.cos(float(point2.lat)) *
         m.cos(float(point2.lon) - float(point1.lon))
-    ) < dist_m
+    )
+    return tmp < dist_m

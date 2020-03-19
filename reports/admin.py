@@ -1,4 +1,5 @@
 from django.contrib import admin
+from import_export.admin import ImportExportActionModelAdmin
 
 from reports.models import (
     Report,
@@ -22,7 +23,7 @@ class ContainerUnloadFactAdmin(admin.ModelAdmin):
 
 
 @admin.register(ContainerType)
-class ContainerTypeAdmin(admin.ModelAdmin):
+class ContainerTypeAdmin(ImportExportActionModelAdmin):
     pass
 
 
