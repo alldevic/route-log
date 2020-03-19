@@ -12,6 +12,9 @@ from route_log_prj import settings as settings
 from ...models import Device, Driver, GeoZone, Point, SyncDate, \
     FlatTableRow, FlatTable, NavMtId
 
+from ...BulkCreateManager import BulkCreateManager
+from django.utils import timezone
+
 
 class Command(BaseCommand):
     help = 'Загрузка данных с сервера навигации'
@@ -26,10 +29,10 @@ class Command(BaseCommand):
                                   transport=Transport(session=session,
                                                       cache=InMemoryCache()))
 
-    def getAllDevices(self, sync_date):
+    def getAllDevices(self, sync_date, bulk_mgr):
         res = self.client.service.getAllDevices()
         for item in res:
-            Device.objects.create(
+            bulk_mgr.add(Device(
                 sync_date=sync_date,
                 name=item.name,
                 reg_number=item.regNumber,
@@ -42,12 +45,13 @@ class Command(BaseCommand):
                 description=item.description,
                 group_ids=str(item.groupIds),
                 nav_id=item.id,
-            )
+            ))
+        bulk_mgr.done()
 
-    def getAllDrivers(self, sync_date):
+    def getAllDrivers(self, sync_date, bulk_mgr):
         res = self.client.service.getAllDrivers()
         for item in res:
-            Driver.objects.create(
+            bulk_mgr.add(Driver(
                 sync_date=sync_date,
                 fname=item.fname,
                 mname=item.mname,
@@ -58,21 +62,27 @@ class Command(BaseCommand):
                 internal_nr=item.internalNr,
                 driver_cat=item.driverCat,
                 nav_id=item.id,
-            )
+            ))
+        bulk_mgr.done()
 
-    def getAllGeoZones(self, sync_date):
+    def getAllGeoZones(self, sync_date, bulk_mgr):
         res = self.client.service.getAllGeoZones()
         self.stdout.write(self.style.SUCCESS(
             'getAllGeoZones - SOAP - SUCCESS'))
+
+        mt_ids = [x for x in NavMtId.objects.filter(sync_date=sync_date)]
+
         for item in res:
-            points = [
-                Point.objects.create(
-                    sync_date=sync_date,
-                    lat=pt.lat,
-                    lon=pt.lon) for pt in item.points
-            ]
-            mt = NavMtId.objects.filter(sync_date=sync_date,
-                                        nav_id=item.id).first()
+            x_points = [Point(sync_date=sync_date,
+                              lat=x.lat,
+                              lon=x.lon) for x in item.points]
+            points = Point.objects.bulk_create(x_points)
+
+            mt = None
+            for x in mt_ids:
+                if int(x.nav_id) == int(item.id):
+                    mt = x
+                    break
 
             if mt is not None:
                 mt_id = mt.mt_id
@@ -89,7 +99,7 @@ class Command(BaseCommand):
             tmp.save()
 
     # TODO: refact
-    def getFlatTableSimple(self, sync_date, device_id, dt):
+    def getFlatTableSimple(self, sync_date, device_id, dt, bulk_mgr):
         dt0 = dt - datetime.timedelta(days=1)
         dt0month_str = dt0.month
         if dt0.month < 10:
@@ -123,13 +133,13 @@ class Command(BaseCommand):
                 sync_date=sync_date,
                 lat=row.values[0]['pointValue'].lat,
                 lon=row.values[0]['pointValue'].lon)
-            tmp = FlatTableRow.objects.create(
+            rows.append(FlatTableRow(
                 sync_date=sync_date,
                 device=car_id,
                 utc=str(row.utc),
-                point_value=point_value)
-            rows.append(tmp)
+                point_value=point_value))
 
+        rows = FlatTableRow.objects.bulk_create(rows)
         tmp = FlatTable.objects.create(
             sync_date=sync_date,
             ts=res.ts,
@@ -137,16 +147,16 @@ class Command(BaseCommand):
         tmp.rows.set(rows)
         tmp.save()
 
-    def updateNavMt(self, sync_date):
+    def updateNavMt(self, sync_date, bulk_mgr):
         res = NavMtId.objects.filter(sync_date=SyncDate.objects.first())
 
         for row in res:
-            NavMtId.objects.create(
+            bulk_mgr.add(NavMtId(
                 sync_date=sync_date,
                 name=row.name,
                 nav_id=row.nav_id,
                 mt_id=row.mt_id
-            )
+            ))
 
     def add_arguments(self, parser):
         parser.add_argument('--entity', type=str)
@@ -156,26 +166,32 @@ class Command(BaseCommand):
         sync_date = SyncDate.objects.last()
 
         if sync_date is None or \
-           sync_date.datetime.year != datetime.datetime.now().year or \
-           sync_date.datetime.month != datetime.datetime.now().month or \
-           sync_date.datetime.day != datetime.datetime.now().day:
+           (sync_date.datetime.year != datetime.datetime.now().year and
+            sync_date.datetime.month != datetime.datetime.now().month and
+                sync_date.datetime.day != datetime.datetime.now().day):
+            bulk_mgr = BulkCreateManager(chunk_size=100)
             sync_date = SyncDate.objects.create()
-            self.stdout.write(self.style.SUCCESS('BEGIN ALL'))
-            self.updateNavMt(sync_date)
+            begin_time = timezone.now()
+            self.stdout.write(self.style.SUCCESS(
+                f'BEGIN ALL: {begin_time}'))
+            self.updateNavMt(sync_date, bulk_mgr)
             self.stdout.write(self.style.SUCCESS('NavMt - SUCCESS'))
-            self.getAllDevices(sync_date)
+            self.getAllDevices(sync_date, bulk_mgr)
             self.stdout.write(self.style.SUCCESS('getAllDevices - SUCCESS'))
-            self.getAllDrivers(sync_date)
+            self.getAllDrivers(sync_date, bulk_mgr)
             self.stdout.write(self.style.SUCCESS('getAllDrivers - SUCCESS'))
-            self.getAllGeoZones(sync_date)
+            self.getAllGeoZones(sync_date, bulk_mgr)
             self.stdout.write(self.style.SUCCESS('getAllGeoZones - SUCCESS'))
             for device in Device.objects.filter(sync_date=sync_date):
                 self.getFlatTableSimple(sync_date,
                                         device.nav_id,
-                                        datetime.datetime.now())
+                                        datetime.datetime.now(), bulk_mgr)
                 self.stdout.write(
                     self.style.SUCCESS(
                         f'getFlatTableSimple - {device.nav_id} - SUCCESS'))
-            self.stdout.write(self.style.SUCCESS('END ALL'))
+            end_time = timezone.now()
+            self.stdout.write(self.style.SUCCESS(f'END ALL: {end_time}'))
+            self.stdout.write(self.style.SUCCESS(
+                f'ESTIMATED: {end_time - begin_time}'))
         else:
             self.stdout.write(self.style.SUCCESS('Sync already done!'))
