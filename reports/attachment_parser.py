@@ -24,13 +24,14 @@ def parse(file, date, device, container_types):
         if not check_schedule(row[7].value, date):
             continue
 
+        geozone = None
         fl = True
         for x in mtids:
             if x.mt_id == int(row[1].value):
                 geozone = x
                 fl = False
                 break
-        if fl:
+        if fl or geozone is None:
             continue
 
         row5 = str(row[5].value).split(' ')
@@ -42,42 +43,61 @@ def parse(file, date, device, container_types):
         if fl:
             continue
 
-        if geozone is not None:
-            report_row = {}
-            report_row["nav_mt_id"] = geozone.mt_id or None
-            report_row["directory"] = geozone.name or "geozone"
+        report_row = {}
+        report_row["nav_mt_id"] = geozone.mt_id or None
+        report_row["directory"] = geozone.name or "geozone"
 
-            for xx in geozones:
-                if int(xx.nav_id) == int(geozone.nav_id):
-                    report_row["geozone"] = xx
-                    report_points = [x for x in xx.points.all()]
-                    break
+        for xx in geozones:
+            if int(xx.nav_id) == int(geozone.nav_id):
+                report_row["geozone"] = xx
+                report_points = [x for x in xx.points.all()]
+                break
 
-            report_row["count"] = row[6].value
-            report_row["value"] = row5[0]
-            report_row["ct_type"] = row5[1]
+        report_row["count"] = row[6].value
+        report_row["value"] = row5[0]
+        report_row["ct_type"] = row5[1]
 
-            report_row["time_in"] = None
-            report_row["time_out"] = None
-            report_row["is_unloaded"] = False
-            m_range = 1000
+        report_row["time_in"] = None
+        report_row["time_out"] = None
+        report_row["is_unloaded"] = False
 
-            current_flats = []
-            for flat in all_flats:
-                if in_range(flat.point_value, m_range,
-                            get_center(report_points)):
+        big_range = 500
+        small_range = 50
+        center = get_center(report_points)
+        current_flats = [flat for flat in all_flats
+                         if in_range(flat.point_value, big_range, center)]
+
+        if current_flats:
+            current_flats.sort(key=lambda x: x.utc)
+            for flat in current_flats:
+                if in_range(flat.point_value, small_range, center):
                     if report_row["time_in"] is None:
                         report_row["time_in"] = flat.utc
-                    current_flats.append(flat)
+                    report_row["time_out"] = flat.utc
 
-            if report_row["time_in"] is not None:
-                report_row["time_out"] = sorted(
-                    current_flats, key=lambda x: x.utc)[-1].utc
+            if check_unloaded(report_row):
+                report_row["is_unloaded"] = True
 
-            report_row["is_unloaded"] = False
+        report_row["track_points"] = current_flats
+        yield report_row
 
-            report_row["track_points"] = current_flats
-            yield report_row
+
+def check_unloaded(report_row):
+    fact_time = (report_row["time_out"] - report_row["time_in"]) \
+        .total_seconds()
+
+    if fact_time <= 0:
+        return False
+
+    container_type = ContainerType.objects \
+        .filter(material=report_row["ct_type"],
+                volume=report_row["value"]).first()
+    if container_type is None:
+        return False
+
+    estim_time = container_type.upload_time * int(report_row["count"])
+
+    return fact_time < estim_time
 
 
 def check_schedule(schedule, date):

@@ -39,6 +39,7 @@ class FlatRowSerializer(serializers.ModelSerializer):
 
 
 class GeozoneSerializer(serializers.ModelSerializer):
+    # TODO: Fix points
     points = ArrayPointSerializer(queryset=Point.objects.filter(
         sync_date=last_sync_date),
         many=True)
