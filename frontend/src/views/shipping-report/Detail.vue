@@ -297,7 +297,6 @@ export default Vue.extend({
     pageCount: 0,
     itemsPerPage: 30,
     isLoadingMtKey: false,
-    debouncedGeozones: (name: any) => {},
     deletedItemId: undefined as any,
     editedItemId: undefined as any,
     dialogForAddItem: false,
