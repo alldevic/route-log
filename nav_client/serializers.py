@@ -5,7 +5,7 @@ from nav_client.models import Point, GeoZone, Device, SyncDate, FlatTableRow, Na
 
 class ArrayPointSerializer(serializers.RelatedField):
     def to_representation(self, value):
-        return value.lon, value.lat
+        return value.lat, value.lon
 
     def to_internal_value(self, data):
         return data.split(',')
