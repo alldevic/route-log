@@ -3,15 +3,11 @@
     :style="cssVars"
   )
     l-map#map(
-      v-if="mapCoords"
-      :zoom.sync="zoom"
-      :center.sync="mapCoords"
-      @update:center="centerUpdated"
+      v-if="map.coords"
+      :zoom="map.zoom"
+      :center.sync="map.center"
     )
-      l-tile-layer(
-        :url="tiles[selectedTile].url"
-      )
-
+      l-tile-layer(:url="map.tiles[selectedTile].url")
       l-control
         v-menu(offset-y nudge-bottom="10")
           template(v-slot:activator="{ on }")
@@ -20,7 +16,7 @@
           v-list
             v-list-item-group(v-model="selectedTile" mandatory active-class="primary--text")
               v-list-item(
-                v-for="(tile, index) in tiles"
+                v-for="(tile, index) in map.tiles"
                 :key="index"
               )
                 template(v-slot:default="{ active, toggle }")
@@ -36,31 +32,31 @@
                     )
 
       l-polyline(
-        :lat-lngs="[trackPoints]"
+        :lat-lngs="[map.tracks]"
         :color="'blue'"
         :weight="1"
       )
-      template(v-for="point in trackPoints")
+      template(v-for="track in map.tracks")
         l-circle-marker(
-          :lat-lng="point"
+          :lat-lng="track"
           :radius="2"
           :color="'blue'"
         )
-          l-tooltip(:content="'' + point[2].split('+')[0]")
+          l-tooltip(:content="'' + track[2].split('+')[0]")
 
       l-polygon(
-        :lat-lngs="[points]"
+        :lat-lngs="map.geozone.points"
         :color="'orange'"
         :fillColor="'orange'"
       )
 
-      template(v-for="point in points")
+      template(v-for="point in map.geozone.points")
         l-circle-marker(
           :lat-lng="point"
           :radius="2"
           :color="'orange'"
         )
-          l-tooltip(:content="geozone.name")
+          l-tooltip(:content="map.geozone.name")
 </template>
 
 <script lang="ts">
@@ -84,9 +80,9 @@ type D = Icon.Default & {
 
 delete (Icon.Default.prototype as D)._getIconUrl;
 Icon.Default.mergeOptions({
-  iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
-  iconUrl: require("leaflet/dist/images/marker-icon.png"),
-  shadowUrl: require("leaflet/dist/images/marker-shadow.png")
+  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+  iconUrl: require('leaflet/dist/images/marker-icon.png'),
+  shadowUrl: require('leaflet/dist/images/marker-shadow.png')
 });
 
 export default Vue.extend({
@@ -110,28 +106,28 @@ export default Vue.extend({
     }
   },
   data: () => ({
-    zoom: 4,
-    mapSettings: {
-      lang: "ru_RU",
-      coordorder: "latlong",
-      version: "2.1"
+    map: {
+      zoom: null as any,
+      center: null as any,
+      coords: null as any,
+      geozone: null as any,
+      tracks: null as any,
+      tiles: [
+        {
+          title: "2GIS карта",
+          url: "http://tile2.maps.2gis.com/tiles?x={x}&y={y}&z={z}",
+        },
+        {
+          title: "OSM карта",
+          url: "http://tiles.maps.sputnik.ru/{z}/{x}/{y}.png",
+        },
+        {
+          title: "Sputnik.ru",
+          url: "http://tiles.maps.sputnik.ru/{z}/{x}/{y}.png",
+        },
+      ],
     },
-    points: null as any,
-    mapCoords: null as any,
-    geozone: null as any,
-    trackPoints: null as any,
     selectedTile: 0,
-    tiles: [
-      {
-        title: "2GIS карта",
-        url: "http://tile2.maps.2gis.com/tiles?x={x}&y={y}&z={z}"
-      },
-      { title: "OSM карта", url: "https://{s}.tile.osm.org/{z}/{x}/{y}.png" },
-      {
-        title: "Sputnik.ru",
-        url: "http://tiles.maps.sputnik.ru/{z}/{x}/{y}.png"
-      }
-    ]
   }),
   computed: {
     cssVars() {
@@ -143,31 +139,19 @@ export default Vue.extend({
   watch: {
     item(value: any) {
       if (value) {
-        this.geozone = value.geozone;
-        const points = this.geozone.points.map((item: any) => [
-          item[1],
-          item[0]
-        ]);
-
-        const [firstPoints] = points;
-        this.points = points;
-        this.mapCoords = latLng(firstPoints);
-
-        this.trackPoints = value.track_points.map((item: any) => [
+        this.map.geozone = value.geozone;
+        const [geozoneFirstPoints] = this.map.geozone.points;
+        this.map.coords = geozoneFirstPoints;
+        this.map.center = latLng(geozoneFirstPoints);
+        this.map.tracks = value.track_points.map((item: any) => [
           item.point_value.lat,
           item.point_value.lon,
-          item.utc
+          item.utc,
         ]);
-
-        this.zoom = 15;
+        this.map.zoom = 15;
       }
-    }
+    },
   },
-  methods: {
-    centerUpdated() {
-      this.zoom = 15;
-    }
-  }
 });
 </script>
 
