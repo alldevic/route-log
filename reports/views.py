@@ -92,47 +92,61 @@ class ExportReportView(views.APIView):
         worksheet.write_string('A5', "Наименование организации")
         worksheet.write_string('A6', "Реквизиты организации")
         worksheet.write_string(
-            'A7', "Номер договора на оказание услуг по сбору и транспортированию")
+            'A7',
+            "Номер договора на оказание услуг по сбору и транспортированию")
         worksheet.write_string('A8', 'Контактные данные')
         worksheet.write_string(
             'A9', 'Марка, модель, регистрационный знак мусоровоза')
         worksheet.write_string(
-            'A10', 'Вместимость кузова по данным технической документации, куб.м.')
+            'A10',
+            'Вместимость кузова по данным технической документации, куб.м.')
         worksheet.write_string(
             'A11', 'Коэффициент уплотнения по данным технической документации')
         worksheet.write_string('A12', 'ФИО водителя')
         worksheet.write_string(
-            'A13', 'Наименование организации, предоставляющей услуги ГЛОНАСС/GPS мониторинга')
+            'A13',
+            'Наименование организации, предоставляющей услуги ГЛОНАСС/GPS мониторинга')
         worksheet.write_string(
-            'A14', 'Обозначение объекта мониторинга (автомобиля) в системе ГЛОНАСС/GPS')
+            'A14',
+            'Обозначение объекта мониторинга (автомобиля) в системе ГЛОНАСС/GPS')
 
         base_num = 15
         worksheet.merge_range(
             f'A{base_num}:A{base_num+1}', '№ рейса', merge_format)
         worksheet.merge_range(
-            f'B{base_num}:B{base_num+1}', 'трек (маршрут) в системе мониторинга', merge_format)
+            f'B{base_num}:B{base_num+1}',
+            'трек (маршрут) в системе мониторинга', merge_format)
         worksheet.merge_range(
-            f'D{base_num}:D{base_num+1}', 'наименование отходообразвоателя', merge_format)
+            f'D{base_num}:D{base_num+1}',
+            'наименование отходообразвоателя', merge_format)
         worksheet.merge_range(
-            f'E{base_num}:E{base_num+1}', 'место загрузки (адрес контейнерной площадки)', merge_format)
+            f'E{base_num}:E{base_num+1}',
+            'место загрузки (адрес контейнерной площадки)', merge_format)
         worksheet.merge_range(
-            f'F{base_num}:F{base_num+1}', 'тип контейнера (объем), куб.м.', merge_format)
+            f'F{base_num}:F{base_num+1}',
+            'тип контейнера (объем), куб.м.', merge_format)
         worksheet.merge_range(
-            f'G{base_num}:G{base_num+1}', 'время заезда на контейнерную площадку', merge_format)
+            f'G{base_num}:G{base_num+1}',
+            'время заезда на контейнерную площадку', merge_format)
         worksheet.merge_range(
-            f'H{base_num}:H{base_num+1}', 'кол-во загруженных контейнеров, шт', merge_format)
+            f'H{base_num}:H{base_num+1}',
+            'кол-во загруженных контейнеров, шт', merge_format)
         worksheet.merge_range(
-            f'I{base_num}:I{base_num+1}', 'объем собранных ТКО, куб.м.', merge_format)
+            f'I{base_num}:I{base_num+1}',
+            'объем собранных ТКО, куб.м.', merge_format)
         worksheet.merge_range(
-            f'J{base_num}:J{base_num+1}', 'место выгрузки (наименование полигона)', merge_format)
+            f'J{base_num}:J{base_num+1}',
+            'место выгрузки (наименование полигона)', merge_format)
         worksheet.merge_range(
             f'K{base_num}:L{base_num}', 'Время', merge_format)
         worksheet.write_string(f'K{base_num+1}', 'въезда на полигон')
         worksheet.write_string(f'L{base_num+1}', 'выезда с полигона')
         worksheet.merge_range(
-            f'M{base_num}:M{base_num+1}', 'Вес доставленных отходов, тн', merge_format)
+            f'M{base_num}:M{base_num+1}',
+            'Вес доставленных отходов, тн', merge_format)
         worksheet.merge_range(
-            f'N{base_num}:N{base_num+1}', 'примечания (причины отклонений и т.д.)', merge_format)
+            f'N{base_num}:N{base_num+1}',
+            'примечания (причины отклонений и т.д.)', merge_format)
 
         base_num = 16
         for i in range(14):
@@ -143,8 +157,11 @@ class ExportReportView(views.APIView):
         for row_num, row in enumerate(data):
             worksheet.write_string(base_num + row_num, 4, str(row))
             worksheet.write_number(base_num + row_num, 5, float(row.value))
-            worksheet.write_datetime(
-                base_num + row_num, 6, row.datetime_entry, date_format)
+            if row.datetime_entry:
+                worksheet.write_datetime(
+                    base_num + row_num, 6, row.datetime_entry, date_format)
+            else:
+                worksheet.write_string(base_num + row_num, 6, "Нет данных")
             worksheet.write_number(base_num + row_num, 7, row.count)
             worksheet.write_number(base_num + row_num, 8,
                                    float(row.value) * row.count)
@@ -152,7 +169,8 @@ class ExportReportView(views.APIView):
         base_num += len(data) + 1
 
         worksheet.write_string(
-            base_num, 1, "ФИО, подпись  и телефон ответственного за заполнение")
+            base_num, 1,
+            "ФИО, подпись  и телефон ответственного за заполнение")
 
         worksheet.write_string(base_num + 2, 1, 'ФИО, подпись  водителя')
 

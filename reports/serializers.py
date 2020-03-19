@@ -97,7 +97,7 @@ class GenerateReportSerializer(serializers.ModelSerializer):
             ThroughModel.objects.bulk_create(bulk_tr)
 
         application = validated_data.get('application', None)
-        if application:
+        if application and date:
             print('Application')
 
         return report
