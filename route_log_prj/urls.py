@@ -14,7 +14,6 @@ admin.site.index_title = "Маршрутный журнал"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('route_log.urls')),
     path('api/reports/', include('reports.urls')),
     path('api/nav-client/', include('nav_client.urls')),
     path('api/auth/', include('djoser.urls.authtoken')),

@@ -66,6 +66,7 @@ class DeviceSerializer(serializers.ModelSerializer):
             'brand',
         )
 
+
 class NavMtIdSerializer(serializers.ModelSerializer):
 
     class Meta:

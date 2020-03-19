@@ -10,6 +10,7 @@ class GeozoneFilter(rest_framework.FilterSet):
             'name': ['contains'],
         }
 
+
 class NavMtIdFilter(rest_framework.FilterSet):
     class Meta:
         model = NavMtId

@@ -283,6 +283,7 @@ export default Vue.extend({
   data: () => ({
     mapZoom: 15,
     report: null as any,
+    debouncedGeozones: null as any,
     valid: true,
     init: false,
     geozones: [] as Array<any>,
@@ -296,7 +297,6 @@ export default Vue.extend({
     pageCount: 0,
     itemsPerPage: 30,
     isLoadingMtKey: false,
-    debouncedGeozones: (name: any) => {},
     deletedItemId: undefined as any,
     editedItemId: undefined as any,
     dialogForAddItem: false,
@@ -466,11 +466,9 @@ export default Vue.extend({
   },
   methods: {
     async getMtKey(id: number) {
-      this.isLoadingMtKey = true;
       const response = await GeozonesRepository.getMtKey(id);
       const [firstNavMtObject] = response.data.results;
       this.editedItem.nav_mt_obj = firstNavMtObject;
-      this.isLoadingMtKey = false;
     },
     async getGeozonesByName(name: string) {
       this.isLoadingGeozones = true;

@@ -75,7 +75,7 @@ import {
   LPolyline,
   LTooltip,
   LCircleMarker,
-  LControl,
+  LControl
 } from "vue2-leaflet";
 
 type D = Icon.Default & {
@@ -97,7 +97,7 @@ export default Vue.extend({
     LPolyline,
     LTooltip,
     LCircleMarker,
-    LControl,
+    LControl
   },
   props: {
     item: {
@@ -122,9 +122,16 @@ export default Vue.extend({
     trackPoints: null as any,
     selectedTile: 0,
     tiles: [
-      { title: '2GIS карта', url: 'http://tile2.maps.2gis.com/tiles?x={x}&y={y}&z={z}' },
-      { title: 'OSM карта', url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' },
-    ],
+      {
+        title: "2GIS карта",
+        url: "http://tile2.maps.2gis.com/tiles?x={x}&y={y}&z={z}"
+      },
+      { title: "OSM карта", url: "https://{s}.tile.osm.org/{z}/{x}/{y}.png" },
+      {
+        title: "Sputnik.ru",
+        url: "http://tiles.maps.sputnik.ru/{z}/{x}/{y}.png"
+      }
+    ]
   }),
   computed: {
     cssVars() {
@@ -159,7 +166,7 @@ export default Vue.extend({
   methods: {
     centerUpdated() {
       this.zoom = 15;
-    },
+    }
   }
 });
 </script>

@@ -48,11 +48,10 @@ services:
   frontend:
     container_name: rl_frontend
     env_file: .env
+    build: ./frontend/
     user: ${CURRENT_UID}
-    image: node:lts-alpine
-    working_dir: /app/
     volumes:
-      - ./frontend:/app/
+      - ./frontend-build:/app/build
     command: ./docker-entrypoint.sh
     networks:
       private_network:
