@@ -20,6 +20,8 @@ jobs:
 #         run: |
 #           rm -f ./nginx.conf
 #           cp /route-log/_config/nginx.conf ./nginx.conf
+      - name: Generate frontend .env
+        run: cp /route-log/_config/.env ./frontend/.env
       - name: Create volumes
         run: |
           docker volume create route_log_db_data
