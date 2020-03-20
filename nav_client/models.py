@@ -19,7 +19,7 @@ class SyncDate(models.Model):
         get_latest_by = "datetime"
 
     def __str__(self):
-        return str(self.datetime)
+        return str(timezone.localtime(self.datetime))
 
 
 class Device(models.Model):
