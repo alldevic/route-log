@@ -8,5 +8,5 @@ else
     echo >&2 "Starting prod server..."
     npm i
     npm run build
-#     npx serve -s dist -l tcp://0.0.0.0:8080
+    npx serve -s dist -l tcp://0.0.0.0:8080
 fi
