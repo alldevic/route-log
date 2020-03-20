@@ -165,11 +165,11 @@ class Command(BaseCommand):
     #  TODO: fix params
     def handle(self, *args, **options):
         sync_date = SyncDate.objects.last()
-
+        now = timezone.localtime()
         if sync_date is None or \
-           (sync_date.datetime.year != timezone.now().year and
-            sync_date.datetime.month != timezone.now().month and
-                sync_date.datetime.day != timezone.now().day):
+           (sync_date.datetime.year != now.year or
+            sync_date.datetime.month != now.month or
+                sync_date.datetime.day != now.day):
             bulk_mgr = BulkCreateManager(chunk_size=100)
             sync_date = SyncDate.objects.create()
             begin_time = timezone.now()
@@ -195,4 +195,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS(
                 f'ESTIMATED: {end_time - begin_time}'))
         else:
+            self.stdout.write(self.style.SUCCESS(
+                f'Last sync date: {sync_date}'))
+            self.stdout.write(self.style.SUCCESS(f'Now: {now}'))
             self.stdout.write(self.style.SUCCESS('Sync already done!'))

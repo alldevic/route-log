@@ -99,7 +99,7 @@ class GenerateReportSerializer(serializers.ModelSerializer):
             bulk_obj = []
             bulk_tp = []
 
-            for row in application_parser.parse(attachment,
+            for row in application_parser.parse(application,
                                                 syncdate[0].datetime,
                                                 device,
                                                 container_types):

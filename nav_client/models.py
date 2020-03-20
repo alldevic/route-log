@@ -3,7 +3,7 @@ from django.utils import timezone
 
 
 def current_time():
-    now = timezone.now()
+    now = timezone.localtime()
     return now.strftime("%Y-%m-%d %H:%M:%S")
 
 
@@ -19,7 +19,7 @@ class SyncDate(models.Model):
         get_latest_by = "datetime"
 
     def __str__(self):
-        return str(timezone.localtime(self.datetime))
+        return str(self.datetime)
 
 
 class Device(models.Model):
