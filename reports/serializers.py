@@ -47,10 +47,7 @@ class GenerateReportSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         report = Report.objects.create(date=validated_data['date'],
-                                       device=Device.objects.filter(
-                                           nav_id=validated_data['device'])
-                                       .last()
-                                       )
+                                       device=validated_data['device'])
 
         attachment = validated_data.get('attachment', None)
         date = validated_data.get('date', None)
