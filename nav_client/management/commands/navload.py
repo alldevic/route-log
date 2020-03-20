@@ -117,35 +117,45 @@ class Command(BaseCommand):
         if dt.day < 10:
             dtday_str = '0' + str(dtday_str)
 
-        date_from = f"{dt0.year}-{dt0month_str}-{dt0day_str}T16:00:00"
-        date_to = f"{dt.year}-{dtmonth_str}-{dtday_str}T16:59:59"
+        date_from = f"{dt0.year}-{dt0month_str}-{dt0day_str}T22:00:00"
+        date_to = f"{dt.year}-{dtmonth_str}-{dtday_str}T20:59:59"
 
         res = self.client.service.getFlatTableSimple(device_id,
                                                      date_from, date_to,
                                                      10000, [0, ], ['Rw', ])
-        self.stdout.write(self.style.SUCCESS(
-            'getFlatTableSimple - SOAP - SUCCESS'))
+        if res.rows:
+            dt_date_to = datetime.datetime.strptime(
+                date_to, '%Y-%m-%dT%H:%M:%S')
+            cu_date_to = res.rows[-1].utc.replace(tzinfo=None)
+            while (cu_date_to - dt_date_to) > datetime.timedelta(seconds=20):
+                res.append(self.client.service.
+                           getFlatTableSimple(device_id, cu_date_to, date_to,
+                                              10000, [0, ], ['Rw', ]))
+                cu_date_to = res.rows[-1].utc
 
-        rows = []
-        car_id = Device.objects.get(nav_id=device_id, sync_date=sync_date)
-        for row in res.rows:
-            point_value = Point.objects.create(
-                sync_date=sync_date,
-                lat=row.values[0]['pointValue'].lat,
-                lon=row.values[0]['pointValue'].lon)
-            rows.append(FlatTableRow(
-                sync_date=sync_date,
-                device=car_id,
-                utc=str(row.utc),
-                point_value=point_value))
+            self.stdout.write(self.style.SUCCESS(
+                'getFlatTableSimple - SOAP - SUCCESS'))
 
-        rows = FlatTableRow.objects.bulk_create(rows)
-        tmp = FlatTable.objects.create(
-            sync_date=sync_date,
-            ts=res.ts,
-        )
-        tmp.rows.set(rows)
-        tmp.save()
+            rows = []
+            car_id = Device.objects.get(nav_id=device_id, sync_date=sync_date)
+            for row in res.rows:
+                point_value = Point.objects.create(
+                    sync_date=sync_date,
+                    lat=row.values[0]['pointValue'].lat,
+                    lon=row.values[0]['pointValue'].lon)
+                rows.append(FlatTableRow(
+                    sync_date=sync_date,
+                    device=car_id,
+                    utc=str(row.utc),
+                    point_value=point_value))
+
+            rows = FlatTableRow.objects.bulk_create(rows)
+            tmp = FlatTable.objects.create(
+                sync_date=sync_date,
+                ts=res.ts,
+            )
+            tmp.rows.set(rows)
+            tmp.save()
 
     def updateNavMt(self, sync_date, bulk_mgr):
         res = NavMtId.objects.filter(sync_date=SyncDate.objects.first())
@@ -170,7 +180,7 @@ class Command(BaseCommand):
            (sync_date.datetime.year != now.year or
             sync_date.datetime.month != now.month or
                 sync_date.datetime.day != now.day):
-            bulk_mgr = BulkCreateManager(chunk_size=100)
+            bulk_mgr = BulkCreateManager(chunk_size=250)
             sync_date = SyncDate.objects.create()
             begin_time = timezone.now()
             self.stdout.write(self.style.SUCCESS(
