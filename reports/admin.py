@@ -28,5 +28,5 @@ class ContainerTypeAdmin(ImportExportActionModelAdmin):
 
 
 @admin.register(Organization)
-class OrganizationAdmin(admin.ModelAdmin):
+class OrganizationAdmin(ImportExportActionModelAdmin):
     pass

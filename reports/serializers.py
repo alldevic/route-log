@@ -8,10 +8,8 @@ from nav_client.serializers import (
 )
 from reports.models import ContainerType, ContainerUnloadFact, Report
 
-from . import attachment_parser
+from . import attachment_parser, application_parser
 from rest_framework.fields import SerializerMethodField
-from datetime import datetime
-from time import strptime
 
 
 class ReportSerializer(serializers.ModelSerializer):
@@ -97,8 +95,37 @@ class GenerateReportSerializer(serializers.ModelSerializer):
             ThroughModel.objects.bulk_create(bulk_tr)
 
         application = validated_data.get('application', None)
-        if application:
-            print('Application')
+        if application and date:
+            bulk_obj = []
+            bulk_tp = []
+
+            for row in application_parser.parse(application,
+                                                syncdate[0].datetime,
+                                                device,
+                                                container_types):
+                obj = ContainerUnloadFact(report=report,
+                                          geozone=row["geozone"],
+                                          datetime_entry=row["time_in"],
+                                          datetime_exit=row["time_out"],
+                                          is_unloaded=row["is_unloaded"],
+                                          value=row["value"],
+                                          container_type=row["ct_type"],
+                                          directory=row["directory"],
+                                          count=row["count"],
+                                          nav_mt_id=row["nav_mt_id"])
+                bulk_obj.append(obj)
+                bulk_tp.append(row["track_points"])
+
+            objs = ContainerUnloadFact.objects.bulk_create(bulk_obj)
+
+            ThroughModel = ContainerUnloadFact.track_points.through
+
+            bulk_tr = [ThroughModel(flattablerow_id=tp.id,
+                                    containerunloadfact_id=item.pk)
+                       for i, item in enumerate(objs)
+                       for tp in bulk_tp[i]
+                       if item and tp]
+            ThroughModel.objects.bulk_create(bulk_tr)
 
         return report
 

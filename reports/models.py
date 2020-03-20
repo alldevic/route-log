@@ -72,6 +72,8 @@ class ContainerType(models.Model):
 
     material = models.CharField("Материал контейнера", max_length=50)
     volume = models.CharField("Объем контейнера", max_length=7)
+    upload_time = models.IntegerField("Время на отгрузку в секундах",
+                                      default=30)
 
     class Meta:
         """Meta definition for ContainerType."""

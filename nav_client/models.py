@@ -3,7 +3,7 @@ from django.utils import timezone
 
 
 def current_time():
-    now = timezone.now()
+    now = timezone.localtime()
     return now.strftime("%Y-%m-%d %H:%M:%S")
 
 
