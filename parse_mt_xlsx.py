@@ -17,7 +17,10 @@ def parse(filepath, sync_date_id):
         sync_id = int(sync_date_id)
         name = str(row[2].value)
         nav_id = int(row[3].value)
-        mt_id = row[4].value
+        try:
+            mt_id = int(row[4].value)
+        except Exception:
+            mt_id = None
 
         node = {}
         node["model"] = "nav_client.navmtid"

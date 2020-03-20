@@ -80,9 +80,9 @@ type D = Icon.Default & {
 
 delete (Icon.Default.prototype as D)._getIconUrl;
 Icon.Default.mergeOptions({
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-  iconUrl: require('leaflet/dist/images/marker-icon.png'),
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png')
+  iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
+  iconUrl: require("leaflet/dist/images/marker-icon.png"),
+  shadowUrl: require("leaflet/dist/images/marker-shadow.png")
 });
 
 export default Vue.extend({
@@ -115,19 +115,19 @@ export default Vue.extend({
       tiles: [
         {
           title: "2GIS карта",
-          url: "http://tile2.maps.2gis.com/tiles?x={x}&y={y}&z={z}",
+          url: "http://tile2.maps.2gis.com/tiles?x={x}&y={y}&z={z}"
         },
         {
           title: "OSM карта",
-          url: "http://tiles.maps.sputnik.ru/{z}/{x}/{y}.png",
+          url: "https://{s}.tile.osm.org/{z}/{x}/{y}.png"
         },
         {
           title: "Sputnik.ru",
-          url: "http://tiles.maps.sputnik.ru/{z}/{x}/{y}.png",
-        },
-      ],
+          url: "http://tiles.maps.sputnik.ru/{z}/{x}/{y}.png"
+        }
+      ]
     },
-    selectedTile: 0,
+    selectedTile: 0
   }),
   computed: {
     cssVars() {
@@ -146,12 +146,12 @@ export default Vue.extend({
         this.map.tracks = value.track_points.map((item: any) => [
           item.point_value.lat,
           item.point_value.lon,
-          item.utc,
+          item.utc
         ]);
         this.map.zoom = 15;
       }
-    },
-  },
+    }
+  }
 });
 </script>
 
