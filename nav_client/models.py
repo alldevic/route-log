@@ -1,15 +1,12 @@
 from django.db import models
 from django.utils import timezone
-
-
-def current_time():
-    now = timezone.localtime()
-    return now.strftime("%Y-%m-%d %H:%M:%S")
+from route_log_prj import settings
+import pytz
 
 
 class SyncDate(models.Model):
     datetime = models.DateTimeField("Дата синхронизации",
-                                    default=current_time,
+                                    default=timezone.localtime,
                                     auto_now=False,
                                     auto_now_add=False)
 
@@ -19,7 +16,11 @@ class SyncDate(models.Model):
         get_latest_by = "datetime"
 
     def __str__(self):
-        return str(self.datetime)
+        if settings.USE_TZ:
+            tz = pytz.timezone(settings.TIME_ZONE)
+            return str(self.datetime.astimezone(tz))
+        else:
+            return str(self.datetime)
 
 
 class Device(models.Model):
