@@ -1,7 +1,11 @@
 from rest_framework import generics, viewsets, views, mixins
 from rest_framework.permissions import IsAuthenticated
 
-from reports.models import ContainerType, ContainerUnloadFact, Report
+from reports.models import (
+    ContainerType,
+    ContainerUnloadFact,
+    Report,
+    Organization)
 from reports.serializers import (
     ContainerTypeListSerializer,
     ContainerUnloadFactSerializer,
@@ -71,6 +75,8 @@ class ExportReportView(views.APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, id, *args, **kwargs):
+        # TODO: refact
+        report = Report.objects.filter(pk=id).first()
         output = io.BytesIO()
         workbook = xlsxwriter.Workbook(output, {
             'strings_to_numbers': True,
@@ -78,23 +84,62 @@ class ExportReportView(views.APIView):
             'strings_to_urls': True,
             'remove_timezone': True
         })
-        date_format = workbook.add_format(
-            {'num_format': 'dd/mm/yy hh:MM'})
+        workbook.formats[0].set_font_name('Times New Roman')
+        workbook.formats[0].set_font_size(12)
+
+        long_date_format = workbook.add_format(
+            {'num_format': 'dd/mm/yy hh:MM',
+             'font_name': 'Times New Roman',
+             'font_size': 12})
+
+        bold_long_date_format = workbook.add_format(
+            {'num_format': 'dd/mm/yy hh:MM',
+             'font_name': 'Times New Roman',
+             'font_size': 12,
+             'bold': True})
+
         merge_format = workbook.add_format({'align': 'center',
-                                            'valign': 'vcenter'})
+                                            'valign': 'vcenter',
+                                            'font_name': 'Times New Roman',
+                                            'font_size': 11,
+                                            'border': 1})
+
         merge_format.set_text_wrap()
 
+        table_cell_format = workbook.add_format({'font_name': 'Times New Roman',
+                                                 'font_size': 11,
+                                                 'border': 1})
         worksheet = workbook.add_worksheet("ЭкоГрад")
+
+        # Columns settings
+        worksheet.set_column('A:A', 10)
+        worksheet.set_column('B:B', 17)
+        worksheet.set_column('C:C', 25)
+        worksheet.set_column('D:D', 30)
+        worksheet.set_column('E:E', 10)
+        worksheet.set_column('F:F', 30)
+        worksheet.set_column('G:G', 12)
+        worksheet.set_column('H:H', 12)
+        worksheet.set_column('I:I', 17)
+        worksheet.set_column('J:J', 15)
+        worksheet.set_column('K:K', 15)
+        worksheet.set_column('L:L', 15)
+        worksheet.set_column('M:M', 15)
+        worksheet.set_column('N:N', 15)
+
         worksheet.merge_range('A1:M2', '', merge_format)
         worksheet.merge_range(
             'A3:M3', 'Маршрутный журнал мусоровоза', merge_format)
         worksheet.write_string('A4', "Дата")
-        worksheet.write_string('A5', "Наименование организации")
-        worksheet.write_string('A6', "Реквизиты организации")
+        worksheet.write_datetime('B4', report.date, bold_long_date_format)
+
+        organization = Organization.objects.first()
+        worksheet.write_string('A5', organization.name)
+        worksheet.write_string('A6', organization.details)
         worksheet.write_string(
             'A7',
             "Номер договора на оказание услуг по сбору и транспортированию")
-        worksheet.write_string('A8', 'Контактные данные')
+        worksheet.write_string('A8', organization.contacts)
         worksheet.write_string(
             'A9', 'Марка, модель, регистрационный знак мусоровоза')
         worksheet.write_string(
@@ -111,60 +156,76 @@ class ExportReportView(views.APIView):
             'Обозначение объекта мониторинга (автомобиля) в системе ГЛОНАСС/GPS')
 
         base_num = 15
+        worksheet.set_row(base_num, 40)
         worksheet.merge_range(
             f'A{base_num}:A{base_num+1}', '№ рейса', merge_format)
         worksheet.merge_range(
             f'B{base_num}:B{base_num+1}',
             'трек (маршрут) в системе мониторинга', merge_format)
         worksheet.merge_range(
-            f'D{base_num}:D{base_num+1}',
+            f'C{base_num}:C{base_num+1}',
             'наименование отходообразвоателя', merge_format)
         worksheet.merge_range(
-            f'E{base_num}:E{base_num+1}',
+            f'D{base_num}:D{base_num+1}',
             'место загрузки (адрес контейнерной площадки)', merge_format)
         worksheet.merge_range(
-            f'F{base_num}:F{base_num+1}',
+            f'E{base_num}:E{base_num+1}',
             'тип контейнера (объем), куб.м.', merge_format)
         worksheet.merge_range(
-            f'G{base_num}:G{base_num+1}',
+            f'F{base_num}:F{base_num+1}',
             'время заезда на контейнерную площадку', merge_format)
         worksheet.merge_range(
-            f'H{base_num}:H{base_num+1}',
+            f'G{base_num}:G{base_num+1}',
             'кол-во загруженных контейнеров, шт', merge_format)
         worksheet.merge_range(
-            f'I{base_num}:I{base_num+1}',
+            f'H{base_num}:H{base_num+1}',
             'объем собранных ТКО, куб.м.', merge_format)
         worksheet.merge_range(
-            f'J{base_num}:J{base_num+1}',
+            f'I{base_num}:I{base_num+1}',
             'место выгрузки (наименование полигона)', merge_format)
         worksheet.merge_range(
-            f'K{base_num}:L{base_num}', 'Время', merge_format)
+            f'J{base_num}:K{base_num}', 'Время', merge_format)
         worksheet.write_string(f'K{base_num+1}', 'въезда на полигон')
         worksheet.write_string(f'L{base_num+1}', 'выезда с полигона')
         worksheet.merge_range(
-            f'M{base_num}:M{base_num+1}',
+            f'L{base_num}:L{base_num+1}',
             'Вес доставленных отходов, тн', merge_format)
         worksheet.merge_range(
-            f'N{base_num}:N{base_num+1}',
+            f'M{base_num}:M{base_num+1}',
             'примечания (причины отклонений и т.д.)', merge_format)
 
         base_num = 16
-        for i in range(14):
-            worksheet.write_number(base_num, i, i+1)
+        for i in range(13):
+            worksheet.write_number(base_num, i, i+1, table_cell_format)
 
         base_num = 17
         data = ContainerUnloadFact.objects.filter(report=id)
         for row_num, row in enumerate(data):
-            worksheet.write_string(base_num + row_num, 4, str(row))
-            worksheet.write_number(base_num + row_num, 5, float(row.value))
+            worksheet.write(base_num + row_num, 0, '', table_cell_format)
+            worksheet.write(base_num + row_num, 1, '', table_cell_format)
+            worksheet.write(base_num + row_num, 2, '', table_cell_format)
+            worksheet.write_string(base_num + row_num, 3,
+                                   str(row), table_cell_format)
+            worksheet.write_number(base_num + row_num, 4,
+                                   float(row.value), table_cell_format)
             if row.datetime_entry:
                 worksheet.write_datetime(
-                    base_num + row_num, 6, row.datetime_entry, date_format)
+                    base_num + row_num, 5,
+                    row.datetime_entry,
+                    long_date_format)
             else:
-                worksheet.write_string(base_num + row_num, 6, "Нет данных")
-            worksheet.write_number(base_num + row_num, 7, row.count)
-            worksheet.write_number(base_num + row_num, 8,
-                                   float(row.value) * row.count)
+                worksheet.write_string(
+                    base_num + row_num, 5, "Нет данных", table_cell_format)
+            worksheet.write_number(base_num + row_num, 6,
+                                   row.count, table_cell_format)
+            worksheet.write_number(base_num + row_num, 7,
+                                   float(row.value) * row.count,
+                                   table_cell_format)
+            worksheet.write(base_num + row_num, 8, '', table_cell_format)
+            worksheet.write(base_num + row_num, 9, '', table_cell_format)
+            worksheet.write(base_num + row_num, 10, '', table_cell_format)
+            worksheet.write(base_num + row_num, 11, '', table_cell_format)
+            worksheet.write(base_num + row_num, 12, '', table_cell_format)
 
         base_num += len(data) + 1
 
