@@ -33,16 +33,26 @@ class MtIdFilter(InputFilter):
             return queryset.filter(mt_id=mt_id)
 
 
+class NavIdFilter(InputFilter):
+    parameter_name = 'nav_id'
+    title = 'Идентификатор навигации'
+
+    def queryset(self, request, queryset):
+        if self.value() is not None:
+            nav_id = self.value()
+            return queryset.filter(nav_id=nav_id)
+
+
 @admin.register(Device)
 class DeviceAdmin(ImportExportActionModelAdmin):
     list_display = ('name', 'sync_date')
-    list_filter = ('sync_date',)
+    list_filter = ('sync_date', NavIdFilter)
 
 
 @admin.register(Driver)
 class DriverAdmin(ImportExportActionModelAdmin):
     list_display = ('lname', 'fname', 'mname', 'sync_date')
-    list_filter = ('sync_date',)
+    list_filter = ('sync_date', NavIdFilter)
 
 
 @admin.register(SyncDate)
@@ -59,7 +69,7 @@ class PointAdmin(ImportExportActionModelAdmin):
 @admin.register(GeoZone)
 class GeoZoneAdmin(ImportExportActionModelAdmin):
     list_display = ('name', 'mt_id', 'sync_date')
-    list_filter = ('sync_date', MtIdFilter)
+    list_filter = ('sync_date', MtIdFilter,  NavIdFilter)
     filter_horizontal = ("points",)
 
 
@@ -79,4 +89,4 @@ class FlatTableAdmin(ImportExportActionModelAdmin):
 @admin.register(NavMtId)
 class NavMtIdAdmin(ImportExportActionModelAdmin):
     list_display = ('name', 'mt_id', 'sync_date')
-    list_filter = ('sync_date', MtIdFilter)
+    list_filter = ('sync_date', MtIdFilter,  NavIdFilter)
