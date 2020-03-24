@@ -1,10 +1,10 @@
-import { format } from 'date-fns'
+import { format } from 'date-fns';
 
-const pattern = 'HH:mm:ss'
+const pattern = 'HH:mm:ss';
 
 export default function dateBeautify(date: any) {
-    if (date) {
-        return format(new Date(date), pattern)
-    }
-    return '(n/a)'
+  if (date) {
+    return format(new Date(date), pattern);
+  }
+  return '(n/a)';
 }

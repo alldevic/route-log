@@ -127,22 +127,22 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import LogoutButton from "@/components/LogoutButton.vue";
-import Repository from "@/api/Repository";
-import RepositoryFactory from "@/api/RepositoryFactory";
-import AUTH from "./store/actions/auth";
-import FILE_TYPES from "@/constants/fileTypes";
-import FILE_TYPES_DICT from "@/dictionaries/fileTypesDict";
+import Vue from 'vue';
+import LogoutButton from '@/components/LogoutButton.vue';
+import Repository from '@/api/Repository';
+import RepositoryFactory from '@/api/RepositoryFactory';
+import FILE_TYPES from '@/constants/fileTypes';
+import FILE_TYPES_DICT from '@/dictionaries/fileTypesDict';
+import AUTH from './store/actions/auth';
 
-const DevicesRepository = RepositoryFactory.get("devices");
-const ContainerTypesRepository = RepositoryFactory.get("containerTypes");
-const ReportsRepository = RepositoryFactory.get("reports");
+const DevicesRepository = RepositoryFactory.get('devices');
+const ContainerTypesRepository = RepositoryFactory.get('containerTypes');
+const ReportsRepository = RepositoryFactory.get('reports');
 
 export default Vue.extend({
-  name: "App",
+  name: 'App',
   components: {
-    LogoutButton
+    LogoutButton,
   },
   data: () => ({
     appTopHeight: 0,
@@ -168,15 +168,15 @@ export default Vue.extend({
     isLoadingContainerTypes: false,
     toggleFiles: false,
     backButton: false,
-    reportIsCreated: false
+    reportIsCreated: false,
   }),
   watch: {
     reportId(value: any) {
       if (value) {
         this.$router.push({
-          name: "shipping-report-detail",
+          name: 'shipping-report-detail',
           params: { id: value },
-          query: { page: "1" }
+          query: { page: '1' },
         });
       }
     },
@@ -192,7 +192,7 @@ export default Vue.extend({
       if (!value) {
         this.selectedDevice = null;
       }
-    }
+    },
   },
   created() {
     this.appTopHeight = this.$vuetify.application.top;
@@ -203,7 +203,7 @@ export default Vue.extend({
       // console.log(123);
     },
     routeToReportList() {
-      this.$router.push({ name: "shipping-report-list", query: { page: "1" } });
+      this.$router.push({ name: 'shipping-report-list', query: { page: '1' } });
     },
     onUploadFiles({ file, id }: any) {
       if (file) {
@@ -231,12 +231,12 @@ export default Vue.extend({
       while (response.data.next) {
         response = await DevicesRepository.get(
           response.data.next
-            .split("?")
+            .split('?')
             .pop()
-            .split("&")
-            .filter((item: string) => ~item.indexOf("page="))[0]
-            .split("=")
-            .pop()
+            .split('&')
+            .filter((item: string) => ~item.indexOf('page='))[0]
+            .split('=')
+            .pop(),
         );
         this.devices.push(...response.data.results);
       }
@@ -245,16 +245,16 @@ export default Vue.extend({
     async getContainerTypes() {
       this.isLoadingContainerTypes = true;
       let response = await ContainerTypesRepository.get();
-      let responseTypes = response.data.results;
+      const responseTypes = response.data.results;
       while (response.data.next) {
         response = await ContainerTypesRepository.get(
           response.data.next
-            .split("?")
+            .split('?')
             .pop()
-            .split("&")
-            .filter((item: string) => ~item.indexOf("page="))[0]
-            .split("=")
-            .pop()
+            .split('&')
+            .filter((item: string) => ~item.indexOf('page='))[0]
+            .split('=')
+            .pop(),
         );
         responseTypes.push(...response.data.results);
       }
@@ -264,15 +264,13 @@ export default Vue.extend({
     async createReport() {
       this.reportIsCreated = true;
       const formData = new FormData();
-      formData.append("date", this.date);
-      formData.append("file_type", this.fileType);
-      formData.append("attachment", this.attachment || "");
-      formData.append("application", this.application || "");
-      formData.append("device", this.selectedDevice);
-      this.selectedContainerTypes.map((x: any) =>
-        formData.append("container_types", x.id)
-      );
-      console.log(formData);
+      formData.append('date', this.date);
+      formData.append('file_type', this.fileType);
+      formData.append('attachment', this.attachment || '');
+      formData.append('application', this.application || '');
+      formData.append('device', this.selectedDevice);
+      this.selectedContainerTypes.map((x: any) => formData.append('container_types', x.id));
+      // console.log(formData);
       const response = await ReportsRepository.createReport(formData);
       this.selectedDevice = null;
       this.reportId = response.data.id;
@@ -280,19 +278,17 @@ export default Vue.extend({
     },
     async autoLogout() {
       Repository.interceptors.response.use(
-        response => {
-          return response;
-        },
-        error => {
+        response => response,
+        (error) => {
           if (error.config && error.response && error.response.status === 401) {
             this.$store.dispatch(AUTH.LOGOUT, error);
-            this.$router.push("/login");
+            this.$router.push('/login');
           }
           return Promise.reject(error.response);
-        }
+        },
       );
-    }
-  }
+    },
+  },
 });
 </script>
 
