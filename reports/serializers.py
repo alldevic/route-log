@@ -10,6 +10,7 @@ from reports.models import ContainerType, ContainerUnloadFact, Report
 
 from . import attachment_parser, application_parser
 from rest_framework.fields import SerializerMethodField
+from requests.models import Response
 
 
 class ReportSerializer(serializers.ModelSerializer):
@@ -46,20 +47,21 @@ class GenerateReportSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
-        report = Report.objects.create(date=validated_data['date'],
-                                       device=validated_data['device'])
-
         attachment = validated_data.get('attachment', None)
-        date = validated_data.get('date', None)
         device = validated_data.get('device', None)
         container_types = validated_data.get('container_types', None)
+        date = validated_data.get('date', None)
         syncdate = [x for x in SyncDate.objects.all()
                     if check_syncdate(x.datetime, date)]
 
-        if syncdate is []:
-            return None
+        if syncdate in ([], None):
+            return Response(None, 200)
+
+        report = Report.objects.create(date=validated_data['date'],
+                                       device=validated_data['device'])
 
         if attachment and date:
+
             bulk_obj = []
             bulk_tp = []
 
