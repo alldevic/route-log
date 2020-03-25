@@ -147,7 +147,11 @@ export default Vue.extend({
           item.point_value.lat,
           item.point_value.lon,
           item.utc,
-        ]);
+        ]).sort((track: any, prevTrack: any) => {
+          const trackUtc: any = new Date(track[2]),
+                prevTrackUtc: any = new Date(prevTrack[2])
+          return trackUtc - prevTrackUtc;
+        });
         this.map.zoom = 15;
       }
     },

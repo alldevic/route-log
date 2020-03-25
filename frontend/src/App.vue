@@ -227,19 +227,22 @@ export default Vue.extend({
     },
     async getDevices() {
       this.isLoadingDevices = true;
-      let response = await DevicesRepository.get();
+      let response = await DevicesRepository.get({ date: this.date });
+      const responseDevices = response.data.results;
       while (response.data.next) {
-        response = await DevicesRepository.get(
-          response.data.next
-            .split('?')
+        response = await DevicesRepository.get({
+          page: response.data.next
+            .split("?")
             .pop()
-            .split('&')
-            .filter((item: string) => ~item.indexOf('page='))[0]
-            .split('=')
+            .split("&")
+            .filter((item: string) => ~item.indexOf("page="))[0]
+            .split("=")
             .pop(),
-        );
-        this.devices.push(...response.data.results);
+          date: this.date
+        });
+        responseDevices.push(...response.data.results);
       }
+      this.devices = responseDevices;
       this.isLoadingDevices = false;
     },
     async getContainerTypes() {
