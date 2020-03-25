@@ -30,12 +30,13 @@ class DeviceListView(generics.ListAPIView):
 
     def list(self, request, *args, **kwargs):
 
-        if request.query_params.get("sync_date", None):
-            sync_date = datetime(request.query_params["sync_date"])
-
-            queryset = Device.objects.filter(sync_date__year=sync_date.year,
-                                             sync_date__month=sync_date.month,
-                                             sync_date__date=sync_date.date)
+        if request.query_params.get("date", None):
+            dt = datetime.strptime(
+                request.query_params["date"], "%Y-%m-%d")
+            sync_date = SyncDate.objects.filter(datetime__year=dt.year,
+                                                datetime__month=dt.month,
+                                                datetime__day=dt.day).first()
+            queryset = Device.objects.filter(sync_date=sync_date)
         else:
             sync_date = last_sync_date.datetime
             queryset = Device.objects.filter(sync_date=last_sync_date)
@@ -59,12 +60,14 @@ class GeozoneListView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
 
     def list(self, request, *args, **kwargs):
-        if request.query_params["sync_date"]:
-            sync_date = datetime(request.query_params["sync_date"])
+        if request.query_params["date"]:
+            dt = datetime.strptime(
+                request.query_params["date"], "%Y-%m-%d")
+            sync_date = SyncDate.objects.filter(datetime__year=dt.year,
+                                                datetime__month=dt.month,
+                                                datetime__day=dt.day).first()
 
-            queryset = GeoZone.objects.filter(sync_date__year=sync_date.year,
-                                              sync_date__month=sync_date.month,
-                                              sync_date__date=sync_date.date)
+            queryset = GeoZone.objects.filter(sync_date=sync_date)
         else:
             queryset = GeoZone.objects.filter(sync_date=last_sync_date)
 
@@ -87,12 +90,14 @@ class NavMtIdListView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
 
     def list(self, request, *args, **kwargs):
-        if request.query_params["sync_date"]:
-            sync_date = datetime(request.query_params["sync_date"])
+        if request.query_params["date"]:
+            dt = datetime.strptime(
+                request.query_params["date"], "%Y-%m-%d")
+            sync_date = SyncDate.objects.filter(datetime__year=dt.year,
+                                                datetime__month=dt.month,
+                                                datetime__day=dt.day).first()
 
-            queryset = NavMtId.objects.filter(sync_date__year=sync_date.year,
-                                              sync_date__month=sync_date.month,
-                                              sync_date__date=sync_date.date)
+            queryset = NavMtId.objects.filter(sync_date=sync_date)
         else:
             queryset = NavMtId.objects.filter(sync_date=last_sync_date)
 

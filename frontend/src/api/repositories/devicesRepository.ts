@@ -5,9 +5,14 @@ const mainResource = `${baseURL}${resource}`;
 
 
 export default {
-  get(page: string) {
-    return Repository.get(page
-      ? `${mainResource}?page=${page}`
-      : `${mainResource}`);
+  get({ page, date }: any) {
+    return Repository.get(
+      mainResource,
+      {
+        params: {
+          page: page ? page : null,
+          date
+        }
+      });
   },
 };
