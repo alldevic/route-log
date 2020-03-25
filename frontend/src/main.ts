@@ -1,10 +1,10 @@
 import Vue from 'vue';
+import instance from '@/api/Repository';
+import dateBeautify from '@/filters/DateFilter';
 import App from './App.vue';
 import router from './router';
 import store from './store';
 import vuetify from './plugins/vuetify';
-import instance from '@/api/Repository';
-import dateBeautify from '@/filters/DateFilter'
 
 Vue.config.productionTip = false;
 
@@ -14,7 +14,7 @@ if (token) {
   instance.defaults.headers.Authorization = `Token ${token}`;
 }
 
-Vue.filter('date', dateBeautify)
+Vue.filter('date', dateBeautify);
 
 new Vue({
   router,

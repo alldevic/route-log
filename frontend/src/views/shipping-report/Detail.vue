@@ -268,17 +268,24 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import Vue from 'vue';
 import _ from 'lodash';
-import EcotecMap from "@/components/EcotecMap.vue";
-import RepositoryFactory from "@/api/RepositoryFactory";
+import EcotecMap from '@/components/EcotecMap.vue';
+import RepositoryFactory from '@/api/RepositoryFactory';
 
-const ReportsRepository = RepositoryFactory.get("reports");
-const GeozonesRepository = RepositoryFactory.get("geozones");
+const ReportsRepository = RepositoryFactory.get('reports');
+const GeozonesRepository = RepositoryFactory.get('geozones');
 
 export default Vue.extend({
   components: {
-    EcotecMap
+    EcotecMap,
+  },
+  filters: {
+    date(date: any) {
+      if (!date) return 'Нет данных';
+
+      return new Date(date).toLocaleString();
+    },
   },
   data: () => ({
     mapZoom: 15,
@@ -344,76 +351,69 @@ export default Vue.extend({
       count: null as any,
       nav_mt_id: null as any,
     },
-    dateEntryRules: [(v: any) => !!v || "Дата не выбрана"],
-    dateExitRules: [(v: any) => !!v || "Дата не выбрана"],
-    timeEntryRules: [(v: any) => !!v || "Время не выбрано"],
-    timeExitRules: [(v: any) => !!v || "Время не выбрано"],
-    valueRules: [(v: any) => !!v || "Объем не указан"],
-    containerTypeRules: [(v: any) => !!v || "Тип не указан"],
-    directoryRules: [(v: any) => !!v || "Муниципальное образование не указано"],
-    countRules: [(v: any) => !!v || "Количество не указано"],
-    navMtIdRules: [(v: any) => !!v || "Код не указан"],
+    dateEntryRules: [(v: any) => !!v || 'Дата не выбрана'],
+    dateExitRules: [(v: any) => !!v || 'Дата не выбрана'],
+    timeEntryRules: [(v: any) => !!v || 'Время не выбрано'],
+    timeExitRules: [(v: any) => !!v || 'Время не выбрано'],
+    valueRules: [(v: any) => !!v || 'Объем не указан'],
+    containerTypeRules: [(v: any) => !!v || 'Тип не указан'],
+    directoryRules: [(v: any) => !!v || 'Муниципальное образование не указано'],
+    countRules: [(v: any) => !!v || 'Количество не указано'],
+    navMtIdRules: [(v: any) => !!v || 'Код не указан'],
     headers: [
       {
-        text: "Код площадки в МТ",
-        value: "nav_mt_id",
-        sortable: false
+        text: 'Код площадки в МТ',
+        value: 'nav_mt_id',
+        sortable: false,
       },
       {
-        text: "Время въезда",
-        value: "datetime_entry",
-        sortable: false
+        text: 'Время въезда',
+        value: 'datetime_entry',
+        sortable: false,
       },
       {
-        text: "Время выезда",
-        value: "datetime_exit",
-        sortable: false
+        text: 'Время выезда',
+        value: 'datetime_exit',
+        sortable: false,
       },
       {
-        text: "Отгружено",
-        value: "is_unloaded",
-        sortable: false
+        text: 'Отгружено',
+        value: 'is_unloaded',
+        sortable: false,
       },
       {
-        text: "Объем контейнера",
-        value: "value",
-        sortable: false
+        text: 'Объем контейнера',
+        value: 'value',
+        sortable: false,
       },
       {
-        text: "Тип контейнера",
-        value: "container_type",
-        sortable: false
+        text: 'Тип контейнера',
+        value: 'container_type',
+        sortable: false,
       },
       {
-        text: "Муниципальное образование",
-        value: "directory",
-        sortable: false
+        text: 'Муниципальное образование',
+        value: 'directory',
+        sortable: false,
       },
       {
-        text: "Количество отгрузок",
-        value: "count",
-        sortable: false
+        text: 'Количество отгрузок',
+        value: 'count',
+        sortable: false,
       },
       {
         text: 'Действия',
         value: 'action',
-        sortable: false
-      }
-    ]
+        sortable: false,
+      },
+    ],
   }),
-  filters: {
-    date(date: any) {
-      if (!date) return 'Нет данных';
-
-      return new Date(date).toLocaleString();
-    },
-  },
   computed: {
     currentItem() {
       const [currentItem] = this.selectedContainerUnload;
       return currentItem;
     },
-    formTitle () {
+    formTitle() {
       return this.editedIndex === -1 ? 'Добавить дополнительный вывоз' : 'Редактировать текущий вывоз';
     },
     buttonText() {
@@ -433,7 +433,7 @@ export default Vue.extend({
           this.activateBackButton();
         }
       },
-      immediate: true
+      immediate: true,
     },
     selectedContainerUnload(itemNew: any, itemOld: any) {
       if (itemNew.length) {
@@ -486,7 +486,7 @@ export default Vue.extend({
         value: this.editedItem.value,
         container_type: this.editedItem.container_type,
         directory: this.editedItem.directory,
-        count: this.editedItem.count
+        count: this.editedItem.count,
       };
       const response = await ReportsRepository.addUnloadsSet(unloadSet);
       this.getContainerUnloads();
@@ -497,7 +497,7 @@ export default Vue.extend({
       const pageNumber = this.page;
       const response = await ReportsRepository.getContainerUnloads(
         id,
-        pageNumber
+        pageNumber,
       );
       this.containerUnloads = response.data.results;
       this.pageCount = response.data.count;
@@ -506,7 +506,7 @@ export default Vue.extend({
     getRowValue(item: any): void {
       if (item.geozone) {
         this.selectedContainerUnload = this.selectedContainerUnload.includes(
-          item
+          item,
         )
           ? []
           : [item];
@@ -596,25 +596,25 @@ export default Vue.extend({
     updatePage(pageNumber: any) {
       this.page = pageNumber;
       this.$router.push({
-        name: "shipping-report-detail",
+        name: 'shipping-report-detail',
         params: { id: this.report },
-        query: { page: pageNumber }
+        query: { page: pageNumber },
       });
     },
     activateBackButton() {
       const backButton = true;
-      this.$emit("activateBackButton", backButton);
+      this.$emit('activateBackButton', backButton);
     },
     async exportExcel() {
       const response = await ReportsRepository.exportReport(this.report);
-      var fileURL = window.URL.createObjectURL(response.data);
-      var fileLink = document.createElement("a");
+      const fileURL = window.URL.createObjectURL(response.data);
+      const fileLink = document.createElement('a');
       fileLink.href = fileURL;
-      const filename = response.headers["content-disposition"].split(
-        "filename="
+      const filename = response.headers['content-disposition'].split(
+        'filename=',
       )[1];
-      fileLink.setAttribute("download", filename);
-      fileLink.setAttribute("target", "_blank");
+      fileLink.setAttribute('download', filename);
+      fileLink.setAttribute('target', '_blank');
       document.body.appendChild(fileLink);
       fileLink.click();
     },
@@ -631,6 +631,6 @@ export default Vue.extend({
     //     query: { page: pageNumber },
     //   });
     // },
-  }
+  },
 });
 </script>

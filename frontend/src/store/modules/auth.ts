@@ -1,6 +1,6 @@
-import AUTH from '../actions/auth';
 import RepositoryFactory from '@/api/RepositoryFactory';
 import instance from '@/api/Repository';
+import AUTH from '../actions/auth';
 
 const LoginRepository = RepositoryFactory.get('login');
 const LogoutRepository = RepositoryFactory.get('logout');

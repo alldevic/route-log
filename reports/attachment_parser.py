@@ -21,7 +21,7 @@ def parse(file, date, device, container_types):
 
     worksheet = xlrd.open_workbook(file_contents=file.read()).sheet_by_index(0)
     for row in worksheet.get_rows():
-        if not check_schedule(row[7].value, date):
+        if not check_schedule(row[17].value, date):
             continue
 
         geozone = None
@@ -34,10 +34,10 @@ def parse(file, date, device, container_types):
         if fl or geozone is None:
             continue
 
-        row5 = str(row[5].value).split(' ')
+        row14 = str(row[14].value).split(' ')
         fl = True
         for ctype in types:
-            if ctype[0] == row5[0] and ctype[1] == row5[1]:
+            if ctype[0] == row14[0] and ctype[1] == row14[1]:
                 fl = False
 
         if fl:
@@ -53,9 +53,9 @@ def parse(file, date, device, container_types):
                 report_points = [x for x in xx.points.all()]
                 break
 
-        report_row["count"] = row[6].value
-        report_row["value"] = row5[0]
-        report_row["ct_type"] = row5[1]
+        report_row["count"] = row[16].value
+        report_row["value"] = row14[0]
+        report_row["ct_type"] = row14[1]
 
         report_row["time_in"] = None
         report_row["time_out"] = None

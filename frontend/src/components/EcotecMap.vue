@@ -61,9 +61,9 @@
 
 <script lang="ts">
 // Import
-import Vue from "vue";
-import "leaflet/dist/leaflet.css";
-import { Icon, latLng } from "leaflet";
+import Vue from 'vue';
+import 'leaflet/dist/leaflet.css';
+import { Icon, latLng } from 'leaflet';
 import {
   LMap,
   LTileLayer,
@@ -71,8 +71,8 @@ import {
   LPolyline,
   LTooltip,
   LCircleMarker,
-  LControl
-} from "vue2-leaflet";
+  LControl,
+} from 'vue2-leaflet';
 
 type D = Icon.Default & {
   _getIconUrl: string;
@@ -80,9 +80,9 @@ type D = Icon.Default & {
 
 delete (Icon.Default.prototype as D)._getIconUrl;
 Icon.Default.mergeOptions({
-  iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
-  iconUrl: require("leaflet/dist/images/marker-icon.png"),
-  shadowUrl: require("leaflet/dist/images/marker-shadow.png")
+  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+  iconUrl: require('leaflet/dist/images/marker-icon.png'),
+  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
 export default Vue.extend({
@@ -93,17 +93,17 @@ export default Vue.extend({
     LPolyline,
     LTooltip,
     LCircleMarker,
-    LControl
+    LControl,
   },
   props: {
     item: {
       type: Object,
-      default: null
+      default: null,
     },
     mapHeight: {
       type: Number,
-      default: 340
-    }
+      default: 340,
+    },
   },
   data: () => ({
     map: {
@@ -114,27 +114,27 @@ export default Vue.extend({
       tracks: null as any,
       tiles: [
         {
-          title: "2GIS карта",
-          url: "http://tile2.maps.2gis.com/tiles?x={x}&y={y}&z={z}"
+          title: '2GIS карта',
+          url: 'http://tile2.maps.2gis.com/tiles?x={x}&y={y}&z={z}',
         },
         {
-          title: "OSM карта",
-          url: "https://{s}.tile.osm.org/{z}/{x}/{y}.png"
+          title: 'OSM карта',
+          url: 'https://{s}.tile.osm.org/{z}/{x}/{y}.png',
         },
         {
-          title: "Sputnik.ru",
-          url: "http://tiles.maps.sputnik.ru/{z}/{x}/{y}.png"
-        }
-      ]
+          title: 'Sputnik.ru',
+          url: 'http://tiles.maps.sputnik.ru/{z}/{x}/{y}.png',
+        },
+      ],
     },
-    selectedTile: 0
+    selectedTile: 0,
   }),
   computed: {
     cssVars() {
       return {
-        "--mapHeight": `${this.mapHeight}px`
+        '--mapHeight': `${this.mapHeight}px`,
       };
-    }
+    },
   },
   watch: {
     item(value: any) {
@@ -146,12 +146,12 @@ export default Vue.extend({
         this.map.tracks = value.track_points.map((item: any) => [
           item.point_value.lat,
           item.point_value.lon,
-          item.utc
+          item.utc,
         ]);
         this.map.zoom = 15;
       }
-    }
-  }
+    },
+  },
 });
 </script>
 

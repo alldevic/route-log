@@ -10,13 +10,34 @@
         "@vue/typescript"
     ],
     "rules": {
-        "linebreak-style": ["error", "unix"],
-        "quote-props": ["error", "consistent"],
-        "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
-        "func-names": ["error", "never"],
-        "radix": ["error", "as-needed"],
+        "linebreak-style": [
+            "error",
+            "unix"
+        ],
+        "quote-props": [
+            "error",
+            "consistent"
+        ],
+        "no-plusplus": [
+            "error",
+            {
+                "allowForLoopAfterthoughts": true
+            }
+        ],
+        "func-names": [
+            "error",
+            "never"
+        ],
+        "radix": [
+            "error",
+            "as-needed"
+        ],
         "no-new": "off",
-        "max-len": [1, 130, 4],
+        "max-len": [
+            1,
+            130,
+            4
+        ],
         "no-param-reassign": "off",
         "camelcase": "warn",
         "no-multi-spaces": "off",
@@ -27,7 +48,9 @@
         "vue/no-v-html": "off",
         "import/no-unresolved": {
             "node": {
-            "paths": ["@"]
+                "paths": [
+                    "@"
+                ]
             }
         }
     }

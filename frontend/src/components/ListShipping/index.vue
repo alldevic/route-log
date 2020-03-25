@@ -35,10 +35,10 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import RepositoryFactory from "@/api/RepositoryFactory";
+import Vue from 'vue';
+import RepositoryFactory from '@/api/RepositoryFactory';
 
-const ReportsRepository = RepositoryFactory.get("reports");
+const ReportsRepository = RepositoryFactory.get('reports');
 
 export default Vue.extend({
   data: () => ({
@@ -47,12 +47,12 @@ export default Vue.extend({
     reportsLength: 0,
     itemsPerPage: 30,
     page: 1,
-    message: "Список отчётов пуст!"
+    message: 'Список отчётов пуст!',
   }),
   computed: {
     reportsIsNotEmpty() {
       return this.reports.length;
-    }
+    },
   },
   watch: {
     $route: {
@@ -63,7 +63,7 @@ export default Vue.extend({
           this.activateBackButton();
         }
       },
-      immediate: true
+      immediate: true,
     },
     reports(value: any) {
       if (!value) {
@@ -75,14 +75,14 @@ export default Vue.extend({
         if (valueNew !== valueOld) {
           this.$router
             .replace({
-              name: "shipping-report-list",
-              query: { page: valueNew }
+              name: 'shipping-report-list',
+              query: { page: valueNew },
             })
-            .catch(error => {});
+            .catch((error) => {});
         }
       },
-      immediate: true
-    }
+      immediate: true,
+    },
   },
   methods: {
     async getReports() {
@@ -94,8 +94,8 @@ export default Vue.extend({
     },
     activateBackButton() {
       const backButton = false;
-      this.$emit("activateBackButton", backButton);
-    }
-  }
+      this.$emit('activateBackButton', backButton);
+    },
+  },
 });
 </script>
