@@ -163,6 +163,6 @@ class ContainerTypeListSerializer(serializers.ModelSerializer):
 
 
 def check_syncdate(syncdate, ch_date):
-    return syncdate.year == ch_date.year and \
-        syncdate.month == ch_date.month and \
-        syncdate.day == ch_date.day
+    return (syncdate.year == ch_date.year) and \
+        (syncdate.month == ch_date.month) and \
+        (syncdate.day == ch_date.day)

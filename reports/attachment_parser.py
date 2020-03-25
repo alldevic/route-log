@@ -2,6 +2,7 @@ import xlrd
 from nav_client.models import FlatTableRow, GeoZone, NavMtId, Point, SyncDate
 import math as m
 from reports.models import ContainerType
+from datetime import datetime
 
 
 def parse(file, date, device, container_types):
@@ -68,14 +69,18 @@ def parse(file, date, device, container_types):
                          if in_range(flat.point_value, big_range, center)]
 
         if current_flats:
-            current_flats.sort(key=lambda x: x.utc)
+            current_flats = sorted(current_flats, key=lambda x: x.utc)
+            # current_flats.sort(key=lambda x: datetime.strptime(
+            #     x.utc, "%Y-%m-%d %H:%M:%S%z"))
+            fl = False
             for flat in current_flats:
                 if in_range(flat.point_value, small_range, center):
+                    fl = True
                     if report_row["time_in"] is None:
                         report_row["time_in"] = flat.utc
                     report_row["time_out"] = flat.utc
 
-            if check_unloaded(report_row):
+            if fl and check_unloaded(report_row):
                 report_row["is_unloaded"] = True
 
         report_row["track_points"] = current_flats
@@ -83,8 +88,11 @@ def parse(file, date, device, container_types):
 
 
 def check_unloaded(report_row):
-    fact_time = (report_row["time_out"] - report_row["time_in"]) \
-        .total_seconds()
+    time_in = datetime.strptime(
+        report_row["time_in"], "%Y-%m-%d %H:%M:%S%z")
+    time_out = datetime.strptime(report_row["time_out"], "%Y-%m-%d %H:%M:%S%z")
+
+    fact_time = (time_out - time_in).total_seconds()
 
     if fact_time <= 0:
         return False
@@ -96,8 +104,7 @@ def check_unloaded(report_row):
         return False
 
     estim_time = container_type.upload_time * int(report_row["count"])
-
-    return fact_time < estim_time
+    return fact_time >= estim_time
 
 
 def check_schedule(schedule, date):
