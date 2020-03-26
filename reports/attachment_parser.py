@@ -28,7 +28,7 @@ def parse(file, date, device, container_types):
         # row14 = str(row[14].value).split(' ')
         fl = True
         for ctype in types:
-            if ctype.material == row[14].value:
+            if ctype.name == row[14].value:
                 fl = False
 
         if fl:
@@ -92,7 +92,7 @@ def check_unloaded(report_row):
         return False
 
     container_type = ContainerType.objects \
-        .filter(material=report_row["ct_type"],
+        .filter(name=report_row["ct_type"],
                 volume=report_row["value"]).first()
     if container_type is None:
         return False

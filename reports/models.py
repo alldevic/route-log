@@ -70,7 +70,8 @@ class Organization(models.Model):
 class ContainerType(models.Model):
     """Model definition for ContainerType."""
 
-    material = models.CharField("Название", max_length=50)
+    name = models.CharField(
+        "Название", max_length=50)
     volume = models.CharField("Объем контейнера", max_length=7)
     upload_time = models.IntegerField("Время на отгрузку в секундах",
                                       default=30)
@@ -83,4 +84,4 @@ class ContainerType(models.Model):
 
     def __str__(self):
         """Unicode representation of ContainerType."""
-        return self.material
+        return self.name
