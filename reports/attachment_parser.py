@@ -1,15 +1,15 @@
-import xlrd
-from nav_client.models import FlatTableRow, GeoZone, NavMtId, Point, SyncDate
 import math as m
-from reports.models import ContainerType
 from datetime import datetime
+
+import xlrd
+
+from nav_client.models import FlatTableRow, GeoZone, NavMtId, Point, SyncDate
+from reports.models import ContainerType
 
 
 def parse(file, date, device, container_types):
-    types = []
-    for ctype in container_types:
-        tmp = ContainerType.objects.get(pk=int(ctype))
-        types.append((tmp.volume, tmp.material))
+    types = [ContainerType.objects.get(pk=int(ctype))
+             for ctype in container_types]
 
     sync_date = SyncDate.objects.filter(datetime__year=date.year,
                                         datetime__month=date.month,
@@ -17,47 +17,41 @@ def parse(file, date, device, container_types):
     all_flats = [x for x in FlatTableRow.objects
                  .filter(device=device, sync_date=sync_date)
                  .prefetch_related('point_value')]
-    mtids = [x for x in NavMtId.objects.filter(sync_date=sync_date)]
+    # mtids = [x for x in NavMtId.objects.filter(sync_date=sync_date)]
     geozones = [x for x in GeoZone.objects.filter(sync_date=sync_date)]
 
     worksheet = xlrd.open_workbook(file_contents=file.read()).sheet_by_index(0)
     for row in worksheet.get_rows():
-        if not check_schedule(row[17].value, date):
-            continue
+        # if not check_schedule(row[17].value, date):
+        #     continue
 
-        geozone = None
-        fl = True
-        for x in mtids:
-            if x.mt_id == int(row[1].value):
-                geozone = x
-                fl = False
-                break
-        if fl or geozone is None:
-            continue
-
-        row14 = str(row[14].value).split(' ')
+        # row14 = str(row[14].value).split(' ')
         fl = True
         for ctype in types:
-            if ctype[0] == row14[0] and ctype[1] == row14[1]:
+            if ctype.material == row[14].value:
                 fl = False
 
         if fl:
             continue
 
+        geozone = None
+        fl = True
+        for x in geozones:
+            if x.mt_id and (x.mt_id == int(row[1].value)):
+                geozone = x
+                report_points = [t for t in x.points.all()]
+                fl = False
+                break
+        if fl or geozone is None:
+            continue
+
         report_row = {}
+        report_row["geozone"] = geozone
         report_row["nav_mt_id"] = geozone.mt_id or None
         report_row["directory"] = geozone.name or "geozone"
-
-        for xx in geozones:
-            if int(xx.nav_id) == int(geozone.nav_id):
-                report_row["geozone"] = xx
-                report_points = [x for x in xx.points.all()]
-                break
-
         report_row["count"] = row[16].value
-        report_row["value"] = row14[0]
-        report_row["ct_type"] = row14[1]
-
+        report_row["value"] = row[15].value
+        report_row["ct_type"] = row[14].value
         report_row["time_in"] = None
         report_row["time_out"] = None
         report_row["is_unloaded"] = False
@@ -130,9 +124,14 @@ def check_schedule(schedule, date):
 
 
 def is_days_numbers(prep_list):
-    for day in prep_list:
-        if not day.isnumeric():
-            return False
+    prep_list = [x
+                 for y in prep_list.split(',')
+                 for x in y.split('.')]
+
+    for num in prep_list:
+        for ch in num:
+            if not ch.isnumeric():
+                return False
     return True
 
 
