@@ -128,9 +128,11 @@ class Command(BaseCommand):
                 date_to, '%Y-%m-%dT%H:%M:%S')
             cu_date_to = res.rows[-1].utc.replace(tzinfo=None)
             while (cu_date_to - dt_date_to) > datetime.timedelta(seconds=20):
-                res.append(self.client.service.
-                           getFlatTableSimple(device_id, cu_date_to, date_to,
-                                              10000, [0, ], ['Rw', ]))
+                rs = self.client.service \
+                    .getFlatTableSimple(device_id, cu_date_to, date_to,
+                                        10000, [0, ], ['Rw', ])
+                if rs.rows:
+                    res += rs.rows
                 cu_date_to = res.rows[-1].utc
 
             self.stdout.write(self.style.SUCCESS(
@@ -193,7 +195,8 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS('getAllDrivers - SUCCESS'))
             self.getAllGeoZones(sync_date, bulk_mgr)
             self.stdout.write(self.style.SUCCESS('getAllGeoZones - SUCCESS'))
-            for device in Device.objects.filter(sync_date=sync_date):
+            devices = [x for x in Device.objects.filter(sync_date=sync_date)]
+            for device in devices:
                 self.getFlatTableSimple(sync_date,
                                         device.nav_id,
                                         timezone.now(), bulk_mgr)
