@@ -3,45 +3,47 @@ from datetime import datetime
 
 import xlrd
 
-from nav_client.models import FlatTableRow, GeoZone, NavMtId, Point, SyncDate
+from nav_client.models import FlatTableRow, GeoZone, Point
 from reports.models import ContainerType
 
 
-def parse(file, date, device, container_types):
-    types = [ContainerType.objects.get(pk=int(ctype))
-             for ctype in container_types]
+def parse(file, sync_date, device, container_types):
+    types = [x for x in ContainerType.objects.filter(pk__in=container_types)]
 
-    sync_date = SyncDate.objects.filter(datetime__year=date.year,
-                                        datetime__month=date.month,
-                                        datetime__day=date.day).first()
     all_flats = [x for x in FlatTableRow.objects
                  .filter(device=device, sync_date=sync_date)
+                 .only("id", "utc", "point_value_id")
                  .prefetch_related('point_value')]
-    # mtids = [x for x in NavMtId.objects.filter(sync_date=sync_date)]
-    geozones = [x for x in GeoZone.objects.filter(sync_date=sync_date)]
 
     worksheet = xlrd.open_workbook(file_contents=file.read()).sheet_by_index(0)
-    for row in worksheet.get_rows():
+    rows = [x for x in worksheet.get_rows()]
+    mt_ids = [int(row[1].value) for row in rows[1:]]
+    geozones = [x for x in GeoZone.objects
+                .filter(sync_date=sync_date, mt_id__in=mt_ids)
+                .only("id", "name", "mt_id")
+                .prefetch_related("points")]
+
+    res = []
+    for row in rows[1:]:
         # if not check_schedule(row[17].value, date):
         #     continue
 
         # row14 = str(row[14].value).split(' ')
-        fl = True
-        for ctype in types:
-            if ctype.material == row[14].value:
-                fl = False
 
-        if fl:
+        container_type = [x for x in types
+                          if x.name == row[14].value]
+        if not container_type:
             continue
+        container_type = container_type[0]
 
         geozone = None
         fl = True
         for x in geozones:
             if x.mt_id and (x.mt_id == int(row[1].value)):
                 geozone = x
-                report_points = [t for t in x.points.all()]
                 fl = False
                 break
+
         if fl or geozone is None:
             continue
 
@@ -56,16 +58,14 @@ def parse(file, date, device, container_types):
         report_row["time_out"] = None
         report_row["is_unloaded"] = False
 
-        big_range = 500
-        small_range = 50
-        center = get_center(report_points)
+        big_range = 350
+        small_range = 25
+        center = get_center([t for t in geozone.points.all()])
         current_flats = [flat for flat in all_flats
                          if in_range(flat.point_value, big_range, center)]
 
         if current_flats:
             current_flats = sorted(current_flats, key=lambda x: x.utc)
-            # current_flats.sort(key=lambda x: datetime.strptime(
-            #     x.utc, "%Y-%m-%d %H:%M:%S%z"))
             fl = False
             for flat in current_flats:
                 if in_range(flat.point_value, small_range, center):
@@ -74,16 +74,16 @@ def parse(file, date, device, container_types):
                         report_row["time_in"] = flat.utc
                     report_row["time_out"] = flat.utc
 
-            if fl and check_unloaded(report_row):
+            if fl and check_unloaded(report_row, container_type):
                 report_row["is_unloaded"] = True
 
         report_row["track_points"] = current_flats
-        yield report_row
+        res.append(report_row)
+    return res
 
 
-def check_unloaded(report_row):
-    time_in = datetime.strptime(
-        report_row["time_in"], "%Y-%m-%d %H:%M:%S%z")
+def check_unloaded(report_row, container_type):
+    time_in = datetime.strptime(report_row["time_in"], "%Y-%m-%d %H:%M:%S%z")
     time_out = datetime.strptime(report_row["time_out"], "%Y-%m-%d %H:%M:%S%z")
 
     fact_time = (time_out - time_in).total_seconds()
@@ -91,9 +91,6 @@ def check_unloaded(report_row):
     if fact_time <= 0:
         return False
 
-    container_type = ContainerType.objects \
-        .filter(material=report_row["ct_type"],
-                volume=report_row["value"]).first()
     if container_type is None:
         return False
 

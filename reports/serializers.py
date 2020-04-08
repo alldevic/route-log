@@ -64,11 +64,12 @@ class GenerateReportSerializer(serializers.ModelSerializer):
 
             bulk_obj = []
             bulk_tp = []
+            rows = attachment_parser.parse(attachment,
+                                           syncdate[0],
+                                           device,
+                                           container_types)
 
-            for row in attachment_parser.parse(attachment,
-                                               syncdate[0].datetime,
-                                               device,
-                                               container_types):
+            for row in rows:
                 obj = ContainerUnloadFact(report=report,
                                           geozone=row["geozone"],
                                           datetime_entry=row["time_in"],

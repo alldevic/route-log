@@ -8,7 +8,7 @@ def parse(file, date, device, container_types):
     types = []
     for ctype in container_types:
         tmp = ContainerType.objects.get(pk=int(ctype))
-        types.append((tmp.volume, tmp.material))
+        types.append((tmp.volume, tmp.name))
 
     sync_date = SyncDate.objects.filter(datetime__year=date.year,
                                         datetime__month=date.month,

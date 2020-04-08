@@ -24,7 +24,7 @@ class ContainerUnloadFactAdmin(admin.ModelAdmin):
 
 @admin.register(ContainerType)
 class ContainerTypeAdmin(ImportExportActionModelAdmin):
-    list_display = ('material', 'volume', 'upload_time')
+    list_display = ('name', 'volume', 'upload_time')
 
 
 @admin.register(Organization)
