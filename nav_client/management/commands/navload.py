@@ -171,19 +171,45 @@ class Command(BaseCommand):
             ))
 
     def add_arguments(self, parser):
-        parser.add_argument('--entity', type=str)
+        parser.add_argument('--date', type=self.get_date,
+                            default=timezone.now())
+        parser.add_argument('--count', type=int, default=1)
+        parser.add_argument('--force', action='store_true', default=False)
+
+    def get_date(self, obj):
+        obj += " 00:01:00+0000"
+        return timezone.datetime.strptime(obj, "%d.%m.%Y %H:%M:%S%z")
 
     #  TODO: add custom periods, now 1 sync in 24 hours
-    #  TODO: fix params
     def handle(self, *args, **options):
-        sync_date = SyncDate.objects.last()
-        now = timezone.localtime()
-        if sync_date is None or \
-           (sync_date.datetime.year != now.year or
-            sync_date.datetime.month != now.month or
-                sync_date.datetime.day != now.day):
+        count = options['count']
+        force = options['force']
+
+        for co in range(0, count):
+            date = (options['date'] or timezone.localtime()) - \
+                timezone.timedelta(days=co)
+            sync_date = SyncDate.objects \
+                .filter(datetime__year=date.year,
+                        datetime__month=date.month,
+                        datetime__day=date.day).last() or \
+                SyncDate.objects.last()
+
+            now = timezone.localtime()
+
+            if ((sync_date.datetime.year == date.year) and
+                (sync_date.datetime.month == date.month) and
+                    (sync_date.datetime.day == date.day)):
+                if force:
+                    sync_date.delete()
+                else:
+                    self.stdout.write(self.style.SUCCESS(
+                        f'Current sync date: {sync_date}'))
+                    self.stdout.write(self.style.SUCCESS(f'Now: {now}'))
+                    self.stdout.write(self.style.SUCCESS('Sync already done!'))
+                    continue
+
             bulk_mgr = BulkCreateManager(chunk_size=250)
-            sync_date = SyncDate.objects.create()
+            sync_date = SyncDate.objects.create(datetime=date)
             begin_time = timezone.now()
             self.stdout.write(self.style.SUCCESS(
                 f'BEGIN ALL: {begin_time}'))
@@ -207,8 +233,3 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS(f'END ALL: {end_time}'))
             self.stdout.write(self.style.SUCCESS(
                 f'ESTIMATED: {end_time - begin_time}'))
-        else:
-            self.stdout.write(self.style.SUCCESS(
-                f'Last sync date: {sync_date}'))
-            self.stdout.write(self.style.SUCCESS(f'Now: {now}'))
-            self.stdout.write(self.style.SUCCESS('Sync already done!'))
