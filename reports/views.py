@@ -16,6 +16,7 @@ from django.http import HttpResponse
 import xlsxwriter
 import io
 from rest_framework.response import Response
+from django.db.models import Q
 
 
 class ContainerTypeListView(mixins.ListModelMixin,
@@ -199,7 +200,9 @@ class ExportReportView(views.APIView):
             worksheet.write_number(base_num, i, i+1, table_cell_format)
 
         base_num = 17
-        data = ContainerUnloadFact.objects.filter(report=id)
+        data = ContainerUnloadFact.objects\
+            .filter(report=id) \
+            .exclude(datetime_entry=None, datetime_exit=None)
         for row_num, row in enumerate(data):
             worksheet.write(base_num + row_num, 0, '', table_cell_format)
             worksheet.write(base_num + row_num, 1, '', table_cell_format)
