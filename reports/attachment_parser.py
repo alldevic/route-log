@@ -17,7 +17,7 @@ def parse(file, sync_date, device, container_types):
 
     worksheet = xlrd.open_workbook(file_contents=file.read()).sheet_by_index(0)
     rows = [x for x in worksheet.get_rows()]
-    mt_ids = [int(row[1].value) for row in rows[1:]]
+    mt_ids = [int(row[2].value) for row in rows[1:]]
     geozones = [x for x in GeoZone.objects
                 .filter(sync_date=sync_date, mt_id__in=mt_ids)
                 .only("id", "name", "mt_id")
@@ -25,13 +25,13 @@ def parse(file, sync_date, device, container_types):
 
     res = []
     for row in rows[1:]:
-        # if not check_schedule(row[17].value, date):
+        # if not check_schedule(row[7].value, date):
         #     continue
 
         # row14 = str(row[14].value).split(' ')
 
         container_type = [x for x in types
-                          if x.name == row[14].value]
+                          if x.name == row[5].value]
         if not container_type:
             continue
         container_type = container_type[0]
@@ -39,7 +39,7 @@ def parse(file, sync_date, device, container_types):
         geozone = None
         fl = True
         for x in geozones:
-            if x.mt_id and (x.mt_id == int(row[1].value)):
+            if x.mt_id and (x.mt_id == int(row[2].value)):
                 geozone = x
                 fl = False
                 break
@@ -51,9 +51,9 @@ def parse(file, sync_date, device, container_types):
         report_row["geozone"] = geozone
         report_row["nav_mt_id"] = geozone.mt_id or None
         report_row["directory"] = geozone.name or "geozone"
-        report_row["count"] = row[16].value
-        report_row["value"] = row[15].value
-        report_row["ct_type"] = row[14].value
+        report_row["count"] = row[4].value
+        report_row["value"] = container_type.volume
+        report_row["ct_type"] = container_type.name
         report_row["time_in"] = None
         report_row["time_out"] = None
         report_row["is_unloaded"] = False
