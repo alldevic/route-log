@@ -170,6 +170,64 @@ class Command(BaseCommand):
                 mt_id=row.mt_id
             ))
 
+    def copyAllDevices(self, sync_date, temp_date, bulk_mgr):
+        devices = [x for x in Device.objects.filter(sync_date=temp_date)]
+        for device in devices:
+            bulk_mgr.add(Device(
+                sync_date=sync_date,
+                name=device.name,
+                reg_number=device.reg_number,
+                serial_number=device.serial_number,
+                garage_number=device.garage_number,
+                phone=device.phone,
+                sim_number=device.sim_number,
+                fuel_sort=device.fuel_sort,
+                brand=device.brand,
+                description=device.description,
+                group_ids=device.group_ids,
+                nav_id=device.nav_id,
+            ))
+
+        bulk_mgr.done()
+
+    def copyAllDrivers(self, sync_date, temp_date, bulk_mgr):
+        drivers = [x for x in Driver.objects.filter(sync_date=temp_date)]
+        for driver in drivers:
+            bulk_mgr.add(Driver(
+                sync_date=sync_date,
+                fname=driver.fname,
+                mname=driver.mname,
+                lname=driver.lname,
+                licence_nr=driver.licence_nr,
+                phone=driver.phone,
+                category=driver.category,
+                internal_nr=driver.internal_nr,
+                driver_cat=driver.driver_cat,
+                nav_id=driver.nav_id,
+            ))
+        bulk_mgr.done()
+
+    def copyAllGeoZones(self, sync_date, temp_date, bulk_mgr):
+        res = [x for x in
+               GeoZone.objects
+               .filter(sync_date=temp_date)
+               .prefetch_related("points")]
+
+        for item in res:
+            x_points = [Point(sync_date=sync_date,
+                              lat=x.lat,
+                              lon=x.lon) for x in item.points.all()]
+            points = Point.objects.bulk_create(x_points)
+
+            tmp = GeoZone.objects.create(
+                sync_date=sync_date,
+                nav_id=item.id,
+                name=item.name,
+                mt_id=item.mt_id
+            )
+            tmp.points.set(points)
+            tmp.save()
+
     def add_arguments(self, parser):
         parser.add_argument('--date', type=self.get_date,
                             default=timezone.now())
@@ -209,23 +267,44 @@ class Command(BaseCommand):
                     continue
 
             bulk_mgr = BulkCreateManager(chunk_size=250)
-            sync_date = SyncDate.objects.create(datetime=date)
             begin_time = timezone.now()
             self.stdout.write(self.style.SUCCESS(
                 f'BEGIN ALL: {begin_time}'))
+
+            if co > 0:
+                temp_date = SyncDate.objects.last()
+
+            sync_date = SyncDate.objects.create(datetime=date)
             self.updateNavMt(sync_date, bulk_mgr)
             self.stdout.write(self.style.SUCCESS('NavMt - SUCCESS'))
-            self.getAllDevices(sync_date, bulk_mgr)
-            self.stdout.write(self.style.SUCCESS('getAllDevices - SUCCESS'))
-            self.getAllDrivers(sync_date, bulk_mgr)
-            self.stdout.write(self.style.SUCCESS('getAllDrivers - SUCCESS'))
-            self.getAllGeoZones(sync_date, bulk_mgr)
-            self.stdout.write(self.style.SUCCESS('getAllGeoZones - SUCCESS'))
+
+            if co > 0:
+                self.copyAllDevices(sync_date, temp_date, bulk_mgr)
+                self.stdout.write(
+                    self.style.SUCCESS('getAllDevices - SUCCESS'))
+                self.copyAllDrivers(sync_date, temp_date, bulk_mgr)
+                self.stdout.write(
+                    self.style.SUCCESS('getAllDrivers - SUCCESS'))
+                self.copyAllGeoZones(sync_date, temp_date, bulk_mgr)
+                self.stdout.write(
+                    self.style.SUCCESS('getAllGeoZones - SUCCESS'))
+            else:
+                self.getAllDevices(sync_date, bulk_mgr)
+                self.stdout.write(
+                    self.style.SUCCESS('getAllDevices - SUCCESS'))
+                self.getAllDrivers(sync_date, bulk_mgr)
+                self.stdout.write(
+                    self.style.SUCCESS('getAllDrivers - SUCCESS'))
+                self.getAllGeoZones(sync_date, bulk_mgr)
+                self.stdout.write(
+                    self.style.SUCCESS('getAllGeoZones - SUCCESS'))
+
             devices = [x for x in Device.objects.filter(sync_date=sync_date)]
             for device in devices:
                 self.getFlatTableSimple(sync_date,
                                         device.nav_id,
-                                        timezone.now(), bulk_mgr)
+                                        sync_date.datetime,
+                                        bulk_mgr)
                 self.stdout.write(
                     self.style.SUCCESS(
                         f'getFlatTableSimple - {device.nav_id} - SUCCESS'))
