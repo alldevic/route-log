@@ -8,4 +8,7 @@ class ContainerUnloadFactFilter(rest_framework.FilterSet):
         model = ContainerUnloadFact
         fields = {
             'report': ['exact'],
+            'value': ['exact'],
+            'container_type': ['exact'],
+            'is_unloaded': ['exact'],
         }
