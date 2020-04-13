@@ -254,7 +254,8 @@ class Command(BaseCommand):
 
             now = timezone.localtime()
 
-            if ((sync_date.datetime.year == date.year) and
+            if (sync_date and 
+                (sync_date.datetime.year == date.year) and
                 (sync_date.datetime.month == date.month) and
                     (sync_date.datetime.day == date.day)):
                 if force:
