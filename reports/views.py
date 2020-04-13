@@ -252,7 +252,7 @@ class ExportReportView(views.APIView):
 
         output.seek(0)
 
-        filename = f'{report.date.year}_{report.date.month}_{report.date.day}_{device}.xlsx'
+        filename = f'{report.date.year}_{report.date.month}_{report.date.day}.xlsx'
         
         response = HttpResponse(
             output,
