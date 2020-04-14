@@ -16,7 +16,6 @@ from django.http import HttpResponse
 import xlsxwriter
 import io
 from rest_framework.response import Response
-from django.db.models import Q
 
 
 class ContainerTypeListView(mixins.ListModelMixin,
@@ -32,15 +31,28 @@ class ContanerUnloadsListView(viewsets.ModelViewSet):
     """
     queryset = ContainerUnloadFact.objects.all()
     serializer_class = ContainerUnloadFactSerializer
-    filterset_class = ContainerUnloadFactFilter
+    # filterset_class = ContainerUnloadFactFilter
     permission_classes = (IsAuthenticated,)
 
     def list(self, request, *args, **kwargs):
         report_id = int(request.query_params["report"])
+        queryset = ContainerUnloadFact.objects.filter(report__id=report_id)
 
-        queryset = ContainerUnloadFact.objects \
-            .filter(report__id=report_id) \
-            .select_related("geozone") \
+        value = str(request.query_params.get("value", ''))
+        if value and value != '':
+            queryset = queryset.filter(value__exact=value)
+
+        container_type = int(request.query_params.get("container_type", 0))
+        if container_type:
+            ctype = ContainerType.objects.get(id=container_type)
+            if ctype:
+                queryset = queryset.filter(container_type__exact=ctype.name)
+
+        is_unloaded = str(request.query_params.get("is_unloaded", ''))
+        if is_unloaded and is_unloaded != '':
+            queryset = queryset.filter(is_unloaded=bool(is_unloaded))
+
+        queryset = queryset.select_related("geozone") \
             .prefetch_related("track_points__point_value", "geozone__points")
 
         page = self.paginate_queryset(queryset)
@@ -100,11 +112,11 @@ class ExportReportView(views.APIView):
              'font_name': 'Times New Roman',
              'font_size': 12,
              'bold': True})
-        bold_text_format =  workbook.add_format(
+        bold_text_format = workbook.add_format(
             {
-             'font_name': 'Times New Roman',
-             'font_size': 12,
-             'bold': True}
+                'font_name': 'Times New Roman',
+                'font_size': 12,
+                'bold': True}
         )
         merge_format = workbook.add_format({'align': 'center',
                                             'valign': 'vcenter',
@@ -224,7 +236,7 @@ class ExportReportView(views.APIView):
             if row.datetime_entry:
                 worksheet.write_datetime(
                     base_num + row_num, 5,
-                    row.datetime_entry,
+                    row.datetime_entry.replace(tzinfo=None),
                     table_long_date_format)
             else:
                 worksheet.write_string(
@@ -253,7 +265,7 @@ class ExportReportView(views.APIView):
         output.seek(0)
 
         filename = f'{report.date.year}_{report.date.month}_{report.date.day}.xlsx'
-        
+
         response = HttpResponse(
             output,
             content_type='application/vnd.ms-excel'
