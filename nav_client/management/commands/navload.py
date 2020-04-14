@@ -286,9 +286,6 @@ class Command(BaseCommand):
                 self.copyAllDrivers(sync_date, temp_date, bulk_mgr)
                 self.stdout.write(
                     self.style.SUCCESS('getAllDrivers - SUCCESS'))
-                self.copyAllGeoZones(sync_date, temp_date, bulk_mgr)
-                self.stdout.write(
-                    self.style.SUCCESS('getAllGeoZones - SUCCESS'))
             else:
                 self.getAllDevices(sync_date, bulk_mgr)
                 self.stdout.write(
@@ -296,9 +293,9 @@ class Command(BaseCommand):
                 self.getAllDrivers(sync_date, bulk_mgr)
                 self.stdout.write(
                     self.style.SUCCESS('getAllDrivers - SUCCESS'))
-                self.getAllGeoZones(sync_date, bulk_mgr)
-                self.stdout.write(
-                    self.style.SUCCESS('getAllGeoZones - SUCCESS'))
+            self.getAllGeoZones(sync_date, bulk_mgr)
+            self.stdout.write(
+                self.style.SUCCESS('getAllGeoZones - SUCCESS'))
 
             devices = [x for x in Device.objects.filter(sync_date=sync_date)]
             for device in devices:
