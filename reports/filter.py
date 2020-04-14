@@ -1,6 +1,6 @@
 from django_filters import rest_framework
 
-from reports.models import ContainerUnloadFact
+from reports.models import ContainerUnloadFact, Report
 
 
 class ContainerUnloadFactFilter(rest_framework.FilterSet):
@@ -11,4 +11,13 @@ class ContainerUnloadFactFilter(rest_framework.FilterSet):
             'value': ['exact'],
             'container_type': ['exact'],
             'is_unloaded': ['exact'],
+        }
+
+
+class ReportFilter(rest_framework.FilterSet):
+    class Meta:
+        model = Report
+        fields = {
+            'device': ['exact'],
+            'date': ['exact'],
         }

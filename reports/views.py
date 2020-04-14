@@ -11,7 +11,7 @@ from reports.serializers import (
     ContainerUnloadFactSerializer,
     GenerateReportSerializer,
     ReportSerializer)
-from reports.filter import ContainerUnloadFactFilter
+from reports.filter import ContainerUnloadFactFilter, ReportFilter
 from django.http import HttpResponse
 import xlsxwriter
 import io
@@ -31,7 +31,7 @@ class ContanerUnloadsListView(viewsets.ModelViewSet):
     """
     queryset = ContainerUnloadFact.objects.all()
     serializer_class = ContainerUnloadFactSerializer
-    # filterset_class = ContainerUnloadFactFilter
+    filterset_class = ContainerUnloadFactFilter
     permission_classes = (IsAuthenticated,)
 
     def list(self, request, *args, **kwargs):
@@ -72,6 +72,7 @@ class ReportsViewSet(
 ):
     queryset = Report.objects.all()
     serializer_class = ReportSerializer
+    filterset_class = ReportFilter
     permission_classes = (IsAuthenticated,)
 
 
