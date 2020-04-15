@@ -15,6 +15,7 @@ from reports.filter import ContainerUnloadFactFilter, ReportFilter
 from django.http import HttpResponse
 import xlsxwriter
 import io
+import distutils.util
 from rest_framework.response import Response
 
 
@@ -50,7 +51,7 @@ class ContanerUnloadsListView(viewsets.ModelViewSet):
 
         is_unloaded = str(request.query_params.get("is_unloaded", ''))
         if is_unloaded and is_unloaded != '':
-            queryset = queryset.filter(is_unloaded=bool(is_unloaded))
+            queryset = queryset.filter(is_unloaded=bool(distutils.util.strtobool(is_unloaded)))
 
         queryset = queryset.select_related("geozone") \
             .prefetch_related("track_points__point_value", "geozone__points")
