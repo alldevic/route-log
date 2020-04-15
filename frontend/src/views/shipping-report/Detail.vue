@@ -254,6 +254,64 @@
                       | Отменить
                     v-btn(color="primary" :disabled="!valid" @click="validate")
                       | {{ buttonText }}
+          v-dialog(
+            v-model="dialogUnloadsFilter"
+            max-width="500px"
+          )
+            template(v-slot:activator="{ on }")
+              v-badge(
+                bordered
+                color="error"
+                dot
+                overlap
+                :value="unloadsFilterIsActive"
+              )
+                v-btn(
+                  v-on="on"
+                  color="primary"
+                  fab
+                  x-small
+                ).ml-2
+                  v-icon filter_list
+
+            v-card
+              v-card-title
+                span.headline Фильтр фактов отгрузки
+
+              v-card-text
+                v-container
+                  v-form
+                    v-row
+                      v-col(cols="12")
+                        v-select(
+                          v-model="unloadsFilter.is_unloaded"
+                          :items="unloadStatuses"
+                          item-text="name"
+                          item-value="value"
+                          color="primary"
+                          label="Статус отгрузки"
+                          clearable
+                          hide-details
+                        )
+                      v-col(cols="12")
+                        v-text-field(
+                          v-model="unloadsFilter.container_type"
+                          label="Тип контейнера"
+                          hide-details
+                        )
+                      v-col(cols="12")
+                        v-text-field(
+                          v-model="unloadsFilter.value"
+                          label="Объем контейнера"
+                          type="number"
+                          hide-details
+                        )
+              v-card-actions
+                v-spacer
+                v-btn(color="blue darken-1" text @click="dialogUnloadsFilter = false")
+                  | Закрыть
+                v-btn(color="primary" @click="acceptFilter")
+                  | Применить
       //- template(v-slot:body="{ items, expand, isExpanded }")
       //-   tbody
       //-     tr(v-for="item in items" :key="item.name" @click="expand(!isExpanded)")
@@ -308,10 +366,20 @@ export default Vue.extend({
     editedItemId: undefined as any,
     dialogForAddItem: false,
     dialogForDeleteItem: false,
+    dialogUnloadsFilter: false,
     datePickerEntryMenu: false,
     datePickerExitMenu: false,
     timePickerEntryMenu: false,
     timePickerExitMenu: false,
+    unloadStatuses: [
+      { name: 'Отгружено', value: 'true' },
+      { name: 'Не отгружено', value: 'false' },
+    ],
+    unloadsFilter: {
+      is_unloaded: null as any,
+      value: null as any,
+      container_type: null as any,
+    },
     editedIndex: -1,
     editedItem: {
       date_entry: null as any,
@@ -409,6 +477,9 @@ export default Vue.extend({
     ],
   }),
   computed: {
+    unloadsFilterIsActive() {
+      return !Object.values(this.unloadsFilter).every(value => !value);
+    },
     currentItem() {
       const [currentItem] = this.selectedContainerUnload;
       return currentItem;
@@ -430,7 +501,6 @@ export default Vue.extend({
           this.report = reportId;
           this.page = Number(route.query.page);
           this.getContainerUnloads();
-          this.activateBackButton();
         }
       },
       immediate: true,
@@ -494,10 +564,12 @@ export default Vue.extend({
     async getContainerUnloads() {
       this.isLoadingContainerUnloads = true;
       const id = this.report;
-      const pageNumber = this.page;
+      const pageNumber = this.unloadsFilterIsActive ? 1 : this.page;
+      const filterData = this.unloadsFilter;
       const response = await ReportsRepository.getContainerUnloads(
         id,
         pageNumber,
+        filterData,
       );
       this.containerUnloads = response.data.results;
       this.pageCount = response.data.count;
@@ -601,10 +673,6 @@ export default Vue.extend({
         query: { page: pageNumber },
       });
     },
-    activateBackButton() {
-      const backButton = true;
-      this.$emit('activateBackButton', backButton);
-    },
     async exportExcel() {
       const response = await ReportsRepository.exportReport(this.report);
       const fileURL = window.URL.createObjectURL(response.data);
@@ -617,6 +685,10 @@ export default Vue.extend({
       fileLink.setAttribute('target', '_blank');
       document.body.appendChild(fileLink);
       fileLink.click();
+    },
+    acceptFilter() {
+      this.getContainerUnloads();
+      this.dialogUnloadsFilter = false;
     },
     // parseDate(date: any) {
     //   if (!date) return null;
