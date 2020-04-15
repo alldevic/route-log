@@ -280,7 +280,7 @@
 
               v-card-text
                 v-container
-                  v-form
+                  v-form(ref="filter")
                     v-row
                       v-col(cols="12")
                         v-select(
@@ -288,15 +288,19 @@
                           :items="unloadStatuses"
                           item-text="name"
                           item-value="value"
-                          color="primary"
                           label="Статус отгрузки"
                           clearable
                           hide-details
                         )
                       v-col(cols="12")
-                        v-text-field(
+                        v-select(
                           v-model="unloadsFilter.container_type"
+                          :items="containerTypes"
+                          :loading="isLoadingContainerTypes"
+                          item-text="text"
+                          item-value="id"
                           label="Тип контейнера"
+                          clearable
                           hide-details
                         )
                       v-col(cols="12")
@@ -304,14 +308,17 @@
                           v-model="unloadsFilter.value"
                           label="Объем контейнера"
                           type="number"
+                          clearable
                           hide-details
                         )
-              v-card-actions
-                v-spacer
-                v-btn(color="blue darken-1" text @click="dialogUnloadsFilter = false")
-                  | Закрыть
-                v-btn(color="primary" @click="acceptFilter")
-                  | Применить
+                v-card-actions
+                  v-spacer
+                  v-btn(color="blue darken-1" text @click="dialogUnloadsFilter = false")
+                    | Закрыть
+                  v-btn(v-if="unloadsFilterIsActive" color="orange darken-1" dark @click="cleanFilter")
+                    | Очистить
+                  v-btn(color="primary" @click="acceptFilter")
+                    | Применить
       //- template(v-slot:body="{ items, expand, isExpanded }")
       //-   tbody
       //-     tr(v-for="item in items" :key="item.name" @click="expand(!isExpanded)")
@@ -330,9 +337,11 @@ import Vue from 'vue';
 import _ from 'lodash';
 import EcotecMap from '@/components/EcotecMap.vue';
 import RepositoryFactory from '@/api/RepositoryFactory';
+import UNLOADS_STATUSES_DICT from '@/dictionaries/unloadsStatusesDict';
 
 const ReportsRepository = RepositoryFactory.get('reports');
 const GeozonesRepository = RepositoryFactory.get('geozones');
+const ContainerTypesRepository = RepositoryFactory.get('containerTypes');
 
 export default Vue.extend({
   components: {
@@ -356,6 +365,7 @@ export default Vue.extend({
     containerUnloads: [] as Array<any>,
     itemActive: false,
     isLoadingGeozones: false,
+    isLoadingContainerTypes: false,
     isLoadingContainerUnloads: false,
     selectedContainerUnload: [] as Array<any>,
     page: 1,
@@ -371,10 +381,8 @@ export default Vue.extend({
     datePickerExitMenu: false,
     timePickerEntryMenu: false,
     timePickerExitMenu: false,
-    unloadStatuses: [
-      { name: 'Отгружено', value: 'true' },
-      { name: 'Не отгружено', value: 'false' },
-    ],
+    containerTypes: [] as Array<any>,
+    unloadStatuses: UNLOADS_STATUSES_DICT,
     unloadsFilter: {
       is_unloaded: null as any,
       value: null as any,
@@ -477,8 +485,12 @@ export default Vue.extend({
     ],
   }),
   computed: {
+    containerTypesIsEmpty() {
+      return !this.containerTypes.length;
+    },
     unloadsFilterIsActive() {
-      return !Object.values(this.unloadsFilter).every(value => !value);
+      const queries = this.$route.query;
+      return (queries.is_unloaded || queries.container_type || queries.value) ? true : !true;
     },
     currentItem() {
       const [currentItem] = this.selectedContainerUnload;
@@ -500,6 +512,9 @@ export default Vue.extend({
         } else {
           this.report = reportId;
           this.page = Number(route.query.page);
+          this.unloadsFilter.is_unloaded = route.query.is_unloaded !== undefined ? route.query.is_unloaded : null;
+          this.unloadsFilter.container_type = route.query.container_type !== undefined ? Number(route.query.container_type) : null;
+          this.unloadsFilter.value = route.query.value !== undefined ? Number(route.query.value) : null;
           this.getContainerUnloads();
         }
       },
@@ -527,6 +542,11 @@ export default Vue.extend({
     searchGeozone(val: string) {
       if (this.isLoadingGeozones) return;
       this.debouncedGeozones(val);
+    },
+    dialogUnloadsFilter(value: boolean) {
+      if (value && this.containerTypesIsEmpty) {
+        this.getContainerTypes();
+      }
     },
   },
   created() {
@@ -564,7 +584,7 @@ export default Vue.extend({
     async getContainerUnloads() {
       this.isLoadingContainerUnloads = true;
       const id = this.report;
-      const pageNumber = this.unloadsFilterIsActive ? 1 : this.page;
+      const pageNumber = this.page;
       const filterData = this.unloadsFilter;
       const response = await ReportsRepository.getContainerUnloads(
         id,
@@ -667,11 +687,23 @@ export default Vue.extend({
     },
     updatePage(pageNumber: any) {
       this.page = pageNumber;
-      this.$router.push({
+      let queries = Object.assign({}, { page: pageNumber });
+
+      if (this.unloadsFilter.is_unloaded !== null) {
+        queries = Object.assign(queries, { is_unloaded: this.unloadsFilter.is_unloaded });
+      }
+      if (this.unloadsFilter.container_type !== null) {
+        queries = Object.assign(queries, { container_type: this.unloadsFilter.container_type });
+      }
+      if (this.unloadsFilter.value !== null) {
+        queries = Object.assign(queries, { value: this.unloadsFilter.value });
+      }
+
+      this.$router.replace({
         name: 'shipping-report-detail',
         params: { id: this.report },
-        query: { page: pageNumber },
-      });
+        query: queries,
+      }).catch();
     },
     async exportExcel() {
       const response = await ReportsRepository.exportReport(this.report);
@@ -686,8 +718,35 @@ export default Vue.extend({
       document.body.appendChild(fileLink);
       fileLink.click();
     },
+    async getContainerTypes() {
+      if (this.containerTypesIsEmpty) {
+        this.isLoadingContainerTypes = true;
+        let response = await ContainerTypesRepository.get();
+        const responseTypes = response.data.results;
+        while (response.data.next) {
+          response = await ContainerTypesRepository.get(
+            response.data.next
+              .split('?')
+              .pop()
+              .split('&')
+              .filter((item: string) => ~item.indexOf('page='))[0]
+              .split('=')
+              .pop(),
+          );
+          responseTypes.push(...response.data.results);
+        }
+        this.containerTypes = responseTypes;
+        this.isLoadingContainerTypes = false;
+      }
+    },
     acceptFilter() {
-      this.getContainerUnloads();
+      this.updatePage(1);
+      this.dialogUnloadsFilter = false;
+    },
+    cleanFilter() {
+      const vForm: any = this.$refs.filter;
+      vForm.reset();
+      this.updatePage(1);
       this.dialogUnloadsFilter = false;
     },
     // parseDate(date: any) {
