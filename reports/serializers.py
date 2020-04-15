@@ -14,7 +14,7 @@ from requests.models import Response
 
 
 class ReportSerializer(serializers.ModelSerializer):
-    device = DeviceSerializer(many=False)
+    # device = DeviceSerializer(many=False)
 
     class Meta:
         model = Report
@@ -57,8 +57,7 @@ class GenerateReportSerializer(serializers.ModelSerializer):
         if syncdate in ([], None):
             return Response(None, 200)
 
-        report = Report.objects.create(date=validated_data['date'],
-                                       device=validated_data['device'])
+        report = Report.objects.create(date=date, device=device)
 
         if attachment and date:
 
