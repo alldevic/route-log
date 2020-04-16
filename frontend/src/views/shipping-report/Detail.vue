@@ -18,7 +18,7 @@
       single-select
       @click:row="getRowValue"
       @update:page="updatePage"
-      loading-text="Выполняется подгрузка отчётов..."
+      loading-text="Выполняется подгрузка фактов отгрузки..."
       :footer-props="{\
         'disable-items-per-page': true,\
         'items-per-page-options': [itemsPerPage],\
@@ -507,7 +507,7 @@ export default Vue.extend({
     $route: {
       handler(route: any) {
         const reportId = Number(route.params.id);
-        if (route.query.page === undefined && route.params.id !== undefined) {
+        if ((route.query.page === undefined || route.query.page === '0') && route.params.id !== undefined) {
           this.$router.push({ path: `/shipping-report-detail/${route.params.id}?page=1` });
         } else {
           this.report = reportId;
@@ -703,7 +703,7 @@ export default Vue.extend({
         name: 'shipping-report-detail',
         params: { id: this.report },
         query: queries,
-      }).catch();
+      }).catch((error) => {});
     },
     async exportExcel() {
       const response = await ReportsRepository.exportReport(this.report);
