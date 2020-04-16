@@ -51,7 +51,8 @@ class ContanerUnloadsListView(viewsets.ModelViewSet):
 
         is_unloaded = str(request.query_params.get("is_unloaded", ''))
         if is_unloaded and is_unloaded != '':
-            queryset = queryset.filter(is_unloaded=bool(distutils.util.strtobool(is_unloaded)))
+            queryset = queryset.filter(is_unloaded=bool(
+                distutils.util.strtobool(is_unloaded)))
 
         queryset = queryset.select_related("geozone") \
             .prefetch_related("track_points__point_value", "geozone__points")
@@ -71,7 +72,7 @@ class ReportsViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet
 ):
-    queryset = Report.objects.all()
+    queryset = Report.objects.all().prefetch_related('device')
     serializer_class = ReportSerializer
     filterset_class = ReportFilter
     permission_classes = (IsAuthenticated,)
