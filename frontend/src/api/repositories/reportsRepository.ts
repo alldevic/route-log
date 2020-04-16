@@ -19,8 +19,12 @@ export default {
   getReport(id: number) {
     return Repository.get(`${resource}${id}/`);
   },
-  getContainerUnloads(id: number, page: number) {
-    return Repository.get(`${resource}unloads-set/?report=${id}&page=${page || 1}`);
+  getContainerUnloads(id: number, page: number, filterData: any) {
+    const is_unloaded = filterData.is_unloaded !== null ? `&is_unloaded=${filterData.is_unloaded}` : '';
+    const container_type = filterData.container_type !== null ? `&container_type=${filterData.container_type}` : '';
+    const value = filterData.value !== null ? `&value=${filterData.value}` : '';
+
+    return Repository.get(`${resource}unloads-set/?report=${id}&page=${page || 1}${is_unloaded}${container_type}${value}`);
   },
   get(page: number) {
     return Repository.get(`${resource}reports-set/?page=${page || 1}`);

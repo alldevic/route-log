@@ -11,12 +11,12 @@ from reports.serializers import (
     ContainerUnloadFactSerializer,
     GenerateReportSerializer,
     ReportSerializer)
-from reports.filter import ContainerUnloadFactFilter
+from reports.filter import ContainerUnloadFactFilter, ReportFilter
 from django.http import HttpResponse
 import xlsxwriter
 import io
+import distutils.util
 from rest_framework.response import Response
-from django.db.models import Q
 
 
 class ContainerTypeListView(mixins.ListModelMixin,
@@ -37,10 +37,23 @@ class ContanerUnloadsListView(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         report_id = int(request.query_params["report"])
+        queryset = ContainerUnloadFact.objects.filter(report__id=report_id)
 
-        queryset = ContainerUnloadFact.objects \
-            .filter(report__id=report_id) \
-            .select_related("geozone") \
+        value = str(request.query_params.get("value", ''))
+        if value and value != '':
+            queryset = queryset.filter(value__exact=value)
+
+        container_type = int(request.query_params.get("container_type", 0))
+        if container_type:
+            ctype = ContainerType.objects.get(id=container_type)
+            if ctype:
+                queryset = queryset.filter(container_type__exact=ctype.name)
+
+        is_unloaded = str(request.query_params.get("is_unloaded", ''))
+        if is_unloaded and is_unloaded != '':
+            queryset = queryset.filter(is_unloaded=bool(distutils.util.strtobool(is_unloaded)))
+
+        queryset = queryset.select_related("geozone") \
             .prefetch_related("track_points__point_value", "geozone__points")
 
         page = self.paginate_queryset(queryset)
@@ -60,6 +73,7 @@ class ReportsViewSet(
 ):
     queryset = Report.objects.all()
     serializer_class = ReportSerializer
+    filterset_class = ReportFilter
     permission_classes = (IsAuthenticated,)
 
 
@@ -78,6 +92,7 @@ class ExportReportView(views.APIView):
     def get(self, request, id, *args, **kwargs):
         # TODO: refact
         report = Report.objects.filter(pk=id).first()
+        device = report.device
         output = io.BytesIO()
         workbook = xlsxwriter.Workbook(output, {
             'strings_to_numbers': True,
@@ -88,17 +103,23 @@ class ExportReportView(views.APIView):
         workbook.formats[0].set_font_name('Times New Roman')
         workbook.formats[0].set_font_size(12)
 
-        long_date_format = workbook.add_format(
+        table_long_date_format = workbook.add_format(
             {'num_format': 'dd/mm/yy hh:MM',
              'font_name': 'Times New Roman',
-             'font_size': 12})
+             'font_size': 12,
+             'border': 1})
 
         bold_long_date_format = workbook.add_format(
             {'num_format': 'dd/mm/yy hh:MM',
              'font_name': 'Times New Roman',
              'font_size': 12,
              'bold': True})
-
+        bold_text_format = workbook.add_format(
+            {
+                'font_name': 'Times New Roman',
+                'font_size': 12,
+                'bold': True}
+        )
         merge_format = workbook.add_format({'align': 'center',
                                             'valign': 'vcenter',
                                             'font_name': 'Times New Roman',
@@ -144,6 +165,8 @@ class ExportReportView(views.APIView):
         worksheet.write_string(
             'A9', 'Марка, модель, регистрационный знак мусоровоза')
         worksheet.write_string(
+            'F9', device.brand or '', bold_text_format)
+        worksheet.write_string(
             'A10',
             'Вместимость кузова по данным технической документации, куб.м.')
         worksheet.write_string(
@@ -155,7 +178,8 @@ class ExportReportView(views.APIView):
         worksheet.write_string(
             'A14',
             'Обозначение объекта мониторинга (автомобиля) в системе ГЛОНАСС/GPS')
-
+        worksheet.write_string(
+            'F14', device.name or '', bold_text_format)
         base_num = 15
         worksheet.set_row(base_num, 40)
         worksheet.merge_range(
@@ -214,8 +238,8 @@ class ExportReportView(views.APIView):
             if row.datetime_entry:
                 worksheet.write_datetime(
                     base_num + row_num, 5,
-                    row.datetime_entry,
-                    long_date_format)
+                    row.datetime_entry.replace(tzinfo=None),
+                    table_long_date_format)
             else:
                 worksheet.write_string(
                     base_num + row_num, 5, "Нет данных", table_cell_format)
@@ -242,7 +266,8 @@ class ExportReportView(views.APIView):
 
         output.seek(0)
 
-        filename = f'{id}-django_simple.xlsx'
+        filename = f'{report.date.year}_{report.date.month}_{report.date.day}.xlsx'
+
         response = HttpResponse(
             output,
             content_type='application/vnd.ms-excel'

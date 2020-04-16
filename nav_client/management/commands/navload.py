@@ -254,7 +254,8 @@ class Command(BaseCommand):
 
             now = timezone.localtime()
 
-            if ((sync_date.datetime.year == date.year) and
+            if (sync_date and 
+                (sync_date.datetime.year == date.year) and
                 (sync_date.datetime.month == date.month) and
                     (sync_date.datetime.day == date.day)):
                 if force:
@@ -285,9 +286,6 @@ class Command(BaseCommand):
                 self.copyAllDrivers(sync_date, temp_date, bulk_mgr)
                 self.stdout.write(
                     self.style.SUCCESS('getAllDrivers - SUCCESS'))
-                self.copyAllGeoZones(sync_date, temp_date, bulk_mgr)
-                self.stdout.write(
-                    self.style.SUCCESS('getAllGeoZones - SUCCESS'))
             else:
                 self.getAllDevices(sync_date, bulk_mgr)
                 self.stdout.write(
@@ -295,9 +293,9 @@ class Command(BaseCommand):
                 self.getAllDrivers(sync_date, bulk_mgr)
                 self.stdout.write(
                     self.style.SUCCESS('getAllDrivers - SUCCESS'))
-                self.getAllGeoZones(sync_date, bulk_mgr)
-                self.stdout.write(
-                    self.style.SUCCESS('getAllGeoZones - SUCCESS'))
+            self.getAllGeoZones(sync_date, bulk_mgr)
+            self.stdout.write(
+                self.style.SUCCESS('getAllGeoZones - SUCCESS'))
 
             devices = [x for x in Device.objects.filter(sync_date=sync_date)]
             for device in devices:
