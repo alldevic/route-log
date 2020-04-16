@@ -726,21 +726,11 @@ export default Vue.extend({
         queries = Object.assign(queries, { value: this.unloadsFilter.value });
       }
 
-<<<<<<< HEAD
       this.$router.replace({
         name: 'shipping-report-detail',
         params: { id: this.report },
         query: queries,
       }).catch((error) => {});
-=======
-      this.$router
-        .replace({
-          name: "shipping-report-detail",
-          params: { id: this.report },
-          query: queries
-        })
-        .catch();
->>>>>>> 0c0d15caa8b83a8c375e1774d60e7eedea5cf154
     },
     async exportExcel() {
       const response = await ReportsRepository.exportReport(this.report);
