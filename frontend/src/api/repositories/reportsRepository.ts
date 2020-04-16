@@ -26,8 +26,12 @@ export default {
 
     return Repository.get(`${resource}unloads-set/?report=${id}&page=${page || 1}${is_unloaded}${container_type}${value}`);
   },
-  get(page: number) {
-    return Repository.get(`${resource}reports-set/?page=${page || 1}`);
+  get(page: number, filterData: any) {
+    // const id = filterData.id !== undefined ? `&id=${filterData.id}` : '';
+    const date = filterData.date !== undefined ? `&date=${filterData.date}` : '';
+    const device = filterData.device !== undefined ? `&device=${filterData.device}` : '';
+
+    return Repository.get(`${resource}reports-set/?page=${page || 1}${date}${device}`);
   },
   exportReport(id: number) {
     return Repository.get(`${resource}export-report/${id}/`, {
