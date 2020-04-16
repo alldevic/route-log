@@ -18,6 +18,7 @@ class ReportSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Report
+        depth = 1
         fields = (
             'id',
             'created_at',
