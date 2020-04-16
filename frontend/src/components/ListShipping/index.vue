@@ -17,6 +17,9 @@
         'disable-pagination': isLoadingReports,\
       }"
     )
+      template(v-slot:item.device="{ item }")
+        span(v-if="item.device.name") {{ item.device.name }} / {{ item.device.reg_number }}
+        span(v-else) Нет данных
 
       template(v-slot:top)
         v-toolbar(flat color="white")
@@ -85,12 +88,17 @@
                               @input="reportDateMenu = false"
                             )
                         v-col(cols="12")
-                          v-text-field(
+                          v-autocomplete(
                             v-model="reportsFilter.device"
-                            label="Код автомобиля"
-                            type="number"
+                            :items="devices"
+                            :search-input.sync="searchDevice"
+                            :loading="isLoadingDevices"
+                            item-text="name"
+                            item-value="id"
+                            hide-no-data
                             clearable
-                            hide-details
+                            label="Автомобиль"
+                            prepend-icon="directions_car"
                           )
                   v-card-actions
                     v-spacer
@@ -107,6 +115,7 @@ import Vue from 'vue';
 import RepositoryFactory from '@/api/RepositoryFactory';
 
 const ReportsRepository = RepositoryFactory.get('reports');
+const DevicesRepository = RepositoryFactory.get('devices');
 
 export default Vue.extend({
   data: () => ({
@@ -115,7 +124,9 @@ export default Vue.extend({
     pageCount: 0,
     itemsPerPage: 30,
     page: 1,
-    // message: 'Список отчётов пуст!',
+    devices: [] as Array<any>,
+    isLoadingDevices: false,
+    searchDevice: null as any,
     reportDateMenu: false,
     reportsFilter: {
       id: undefined as any,
@@ -135,7 +146,7 @@ export default Vue.extend({
         sortable: false,
       },
       {
-        text: 'Код автомобиля',
+        text: 'Автомобиль',
         value: 'device',
         sortable: false,
       },
@@ -144,6 +155,9 @@ export default Vue.extend({
   computed: {
     reportsIsNotEmpty() {
       return this.reports.length;
+    },
+    devicesIsEmpty() {
+      return !this.devices.length;
     },
     reportsFilterIsActive() {
       const queries = this.$route.query;
@@ -170,6 +184,11 @@ export default Vue.extend({
         value = [];
       }
     },
+    dialogReportsFilter(value: boolean) {
+      if (value && this.devicesIsEmpty) {
+        this.getDevices();
+      }
+    },
   },
   methods: {
     async getReports() {
@@ -183,6 +202,25 @@ export default Vue.extend({
       this.reports = response.data.results;
       this.pageCount = response.data.count;
       this.isLoadingReports = false;
+    },
+    async getDevices() {
+      this.isLoadingDevices = true;
+      let response = await DevicesRepository.get({ page: 1 });
+      const responseDevices = response.data.results;
+      while (response.data.next) {
+        response = await DevicesRepository.get({
+          page: response.data.next
+            .split("?")
+            .pop()
+            .split("&")
+            .filter((item: string) => ~item.indexOf("page="))[0]
+            .split("=")
+            .pop(),
+        });
+        responseDevices.push(...response.data.results);
+      }
+      this.devices = responseDevices;
+      this.isLoadingDevices = false;
     },
     updatePage(pageNumber: any) {
       this.page = pageNumber;
