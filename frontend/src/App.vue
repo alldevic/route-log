@@ -105,7 +105,7 @@
     )
       v-app-bar-nav-icon(@click.stop="drawer = !drawer")
       v-btn.mx-2(
-        v-if="backButton"
+        v-if="routeIsReportList"
         @click="routeToReportList"
         small depressed
         color="blue-grey darken-3"
@@ -118,7 +118,6 @@
     v-content(:style="{ '--appTopHeight': appTopHeight }")
       router-view(
         @setAppBarValue="onSetAppBarValue"
-        @activateBackButton="onActivateBackButton"
         @setNavigationDrawerValue="onSetNavigationDrawerValue"
       )
 
@@ -167,9 +166,13 @@ export default Vue.extend({
     isLoadingDevices: false,
     isLoadingContainerTypes: false,
     toggleFiles: false,
-    backButton: false,
     reportIsCreated: false,
   }),
+  computed: {
+    routeIsReportList() {
+      return this.$route.name === 'shipping-report-detail';
+    },
+  },
   watch: {
     reportId(value: any) {
       if (value) {
@@ -215,9 +218,6 @@ export default Vue.extend({
           this.getContainerTypes();
         }
       }
-    },
-    onActivateBackButton(backButton: boolean) {
-      this.backButton = backButton;
     },
     onSetNavigationDrawerValue(value: boolean) {
       this.navDrawer = value;

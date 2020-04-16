@@ -25,6 +25,7 @@
             v-pagination.my-4(
               v-model="page"
               :length="reportsLength"
+              :total-visible="7"
             )
 
         template(v-if="!reportsIsNotEmpty && !isLoadingReports")

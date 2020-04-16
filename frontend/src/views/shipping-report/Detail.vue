@@ -254,6 +254,71 @@
                       | Отменить
                     v-btn(color="primary" :disabled="!valid" @click="validate")
                       | {{ buttonText }}
+          v-dialog(
+            v-model="dialogUnloadsFilter"
+            max-width="500px"
+          )
+            template(v-slot:activator="{ on }")
+              v-badge(
+                bordered
+                color="error"
+                dot
+                overlap
+                :value="unloadsFilterIsActive"
+              )
+                v-btn(
+                  v-on="on"
+                  color="primary"
+                  fab
+                  x-small
+                ).ml-2
+                  v-icon filter_list
+
+            v-card
+              v-card-title
+                span.headline Фильтр фактов отгрузки
+
+              v-card-text
+                v-container
+                  v-form(ref="filter")
+                    v-row
+                      v-col(cols="12")
+                        v-select(
+                          v-model="unloadsFilter.is_unloaded"
+                          :items="unloadStatuses"
+                          item-text="name"
+                          item-value="value"
+                          label="Статус отгрузки"
+                          clearable
+                          hide-details
+                        )
+                      v-col(cols="12")
+                        v-select(
+                          v-model="unloadsFilter.container_type"
+                          :items="containerTypes"
+                          :loading="isLoadingContainerTypes"
+                          item-text="text"
+                          item-value="id"
+                          label="Тип контейнера"
+                          clearable
+                          hide-details
+                        )
+                      v-col(cols="12")
+                        v-text-field(
+                          v-model="unloadsFilter.value"
+                          label="Объем контейнера"
+                          type="number"
+                          clearable
+                          hide-details
+                        )
+                v-card-actions
+                  v-spacer
+                  v-btn(color="blue darken-1" text @click="dialogUnloadsFilter = false")
+                    | Закрыть
+                  v-btn(v-if="unloadsFilterIsActive" color="orange darken-1" dark @click="cleanFilter")
+                    | Очистить
+                  v-btn(color="primary" @click="acceptFilter")
+                    | Применить
       //- template(v-slot:body="{ items, expand, isExpanded }")
       //-   tbody
       //-     tr(v-for="item in items" :key="item.name" @click="expand(!isExpanded)")
@@ -272,9 +337,11 @@ import Vue from 'vue';
 import _ from 'lodash';
 import EcotecMap from '@/components/EcotecMap.vue';
 import RepositoryFactory from '@/api/RepositoryFactory';
+import UNLOADS_STATUSES_DICT from '@/dictionaries/unloadsStatusesDict';
 
 const ReportsRepository = RepositoryFactory.get('reports');
 const GeozonesRepository = RepositoryFactory.get('geozones');
+const ContainerTypesRepository = RepositoryFactory.get('containerTypes');
 
 export default Vue.extend({
   components: {
@@ -298,6 +365,7 @@ export default Vue.extend({
     containerUnloads: [] as Array<any>,
     itemActive: false,
     isLoadingGeozones: false,
+    isLoadingContainerTypes: false,
     isLoadingContainerUnloads: false,
     selectedContainerUnload: [] as Array<any>,
     page: 1,
@@ -308,10 +376,18 @@ export default Vue.extend({
     editedItemId: undefined as any,
     dialogForAddItem: false,
     dialogForDeleteItem: false,
+    dialogUnloadsFilter: false,
     datePickerEntryMenu: false,
     datePickerExitMenu: false,
     timePickerEntryMenu: false,
     timePickerExitMenu: false,
+    containerTypes: [] as Array<any>,
+    unloadStatuses: UNLOADS_STATUSES_DICT,
+    unloadsFilter: {
+      is_unloaded: null as any,
+      value: null as any,
+      container_type: null as any,
+    },
     editedIndex: -1,
     editedItem: {
       date_entry: null as any,
@@ -409,6 +485,13 @@ export default Vue.extend({
     ],
   }),
   computed: {
+    containerTypesIsEmpty() {
+      return !this.containerTypes.length;
+    },
+    unloadsFilterIsActive() {
+      const queries = this.$route.query;
+      return (queries.is_unloaded || queries.container_type || queries.value) ? true : !true;
+    },
     currentItem() {
       const [currentItem] = this.selectedContainerUnload;
       return currentItem;
@@ -429,8 +512,10 @@ export default Vue.extend({
         } else {
           this.report = reportId;
           this.page = Number(route.query.page);
+          this.unloadsFilter.is_unloaded = route.query.is_unloaded !== undefined ? route.query.is_unloaded : null;
+          this.unloadsFilter.container_type = route.query.container_type !== undefined ? Number(route.query.container_type) : null;
+          this.unloadsFilter.value = route.query.value !== undefined ? Number(route.query.value) : null;
           this.getContainerUnloads();
-          this.activateBackButton();
         }
       },
       immediate: true,
@@ -457,6 +542,11 @@ export default Vue.extend({
     searchGeozone(val: string) {
       if (this.isLoadingGeozones) return;
       this.debouncedGeozones(val);
+    },
+    dialogUnloadsFilter(value: boolean) {
+      if (value && this.containerTypesIsEmpty) {
+        this.getContainerTypes();
+      }
     },
   },
   created() {
@@ -495,9 +585,11 @@ export default Vue.extend({
       this.isLoadingContainerUnloads = true;
       const id = this.report;
       const pageNumber = this.page;
+      const filterData = this.unloadsFilter;
       const response = await ReportsRepository.getContainerUnloads(
         id,
         pageNumber,
+        filterData,
       );
       this.containerUnloads = response.data.results;
       this.pageCount = response.data.count;
@@ -595,15 +687,23 @@ export default Vue.extend({
     },
     updatePage(pageNumber: any) {
       this.page = pageNumber;
-      this.$router.push({
+      let queries = Object.assign({}, { page: pageNumber });
+
+      if (this.unloadsFilter.is_unloaded !== null) {
+        queries = Object.assign(queries, { is_unloaded: this.unloadsFilter.is_unloaded });
+      }
+      if (this.unloadsFilter.container_type !== null) {
+        queries = Object.assign(queries, { container_type: this.unloadsFilter.container_type });
+      }
+      if (this.unloadsFilter.value !== null) {
+        queries = Object.assign(queries, { value: this.unloadsFilter.value });
+      }
+
+      this.$router.replace({
         name: 'shipping-report-detail',
         params: { id: this.report },
-        query: { page: pageNumber },
-      });
-    },
-    activateBackButton() {
-      const backButton = true;
-      this.$emit('activateBackButton', backButton);
+        query: queries,
+      }).catch();
     },
     async exportExcel() {
       const response = await ReportsRepository.exportReport(this.report);
@@ -617,6 +717,37 @@ export default Vue.extend({
       fileLink.setAttribute('target', '_blank');
       document.body.appendChild(fileLink);
       fileLink.click();
+    },
+    async getContainerTypes() {
+      if (this.containerTypesIsEmpty) {
+        this.isLoadingContainerTypes = true;
+        let response = await ContainerTypesRepository.get();
+        const responseTypes = response.data.results;
+        while (response.data.next) {
+          response = await ContainerTypesRepository.get(
+            response.data.next
+              .split('?')
+              .pop()
+              .split('&')
+              .filter((item: string) => ~item.indexOf('page='))[0]
+              .split('=')
+              .pop(),
+          );
+          responseTypes.push(...response.data.results);
+        }
+        this.containerTypes = responseTypes;
+        this.isLoadingContainerTypes = false;
+      }
+    },
+    acceptFilter() {
+      this.updatePage(1);
+      this.dialogUnloadsFilter = false;
+    },
+    cleanFilter() {
+      const vForm: any = this.$refs.filter;
+      vForm.reset();
+      this.updatePage(1);
+      this.dialogUnloadsFilter = false;
     },
     // parseDate(date: any) {
     //   if (!date) return null;
