@@ -8,6 +8,7 @@ class GeozoneFilter(rest_framework.FilterSet):
         model = GeoZone
         fields = {
             'name': ['contains'],
+            'sync_date__datetime': ['exact'],
         }
 
 
