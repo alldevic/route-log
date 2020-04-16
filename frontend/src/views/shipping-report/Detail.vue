@@ -333,26 +333,26 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import _ from 'lodash';
-import EcotecMap from '@/components/EcotecMap.vue';
-import RepositoryFactory from '@/api/RepositoryFactory';
-import UNLOADS_STATUSES_DICT from '@/dictionaries/unloadsStatusesDict';
+import Vue from "vue";
+import _ from "lodash";
+import EcotecMap from "@/components/EcotecMap.vue";
+import RepositoryFactory from "@/api/RepositoryFactory";
+import UNLOADS_STATUSES_DICT from "@/dictionaries/unloadsStatusesDict";
 
-const ReportsRepository = RepositoryFactory.get('reports');
-const GeozonesRepository = RepositoryFactory.get('geozones');
-const ContainerTypesRepository = RepositoryFactory.get('containerTypes');
+const ReportsRepository = RepositoryFactory.get("reports");
+const GeozonesRepository = RepositoryFactory.get("geozones");
+const ContainerTypesRepository = RepositoryFactory.get("containerTypes");
 
 export default Vue.extend({
   components: {
-    EcotecMap,
+    EcotecMap
   },
   filters: {
     date(date: any) {
-      if (!date) return 'Нет данных';
+      if (!date) return "Нет данных";
 
       return new Date(date).toLocaleString();
-    },
+    }
   },
   data: () => ({
     mapZoom: 15,
@@ -386,7 +386,7 @@ export default Vue.extend({
     unloadsFilter: {
       is_unloaded: null as any,
       value: null as any,
-      container_type: null as any,
+      container_type: null as any
     },
     editedIndex: -1,
     editedItem: {
@@ -398,7 +398,7 @@ export default Vue.extend({
       datetime_exit: null as any,
       geozone: {
         id: undefined as any,
-        name: null as any,
+        name: null as any
       },
       nav_mt_obj: null as any,
       is_unloaded: false as boolean,
@@ -406,7 +406,7 @@ export default Vue.extend({
       container_type: null as any,
       directory: null as any,
       count: null as any,
-      nav_mt_id: null as any,
+      nav_mt_id: null as any
     },
     defaultItem: {
       date_entry: null as any,
@@ -415,7 +415,7 @@ export default Vue.extend({
       time_exit: null as any,
       geozone: {
         id: undefined as any,
-        name: null as any,
+        name: null as any
       },
       nav_mt_obj: null as any,
       datetime_entry: null as any,
@@ -425,64 +425,64 @@ export default Vue.extend({
       container_type: null as any,
       directory: null as any,
       count: null as any,
-      nav_mt_id: null as any,
+      nav_mt_id: null as any
     },
-    dateEntryRules: [(v: any) => !!v || 'Дата не выбрана'],
-    dateExitRules: [(v: any) => !!v || 'Дата не выбрана'],
-    timeEntryRules: [(v: any) => !!v || 'Время не выбрано'],
-    timeExitRules: [(v: any) => !!v || 'Время не выбрано'],
-    valueRules: [(v: any) => !!v || 'Объем не указан'],
-    containerTypeRules: [(v: any) => !!v || 'Тип не указан'],
-    directoryRules: [(v: any) => !!v || 'Муниципальное образование не указано'],
-    countRules: [(v: any) => !!v || 'Количество не указано'],
-    navMtIdRules: [(v: any) => !!v || 'Код не указан'],
+    dateEntryRules: [(v: any) => !!v || "Дата не выбрана"],
+    dateExitRules: [(v: any) => !!v || "Дата не выбрана"],
+    timeEntryRules: [(v: any) => !!v || "Время не выбрано"],
+    timeExitRules: [(v: any) => !!v || "Время не выбрано"],
+    valueRules: [(v: any) => !!v || "Объем не указан"],
+    containerTypeRules: [(v: any) => !!v || "Тип не указан"],
+    directoryRules: [(v: any) => !!v || "Муниципальное образование не указано"],
+    countRules: [(v: any) => !!v || "Количество не указано"],
+    navMtIdRules: [(v: any) => !!v || "Код не указан"],
     headers: [
       {
-        text: 'Код площадки в МТ',
-        value: 'nav_mt_id',
-        sortable: false,
+        text: "Код площадки в МТ",
+        value: "nav_mt_id",
+        sortable: false
       },
       {
-        text: 'Время въезда',
-        value: 'datetime_entry',
-        sortable: false,
+        text: "Время въезда",
+        value: "datetime_entry",
+        sortable: false
       },
       {
-        text: 'Время выезда',
-        value: 'datetime_exit',
-        sortable: false,
+        text: "Время выезда",
+        value: "datetime_exit",
+        sortable: false
       },
       {
-        text: 'Отгружено',
-        value: 'is_unloaded',
-        sortable: false,
+        text: "Отгружено",
+        value: "is_unloaded",
+        sortable: false
       },
       {
-        text: 'Объем контейнера',
-        value: 'value',
-        sortable: false,
+        text: "Объем контейнера",
+        value: "value",
+        sortable: false
       },
       {
-        text: 'Тип контейнера',
-        value: 'container_type',
-        sortable: false,
+        text: "Тип контейнера",
+        value: "container_type",
+        sortable: false
       },
       {
-        text: 'Муниципальное образование',
-        value: 'directory',
-        sortable: false,
+        text: "Муниципальное образование",
+        value: "directory",
+        sortable: false
       },
       {
-        text: 'Количество отгрузок',
-        value: 'count',
-        sortable: false,
+        text: "Количество отгрузок",
+        value: "count",
+        sortable: false
       },
       {
-        text: 'Действия',
-        value: 'action',
-        sortable: false,
-      },
-    ],
+        text: "Действия",
+        value: "action",
+        sortable: false
+      }
+    ]
   }),
   computed: {
     containerTypesIsEmpty() {
@@ -490,35 +490,48 @@ export default Vue.extend({
     },
     unloadsFilterIsActive() {
       const queries = this.$route.query;
-      return (queries.is_unloaded || queries.container_type || queries.value) ? true : !true;
+      return queries.is_unloaded || queries.container_type || queries.value
+        ? true
+        : !true;
     },
     currentItem() {
       const [currentItem] = this.selectedContainerUnload;
       return currentItem;
     },
     formTitle() {
-      return this.editedIndex === -1 ? 'Добавить дополнительный вывоз' : 'Редактировать текущий вывоз';
+      return this.editedIndex === -1
+        ? "Добавить дополнительный вывоз"
+        : "Редактировать текущий вывоз";
     },
     buttonText() {
-      return this.editedIndex === -1 ? 'Добавить' : 'Редактировать';
-    },
+      return this.editedIndex === -1 ? "Добавить" : "Редактировать";
+    }
   },
   watch: {
     $route: {
       handler(route: any) {
         const reportId = Number(route.params.id);
         if (route.query.page === undefined && route.params.id !== undefined) {
-          this.$router.push({ path: `/shipping-report-detail/${route.params.id}?page=1` });
+          this.$router.push({
+            path: `/shipping-report-detail/${route.params.id}?page=1`
+          });
         } else {
           this.report = reportId;
           this.page = Number(route.query.page);
-          this.unloadsFilter.is_unloaded = route.query.is_unloaded !== undefined ? route.query.is_unloaded : null;
-          this.unloadsFilter.container_type = route.query.container_type !== undefined ? Number(route.query.container_type) : null;
-          this.unloadsFilter.value = route.query.value !== undefined ? Number(route.query.value) : null;
+          this.unloadsFilter.is_unloaded =
+            route.query.is_unloaded !== undefined
+              ? route.query.is_unloaded
+              : null;
+          this.unloadsFilter.container_type =
+            route.query.container_type !== undefined
+              ? Number(route.query.container_type)
+              : null;
+          this.unloadsFilter.value =
+            route.query.value !== undefined ? Number(route.query.value) : null;
           this.getContainerUnloads();
         }
       },
-      immediate: true,
+      immediate: true
     },
     selectedContainerUnload(itemNew: any, itemOld: any) {
       if (itemNew.length) {
@@ -537,7 +550,7 @@ export default Vue.extend({
           }
         }
       },
-      deep: true,
+      deep: true
     },
     searchGeozone(val: string) {
       if (this.isLoadingGeozones) return;
@@ -547,7 +560,7 @@ export default Vue.extend({
       if (value && this.containerTypesIsEmpty) {
         this.getContainerTypes();
       }
-    },
+    }
   },
   created() {
     this.debouncedGeozones = _.debounce((name: string) => {
@@ -562,7 +575,10 @@ export default Vue.extend({
     },
     async getGeozonesByName(name: string) {
       this.isLoadingGeozones = true;
-      const response = await GeozonesRepository.getByName(name);
+      const response = await GeozonesRepository.getByName(
+        name,
+        this.editedItem.date_entry
+      );
       this.geozones = response.data.results;
       this.isLoadingGeozones = false;
     },
@@ -576,7 +592,7 @@ export default Vue.extend({
         value: this.editedItem.value,
         container_type: this.editedItem.container_type,
         directory: this.editedItem.directory,
-        count: this.editedItem.count,
+        count: this.editedItem.count
       };
       const response = await ReportsRepository.addUnloadsSet(unloadSet);
       this.getContainerUnloads();
@@ -589,7 +605,7 @@ export default Vue.extend({
       const response = await ReportsRepository.getContainerUnloads(
         id,
         pageNumber,
-        filterData,
+        filterData
       );
       this.containerUnloads = response.data.results;
       this.pageCount = response.data.count;
@@ -598,7 +614,7 @@ export default Vue.extend({
     getRowValue(item: any): void {
       if (item.geozone) {
         this.selectedContainerUnload = this.selectedContainerUnload.includes(
-          item,
+          item
         )
           ? []
           : [item];
@@ -615,14 +631,20 @@ export default Vue.extend({
 
       if (item.datetime_entry) {
         const dateTimeEntry = new Date(item.datetime_entry);
-        const reversedDateArray = dateTimeEntry.toLocaleDateString().split('.').reverse();
-        dateEntry = reversedDateArray.join('-');
+        const reversedDateArray = dateTimeEntry
+          .toLocaleDateString()
+          .split(".")
+          .reverse();
+        dateEntry = reversedDateArray.join("-");
         timeEntry = dateTimeEntry.toLocaleTimeString();
       }
       if (item.datetime_exit) {
         const dateTimeExit = new Date(item.datetime_exit);
-        const reversedDateArray = dateTimeExit.toLocaleDateString().split('.').reverse();
-        dateExit = reversedDateArray.join('-');
+        const reversedDateArray = dateTimeExit
+          .toLocaleDateString()
+          .split(".")
+          .reverse();
+        dateExit = reversedDateArray.join("-");
         timeExit = dateTimeExit.toLocaleTimeString();
       }
       this.editedItem = Object.assign(
@@ -631,7 +653,7 @@ export default Vue.extend({
         { date_entry: dateEntry },
         { time_entry: timeEntry },
         { date_exit: dateExit },
-        { time_exit: timeExit },
+        { time_exit: timeExit }
       );
       this.dialogForAddItem = true;
     },
@@ -661,7 +683,7 @@ export default Vue.extend({
         container_type: this.editedItem.container_type,
         directory: this.editedItem.directory,
         count: this.editedItem.count,
-        nav_mt_id: this.editedItem.nav_mt_id,
+        nav_mt_id: this.editedItem.nav_mt_id
       };
       const response = await ReportsRepository.saveUnloadChanges(id, unloadSet);
       this.closeDialogForEditItem();
@@ -680,7 +702,10 @@ export default Vue.extend({
     validate() {
       const vForm: any = this.$refs.form;
       if (vForm.validate()) {
-        const func = this.editedIndex !== -1 ? this.saveUnloadChanges() : this.addUnloadSet();
+        const func =
+          this.editedIndex !== -1
+            ? this.saveUnloadChanges()
+            : this.addUnloadSet();
         this.dialogForAddItem = false;
         vForm.reset();
       }
@@ -690,31 +715,37 @@ export default Vue.extend({
       let queries = Object.assign({}, { page: pageNumber });
 
       if (this.unloadsFilter.is_unloaded !== null) {
-        queries = Object.assign(queries, { is_unloaded: this.unloadsFilter.is_unloaded });
+        queries = Object.assign(queries, {
+          is_unloaded: this.unloadsFilter.is_unloaded
+        });
       }
       if (this.unloadsFilter.container_type !== null) {
-        queries = Object.assign(queries, { container_type: this.unloadsFilter.container_type });
+        queries = Object.assign(queries, {
+          container_type: this.unloadsFilter.container_type
+        });
       }
       if (this.unloadsFilter.value !== null) {
         queries = Object.assign(queries, { value: this.unloadsFilter.value });
       }
 
-      this.$router.replace({
-        name: 'shipping-report-detail',
-        params: { id: this.report },
-        query: queries,
-      }).catch();
+      this.$router
+        .replace({
+          name: "shipping-report-detail",
+          params: { id: this.report },
+          query: queries
+        })
+        .catch();
     },
     async exportExcel() {
       const response = await ReportsRepository.exportReport(this.report);
       const fileURL = window.URL.createObjectURL(response.data);
-      const fileLink = document.createElement('a');
+      const fileLink = document.createElement("a");
       fileLink.href = fileURL;
-      const filename = response.headers['content-disposition'].split(
-        'filename=',
+      const filename = response.headers["content-disposition"].split(
+        "filename="
       )[1];
-      fileLink.setAttribute('download', filename);
-      fileLink.setAttribute('target', '_blank');
+      fileLink.setAttribute("download", filename);
+      fileLink.setAttribute("target", "_blank");
       document.body.appendChild(fileLink);
       fileLink.click();
     },
@@ -726,12 +757,12 @@ export default Vue.extend({
         while (response.data.next) {
           response = await ContainerTypesRepository.get(
             response.data.next
-              .split('?')
+              .split("?")
               .pop()
-              .split('&')
-              .filter((item: string) => ~item.indexOf('page='))[0]
-              .split('=')
-              .pop(),
+              .split("&")
+              .filter((item: string) => ~item.indexOf("page="))[0]
+              .split("=")
+              .pop()
           );
           responseTypes.push(...response.data.results);
         }
@@ -748,7 +779,7 @@ export default Vue.extend({
       vForm.reset();
       this.updatePage(1);
       this.dialogUnloadsFilter = false;
-    },
+    }
     // parseDate(date: any) {
     //   if (!date) return null;
 
@@ -762,6 +793,6 @@ export default Vue.extend({
     //     query: { page: pageNumber },
     //   });
     // },
-  },
+  }
 });
 </script>
