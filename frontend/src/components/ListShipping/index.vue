@@ -18,9 +18,11 @@
       }"
     )
       template(v-slot:item.device="{ item }")
-        span(v-if="item.device.name") {{ item.device.name }} / {{ item.device.reg_number }}
+        span(v-if="(item.device)")
+          span(v-if="(item.device.name && item.device.reg_number)") {{item.device.name}} / {{item.device.reg_number}}
+          span(v-else-if="(item.device.reg_number)") {{item.device.reg_number}}
+          span(v-else-if="(item.device.name)") {{item.device.name}}
         span(v-else) Нет данных
-
       template(v-slot:top)
         v-toolbar(flat color="white")
           v-toolbar-title
@@ -111,11 +113,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import RepositoryFactory from '@/api/RepositoryFactory';
+import Vue from "vue";
+import RepositoryFactory from "@/api/RepositoryFactory";
 
-const ReportsRepository = RepositoryFactory.get('reports');
-const DevicesRepository = RepositoryFactory.get('devices');
+const ReportsRepository = RepositoryFactory.get("reports");
+const DevicesRepository = RepositoryFactory.get("devices");
 
 export default Vue.extend({
   data: () => ({
@@ -131,26 +133,26 @@ export default Vue.extend({
     reportsFilter: {
       id: undefined as any,
       date: undefined as any,
-      device: undefined as any,
+      device: undefined as any
     },
     dialogReportsFilter: false,
     headers: [
       {
-        text: 'Код отчёта',
-        value: 'id',
-        sortable: false,
+        text: "Код отчёта",
+        value: "id",
+        sortable: false
       },
       {
-        text: 'Дата',
-        value: 'date',
-        sortable: false,
+        text: "Дата",
+        value: "date",
+        sortable: false
       },
       {
-        text: 'Автомобиль',
-        value: 'device',
-        sortable: false,
-      },
-    ],
+        text: "Автомобиль",
+        value: "device",
+        sortable: false
+      }
+    ]
   }),
   computed: {
     reportsIsNotEmpty() {
@@ -161,23 +163,27 @@ export default Vue.extend({
     },
     reportsFilterIsActive() {
       const queries = this.$route.query;
-      return (queries.id || queries.date || queries.device) ? true : !true;
-    },
+      return queries.id || queries.date || queries.device ? true : !true;
+    }
   },
   watch: {
     $route: {
       handler(route: any) {
-        if (route.query.page && route.query.page !== '0') {
+        if (route.query.page && route.query.page !== "0") {
           this.page = Number(route.query.page);
           // this.reportsFilter.id = route.query.id !== undefined ? Number(route.query.id) : undefined;
-          this.reportsFilter.date = route.query.date !== undefined ? route.query.date : undefined;
-          this.reportsFilter.device = route.query.device !== undefined ? Number(route.query.device) : undefined;
+          this.reportsFilter.date =
+            route.query.date !== undefined ? route.query.date : undefined;
+          this.reportsFilter.device =
+            route.query.device !== undefined
+              ? Number(route.query.device)
+              : undefined;
           this.getReports();
         } else {
-          this.$router.push({ path: '/shipping-report-list/?page=1' });
+          this.$router.push({ path: "/shipping-report-list/?page=1" });
         }
       },
-      immediate: true,
+      immediate: true
     },
     reports(value: any) {
       if (!value) {
@@ -188,17 +194,14 @@ export default Vue.extend({
       if (value && this.devicesIsEmpty) {
         this.getDevices();
       }
-    },
+    }
   },
   methods: {
     async getReports() {
       this.isLoadingReports = true;
       const pageNumber = this.page;
       const filterData = this.reportsFilter;
-      const response = await ReportsRepository.get(
-        pageNumber,
-        filterData,
-      );
+      const response = await ReportsRepository.get(pageNumber, filterData);
       this.reports = response.data.results;
       this.pageCount = response.data.count;
       this.isLoadingReports = false;
@@ -215,7 +218,7 @@ export default Vue.extend({
             .split("&")
             .filter((item: string) => ~item.indexOf("page="))[0]
             .split("=")
-            .pop(),
+            .pop()
         });
         responseDevices.push(...response.data.results);
       }
@@ -235,13 +238,19 @@ export default Vue.extend({
       if (this.reportsFilter.device !== undefined) {
         queries = Object.assign(queries, { device: this.reportsFilter.device });
       }
-      this.$router.replace({
-        name: 'shipping-report-list',
-        query: queries,
-      }).catch((error) => {});
+      this.$router
+        .replace({
+          name: "shipping-report-list",
+          query: queries
+        })
+        .catch(error => {});
     },
     toDetailPage(report: any) {
-      this.$router.push({ name: 'shipping-report-detail', params: { id: report.id }, query: { page: '1' } });
+      this.$router.push({
+        name: "shipping-report-detail",
+        params: { id: report.id },
+        query: { page: "1" }
+      });
     },
     acceptFilter() {
       this.updatePage(1);
@@ -252,7 +261,7 @@ export default Vue.extend({
       vForm.reset();
       this.updatePage(1);
       this.dialogReportsFilter = false;
-    },
-  },
+    }
+  }
 });
 </script>
