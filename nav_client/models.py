@@ -285,7 +285,11 @@ class NavMtId(models.Model):
 
 class CustomGeoZone(models.Model):
     """Model definition for CustomGeoZone."""
-
+    sync_date = models.ForeignKey(SyncDate,
+                                  on_delete=models.CASCADE,
+                                  verbose_name="дата синхронизации",
+                                  related_name="customgeozones",
+                                  default=SyncDate.objects.last().id)
     name = models.CharField("name",
                             max_length=150,
                             blank=True,
@@ -297,8 +301,8 @@ class CustomGeoZone(models.Model):
     class Meta:
         """Meta definition for CustomGeoZone."""
 
-        verbose_name = 'CustomGeoZone'
-        verbose_name_plural = 'CustomGeoZones'
+        verbose_name = 'спец. зона'
+        verbose_name_plural = 'спец. зоны'
 
     def __str__(self):
         """Unicode representation of CustomGeoZone."""

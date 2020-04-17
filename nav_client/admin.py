@@ -1,8 +1,8 @@
 from django.contrib import admin
 from import_export.admin import ImportExportActionModelAdmin
 
-from .models import SyncDate, Device, Driver, Point, GeoZone, \
-    FlatTableRow, FlatTable, NavMtId
+from .models import (SyncDate, Device, Driver, Point, GeoZone,
+                     FlatTableRow, FlatTable, NavMtId, CustomGeoZone)
 
 
 class InputFilter(admin.SimpleListFilter):
@@ -43,6 +43,14 @@ class NavIdFilter(InputFilter):
             return queryset.filter(nav_id=nav_id)
 
 
+@admin.register(CustomGeoZone)
+class CustomGeoZoneAdmin(ImportExportActionModelAdmin):
+    list_display = ('name', 'sync_date')
+    list_filter = ('sync_date', )
+    filter_horizontal = ("points",)
+    search_filter = ('name',)
+
+
 @admin.register(Device)
 class DeviceAdmin(ImportExportActionModelAdmin):
     list_display = ('name', 'sync_date')
@@ -71,6 +79,7 @@ class GeoZoneAdmin(ImportExportActionModelAdmin):
     list_display = ('name', 'mt_id', 'sync_date')
     list_filter = ('sync_date', MtIdFilter,  NavIdFilter)
     filter_horizontal = ("points",)
+    search_filter = ('name',)
 
 
 @admin.register(FlatTableRow)
