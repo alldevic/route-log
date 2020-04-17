@@ -19,6 +19,8 @@ migrations:
 	docker exec -it /rl_backend python3 manage.py makemigrations
 su:
 	docker exec -it /rl_backend python3 manage.py createsuperuser
+logs:
+	docker-compose logs -f backend nginx
 dump:
 	docker exec -it /rl_backend python3 manage.py dumpdata -o $(filter-out $@,$(MAKECMDGOALS))
 load:
