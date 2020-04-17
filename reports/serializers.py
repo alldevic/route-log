@@ -2,7 +2,6 @@ from rest_framework import serializers
 
 from nav_client.models import Device, SyncDate
 from nav_client.serializers import (
-    DeviceSerializer,
     FlatRowSerializer,
     GeozoneSerializer,
 )
@@ -14,10 +13,9 @@ from requests.models import Response
 
 
 class ReportSerializer(serializers.ModelSerializer):
-    # device = DeviceSerializer(many=False)
-
     class Meta:
         model = Report
+        depth = 1
         fields = (
             'id',
             'created_at',
