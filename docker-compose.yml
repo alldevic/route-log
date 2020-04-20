@@ -52,6 +52,7 @@ services:
     user: ${CURRENT_UID}
     volumes:
       - ./frontend-build:/app/build
+    restart: on-failure
     command: ./docker-entrypoint.sh
     networks:
       private_network:
