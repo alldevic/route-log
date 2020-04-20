@@ -2,7 +2,7 @@ from django.contrib import admin
 from import_export.admin import ImportExportActionModelAdmin
 
 from .models import (SyncDate, Device, Driver, Point, GeoZone,
-                     FlatTableRow, FlatTable, NavMtId, CustomGeoZone)
+                     FlatTableRow, FlatTable, NavMtId)
 
 
 class InputFilter(admin.SimpleListFilter):
@@ -43,14 +43,6 @@ class NavIdFilter(InputFilter):
             return queryset.filter(nav_id=nav_id)
 
 
-@admin.register(CustomGeoZone)
-class CustomGeoZoneAdmin(ImportExportActionModelAdmin):
-    list_display = ('name', 'sync_date')
-    list_filter = ('sync_date', )
-    filter_horizontal = ("points",)
-    search_filter = ('name',)
-
-
 @admin.register(Device)
 class DeviceAdmin(ImportExportActionModelAdmin):
     list_display = ('name', 'sync_date')
@@ -76,16 +68,17 @@ class PointAdmin(ImportExportActionModelAdmin):
 
 @admin.register(GeoZone)
 class GeoZoneAdmin(ImportExportActionModelAdmin):
-    list_display = ('name', 'mt_id', 'sync_date')
-    list_filter = ('sync_date', MtIdFilter,  NavIdFilter)
+    list_display = ('name', 'nav_id', 'mt_id', 'is_custom', 'sync_date')
+    list_filter = ('sync_date', 'is_custom', MtIdFilter,  NavIdFilter)
     filter_horizontal = ("points",)
-    search_filter = ('name',)
+    search_fields = ('name',)
 
 
 @admin.register(FlatTableRow)
 class FlatTableRowAdmin(ImportExportActionModelAdmin):
     list_display = ('device', 'utc', 'sync_date')
     list_filter = ('sync_date',)
+    search_fields = ('device__name', 'device__reg_number')
 
 
 @admin.register(FlatTable)

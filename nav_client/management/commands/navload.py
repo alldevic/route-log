@@ -170,6 +170,26 @@ class Command(BaseCommand):
                 mt_id=row.mt_id
             ))
 
+    def updateCustomGeoZones(self, sync_date, bulk_mgr):
+        res = [x for x in GeoZone.objects
+               .filter(sync_date=SyncDate.objects.first(), is_custom=True)
+               .prefetch_related("points")]
+
+        for item in res:
+            x_points = [Point(sync_date=sync_date,
+                              lat=x.lat,
+                              lon=x.lon)
+                        for x in item.points.all()]
+            points = Point.objects.bulk_create(x_points)
+
+            tmp = GeoZone.objects.create(
+                sync_date=sync_date,
+                name=item.name,
+                is_custom=True
+            )
+            tmp.points.set(points)
+            tmp.save()
+
     def copyAllDevices(self, sync_date, temp_date, bulk_mgr):
         devices = [x for x in Device.objects.filter(sync_date=temp_date)]
         for device in devices:
@@ -210,7 +230,7 @@ class Command(BaseCommand):
     def copyAllGeoZones(self, sync_date, temp_date, bulk_mgr):
         res = [x for x in
                GeoZone.objects
-               .filter(sync_date=temp_date)
+               .filter(sync_date=temp_date, is_custom=False)
                .prefetch_related("points")]
 
         for item in res:
@@ -254,7 +274,7 @@ class Command(BaseCommand):
 
             now = timezone.localtime()
 
-            if (sync_date and 
+            if (sync_date and
                 (sync_date.datetime.year == date.year) and
                 (sync_date.datetime.month == date.month) and
                     (sync_date.datetime.day == date.day)):
@@ -277,8 +297,10 @@ class Command(BaseCommand):
 
             sync_date = SyncDate.objects.create(datetime=date)
             self.updateNavMt(sync_date, bulk_mgr)
-            self.stdout.write(self.style.SUCCESS('NavMt - SUCCESS'))
-
+            self.stdout.write(self.style.SUCCESS('updateNavMt - SUCCESS'))
+            self.updateCustomGeoZones(sync_date, bulk_mgr)
+            self.stdout.write(self.style.SUCCESS(
+                'updateCustomGeoZones - SUCCESS'))
             if co > 0:
                 self.copyAllDevices(sync_date, temp_date, bulk_mgr)
                 self.stdout.write(

@@ -181,6 +181,9 @@ class GeoZone(models.Model):
                                   verbose_name="дата синхронизации",
                                   related_name="geozones",)
 
+    is_custom = models.BooleanField("Является кастомной",
+                                    default=False)
+
     name = models.CharField("name",
                             max_length=150,
                             blank=True,
@@ -189,7 +192,7 @@ class GeoZone(models.Model):
     points = models.ManyToManyField(Point,
                                     verbose_name="Точки")
 
-    nav_id = models.CharField("id",
+    nav_id = models.CharField("nav_id",
                               max_length=150,
                               blank=True,
                               null=True)
@@ -280,30 +283,4 @@ class NavMtId(models.Model):
         verbose_name_plural = "площадки МТ"
 
     def __str__(self):
-        return self.name
-
-
-class CustomGeoZone(models.Model):
-    """Model definition for CustomGeoZone."""
-    sync_date = models.ForeignKey(SyncDate,
-                                  on_delete=models.CASCADE,
-                                  verbose_name="дата синхронизации",
-                                  related_name="customgeozones",
-                                  default=SyncDate.objects.last().id)
-    name = models.CharField("name",
-                            max_length=150,
-                            blank=True,
-                            null=True)
-
-    points = models.ManyToManyField(Point,
-                                    verbose_name="Точки")
-
-    class Meta:
-        """Meta definition for CustomGeoZone."""
-
-        verbose_name = 'спец. зона'
-        verbose_name_plural = 'спец. зоны'
-
-    def __str__(self):
-        """Unicode representation of CustomGeoZone."""
         return self.name

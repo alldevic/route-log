@@ -227,7 +227,8 @@ class ExportReportView(views.APIView):
         base_num = 17
         data = ContainerUnloadFact.objects\
             .filter(report=id) \
-            .exclude(datetime_entry=None, datetime_exit=None)
+            .exclude(datetime_entry=None, datetime_exit=None) \
+            .order_by("datetime_entry")
         for row_num, row in enumerate(data):
             worksheet.write(base_num + row_num, 0, '', table_cell_format)
             worksheet.write(base_num + row_num, 1, '', table_cell_format)
