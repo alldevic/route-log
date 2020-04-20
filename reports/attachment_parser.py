@@ -3,7 +3,7 @@ from datetime import datetime
 
 import xlrd
 
-from nav_client.models import FlatTableRow, GeoZone, Point
+from nav_client.models import (FlatTableRow, GeoZone, Point)
 from reports.models import ContainerType
 
 
@@ -19,7 +19,7 @@ def parse(file, sync_date, device, container_types):
     rows = [x for x in worksheet.get_rows()]
     mt_ids = [int(row[2].value) for row in rows[1:]]
     geozones = [x for x in GeoZone.objects
-                .filter(sync_date=sync_date, mt_id__in=mt_ids)
+                .filter(sync_date=sync_date, mt_id__in=mt_ids, is_custom=False)
                 .only("id", "name", "mt_id")
                 .prefetch_related("points")]
 
@@ -79,6 +79,44 @@ def parse(file, sync_date, device, container_types):
 
         report_row["track_points"] = current_flats
         res.append(report_row)
+
+    if len(rows[1:]):
+        custom_geozones = [x for x in GeoZone.objects
+                           .filter(sync_date=sync_date, is_custom=True)
+                           .prefetch_related("points")]
+
+        for gz in custom_geozones:
+            report_row = {}
+            report_row["geozone"] = gz
+            report_row["directory"] = gz.name or "geozone"
+            report_row["time_in"] = None
+            report_row["time_out"] = None
+            report_row["nav_mt_id"] = None
+            report_row["count"] = 0
+            report_row["value"] = 0
+            report_row["ct_type"] = ""
+            report_row["is_unloaded"] = False
+            report_row["track_points"] = []
+
+            big_range = 25
+            center = get_center([t for t in gz.points.all()])
+            current_flats = [flat for flat in all_flats
+                             if in_range(flat.point_value, big_range, center)]
+
+            if current_flats:
+                current_flats = sorted(current_flats, key=lambda x: x.utc)
+
+            fl = False
+            for flat in current_flats:
+                fl = True
+                if report_row["time_in"] is None:
+                    report_row["time_in"] = flat.utc
+                report_row["time_out"] = flat.utc
+
+            if fl:
+                report_row["is_unloaded"] = True
+                res.append(report_row)
+
     return res
 
 
