@@ -30,32 +30,22 @@ class ContanerUnloadsListView(viewsets.ModelViewSet):
     """
     Список фактов отгрузки
     """
-    queryset = ContainerUnloadFact.objects.all()
+    queryset = ContainerUnloadFact.objects \
+        .all() \
+        .select_related("geozone") \
+        .prefetch_related("track_points__point_value", "geozone__points")
     serializer_class = ContainerUnloadFactSerializer
     filterset_class = ContainerUnloadFactFilter
     permission_classes = (IsAuthenticated,)
 
     def list(self, request, *args, **kwargs):
-        report_id = int(request.query_params["report"])
-        queryset = ContainerUnloadFact.objects.filter(report__id=report_id)
-
-        value = str(request.query_params.get("value", ''))
-        if value and value != '':
-            queryset = queryset.filter(value__exact=value)
+        queryset = self.filter_queryset(self.get_queryset())
 
         container_type = int(request.query_params.get("container_type", 0))
         if container_type:
             ctype = ContainerType.objects.get(id=container_type)
             if ctype:
                 queryset = queryset.filter(container_type__exact=ctype.name)
-
-        is_unloaded = str(request.query_params.get("is_unloaded", ''))
-        if is_unloaded and is_unloaded != '':
-            queryset = queryset.filter(is_unloaded=bool(
-                distutils.util.strtobool(is_unloaded)))
-
-        queryset = queryset.select_related("geozone") \
-            .prefetch_related("track_points__point_value", "geozone__points")
 
         page = self.paginate_queryset(queryset)
         if page is not None:
