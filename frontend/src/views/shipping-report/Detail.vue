@@ -360,7 +360,7 @@ export default Vue.extend({
     date(date: any) {
       if (!date) return "Нет данных";
 
-      return new Date(date).toLocaleString();
+      return new Date(date).toLocaleString('ru', { hour12: false });
     }
   },
   data: () => ({
