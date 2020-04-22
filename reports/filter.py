@@ -10,7 +10,7 @@ class ContainerUnloadFactFilter(rest_framework.FilterSet):
             'report': ['exact'],
             'value': ['exact'],
             'is_unloaded': ['exact'],
-            'directory': ['exact', 'contains']
+            'directory': ['iexact', 'icontains']
         }
 
 
