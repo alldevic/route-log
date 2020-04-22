@@ -15,8 +15,8 @@ from reports.filter import ContainerUnloadFactFilter, ReportFilter
 from django.http import HttpResponse
 import xlsxwriter
 import io
-import distutils.util
 from rest_framework.response import Response
+import pytz
 
 
 class ContainerTypeListView(mixins.ListModelMixin,
@@ -230,7 +230,8 @@ class ExportReportView(views.APIView):
             if row.datetime_entry:
                 worksheet.write_datetime(
                     base_num + row_num, 5,
-                    row.datetime_entry.replace(tzinfo=None),
+                    row.datetime_entry.astimezone(
+                        pytz.timezone('Asia/Novokuznetsk')),
                     table_long_date_format)
             else:
                 worksheet.write_string(
