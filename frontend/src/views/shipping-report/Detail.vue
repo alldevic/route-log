@@ -129,6 +129,7 @@
                               )
                             v-time-picker(
                               v-model="editedItem.time_entry"
+                              format="24hr"
                               color="primary"
                               @click:minute="$refs.menuForEntryTime.save(editedItem.time_entry)"
                             )
@@ -183,6 +184,7 @@
                             v-time-picker(
                               v-model="editedItem.time_exit"
                               color="primary"
+                              format="24hr"
                               :min="editedItem.time_entry"
                               @click:minute="$refs.menuForExitTime.save(editedItem.time_exit)"
                             )
@@ -311,6 +313,13 @@
                           clearable
                           hide-details
                         )
+                      v-col(cols="12")
+                        v-text-field(
+                          v-model="unloadsFilter.directory__contains"
+                          label="Муниципальное образование"
+                          clearable
+                          hide-details
+                        )
                 v-card-actions
                   v-spacer
                   v-btn(color="blue darken-1" text @click="dialogUnloadsFilter = false")
@@ -386,7 +395,8 @@ export default Vue.extend({
     unloadsFilter: {
       is_unloaded: null as any,
       value: null as any,
-      container_type: null as any
+      container_type: null as any,
+      directory__contains: '' as string,
     },
     editedIndex: -1,
     editedItem: {
@@ -490,7 +500,7 @@ export default Vue.extend({
     },
     unloadsFilterIsActive() {
       const queries = this.$route.query;
-      return queries.is_unloaded || queries.container_type || queries.value
+      return queries.is_unloaded || queries.container_type || queries.value || queries.directory__contains
         ? true
         : !true;
     },
@@ -526,6 +536,8 @@ export default Vue.extend({
               : null;
           this.unloadsFilter.value =
             route.query.value !== undefined ? Number(route.query.value) : null;
+          this.unloadsFilter.directory__contains =
+            route.query.directory__contains !== undefined ? route.query.directory__contains : '';
           this.getContainerUnloads();
         }
       },
@@ -558,7 +570,7 @@ export default Vue.extend({
       if (value && this.containerTypesIsEmpty) {
         this.getContainerTypes();
       }
-    }
+    },
   },
   created() {
     this.debouncedGeozones = _.debounce((name: string) => {
@@ -724,6 +736,9 @@ export default Vue.extend({
       }
       if (this.unloadsFilter.value !== null) {
         queries = Object.assign(queries, { value: this.unloadsFilter.value });
+      }
+      if (this.unloadsFilter.directory__contains !== '') {
+        queries = Object.assign(queries, { directory__contains: this.unloadsFilter.directory__contains });
       }
 
       this.$router.replace({

@@ -23,8 +23,9 @@ export default {
     const is_unloaded = filterData.is_unloaded !== null ? `&is_unloaded=${filterData.is_unloaded}` : '';
     const container_type = filterData.container_type !== null ? `&container_type=${filterData.container_type}` : '';
     const value = filterData.value !== null ? `&value=${filterData.value}` : '';
+    const directory__contains = filterData.directory__contains !== '' ? `&directory__contains=${filterData.directory__contains}` : '';
 
-    return Repository.get(`${resource}unloads-set/?report=${id}&page=${page || 1}${is_unloaded}${container_type}${value}`);
+    return Repository.get(`${resource}unloads-set/?report=${id}&page=${page || 1}${is_unloaded}${container_type}${value}${directory__contains}`);
   },
   get(page: number, filterData: any) {
     // const id = filterData.id !== undefined ? `&id=${filterData.id}` : '';
