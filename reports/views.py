@@ -201,8 +201,10 @@ class ExportReportView(views.APIView):
             'место выгрузки (наименование полигона)', merge_format)
         worksheet.merge_range(
             f'J{base_num}:K{base_num}', 'Время', merge_format)
-        worksheet.write_string(f'K{base_num+1}', 'въезда на полигон')
-        worksheet.write_string(f'L{base_num+1}', 'выезда с полигона')
+        worksheet.write_string(
+            f'J{base_num+1}', 'въезда на полигон', table_cell_format)
+        worksheet.write_string(
+            f'K{base_num+1}', 'выезда с полигона', table_cell_format)
         worksheet.merge_range(
             f'L{base_num}:L{base_num+1}',
             'Вес доставленных отходов, тн', merge_format)

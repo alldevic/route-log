@@ -1,14 +1,22 @@
 import os
-import environ
+from os import environ
 
-env = environ.Env()
+
+def get_env(key, default=None):
+    val = environ.get(key, default)
+    if val == 'True':
+        val = True
+    elif val == 'False':
+        val = False
+    return val
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = env.str('SECRET_KEY',
+SECRET_KEY = get_env('SECRET_KEY',
                      '(pt#3^)gwk)!7t@*=6132#k8zl(cj4$1x%7n!jcmd#821^8evr')
 
-DEBUG = env.bool('DEBUG', True)
+DEBUG = get_env('DEBUG', True)
 
 ALLOWED_HOSTS = ["*"]
 
@@ -86,10 +94,10 @@ WSGI_APPLICATION = 'route_log_prj.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': env.str('POSTGRES_DB', 'postgres_db'),
-        'USER': env.str('POSTGRES_USER', 'postgresuser'),
-        'PASSWORD': env.str('POSTGRES_PASSWORD', 'mysecretpass'),
-        'HOST': env.str('POSTGRES_HOST', 'localhost'),
+        'NAME': get_env('POSTGRES_DB', 'postgres_db'),
+        'USER': get_env('POSTGRES_USER', 'postgresuser'),
+        'PASSWORD': get_env('POSTGRES_PASSWORD', 'mysecretpass'),
+        'HOST': get_env('POSTGRES_HOST', 'localhost'),
         'PORT': 5432
     }
 }
@@ -125,9 +133,9 @@ USE_L10N = True
 
 USE_TZ = True
 
-NAV_HOST = env.str('SOAP_WSDL', 'http://test/test?wsdl')
-NAV_USER = env.str('SOAP_USER', 'username')
-NAV_PASS = env.str('SOAP_PASS', 'pass')
+NAV_HOST = get_env('SOAP_WSDL', 'http://test/test?wsdl')
+NAV_USER = get_env('SOAP_USER', 'username')
+NAV_PASS = get_env('SOAP_PASS', 'pass')
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
