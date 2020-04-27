@@ -8,13 +8,12 @@ function postgres_ready() {
     python3 <<END
 import sys
 import psycopg2
-import environ
+from os import environ as env
 try:
-    env = environ.Env()
-    dbname = env.str('POSTGRES_DB')
-    user = env.str('POSTGRES_USER')
-    password = env.str('POSTGRES_PASSWORD')
-    host = env.str('POSTGRES_HOST')
+    dbname = env.get('POSTGRES_DB')
+    user = env.get('POSTGRES_USER')
+    password = env.get('POSTGRES_PASSWORD')
+    host = env.get('POSTGRES_HOST')
     port = 5432
     conn = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port)
 except psycopg2.OperationalError:

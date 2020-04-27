@@ -15,8 +15,8 @@ from reports.filter import ContainerUnloadFactFilter, ReportFilter
 from django.http import HttpResponse
 import xlsxwriter
 import io
-import distutils.util
 from rest_framework.response import Response
+import pytz
 
 
 class ContainerTypeListView(mixins.ListModelMixin,
@@ -30,32 +30,22 @@ class ContanerUnloadsListView(viewsets.ModelViewSet):
     """
     Список фактов отгрузки
     """
-    queryset = ContainerUnloadFact.objects.all()
+    queryset = ContainerUnloadFact.objects \
+        .all() \
+        .select_related("geozone") \
+        .prefetch_related("track_points__point_value", "geozone__points")
     serializer_class = ContainerUnloadFactSerializer
     filterset_class = ContainerUnloadFactFilter
     permission_classes = (IsAuthenticated,)
 
     def list(self, request, *args, **kwargs):
-        report_id = int(request.query_params["report"])
-        queryset = ContainerUnloadFact.objects.filter(report__id=report_id)
-
-        value = str(request.query_params.get("value", ''))
-        if value and value != '':
-            queryset = queryset.filter(value__exact=value)
+        queryset = self.filter_queryset(self.get_queryset())
 
         container_type = int(request.query_params.get("container_type", 0))
         if container_type:
             ctype = ContainerType.objects.get(id=container_type)
             if ctype:
                 queryset = queryset.filter(container_type__exact=ctype.name)
-
-        is_unloaded = str(request.query_params.get("is_unloaded", ''))
-        if is_unloaded and is_unloaded != '':
-            queryset = queryset.filter(is_unloaded=bool(
-                distutils.util.strtobool(is_unloaded)))
-
-        queryset = queryset.select_related("geozone") \
-            .prefetch_related("track_points__point_value", "geozone__points")
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -211,8 +201,10 @@ class ExportReportView(views.APIView):
             'место выгрузки (наименование полигона)', merge_format)
         worksheet.merge_range(
             f'J{base_num}:K{base_num}', 'Время', merge_format)
-        worksheet.write_string(f'K{base_num+1}', 'въезда на полигон')
-        worksheet.write_string(f'L{base_num+1}', 'выезда с полигона')
+        worksheet.write_string(
+            f'J{base_num+1}', 'въезда на полигон', table_cell_format)
+        worksheet.write_string(
+            f'K{base_num+1}', 'выезда с полигона', table_cell_format)
         worksheet.merge_range(
             f'L{base_num}:L{base_num+1}',
             'Вес доставленных отходов, тн', merge_format)
@@ -240,7 +232,8 @@ class ExportReportView(views.APIView):
             if row.datetime_entry:
                 worksheet.write_datetime(
                     base_num + row_num, 5,
-                    row.datetime_entry.replace(tzinfo=None),
+                    row.datetime_entry.astimezone(
+                        pytz.timezone('Asia/Novokuznetsk')),
                     table_long_date_format)
             else:
                 worksheet.write_string(

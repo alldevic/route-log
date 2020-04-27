@@ -27,8 +27,10 @@ class ContainerUnloadFact(models.Model):
     """
     report = models.ForeignKey(
         Report, verbose_name='Отчет', on_delete=models.CASCADE)
-    geozone = models.ForeignKey(
-        GeoZone, verbose_name='Платформа', on_delete=models.SET_NULL, null=True)
+    geozone = models.ForeignKey(GeoZone,
+                                verbose_name='Платформа',
+                                on_delete=models.SET_NULL,
+                                null=True)
     track_points = models.ManyToManyField(
         FlatTableRow, verbose_name='Точки маршрута')
 
