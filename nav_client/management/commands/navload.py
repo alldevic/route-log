@@ -263,7 +263,7 @@ class Command(BaseCommand):
         count = options['count']
         force = options['force']
 
-        for co in range(0, count):
+        for co in range(1, count+1):
             date = (options['date'] or timezone.localtime()) - \
                 timezone.timedelta(days=co)
             sync_date = SyncDate.objects \
