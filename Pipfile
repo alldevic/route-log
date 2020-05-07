@@ -21,7 +21,7 @@ autopep8 = "*"
 flake8 = "*"
 rope = "*"
 mypy = "*"
-ptvsd = "*"
+debugpy = "==1.0.0b8"
 django-silk = "*"
 
 [requires]
