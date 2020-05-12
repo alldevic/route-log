@@ -284,3 +284,42 @@ class NavMtId(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class NavRoute(models.Model):
+    sync_date = models.ForeignKey(SyncDate,
+                                  on_delete=models.CASCADE,
+                                  verbose_name="дата синхронизации",
+                                  related_name="routes",)
+
+    nav_id = models.IntegerField("nav_id")
+
+    name = models.CharField("name",
+                            max_length=150,
+                            null=True,
+                            blank=True)
+
+    from_utc = models.CharField("from_utc",
+                                max_length=150,
+                                null=True,
+                                blank=True)
+
+    to_utc = models.CharField("to_utc",
+                              max_length=150,
+                              null=True,
+                              blank=True)
+
+    nav_device_id = models.IntegerField("nav_device_id",
+                                        null=True,
+                                        blank=True)
+
+    nav_driver_id = models.IntegerField("nav_driver_id",
+                                        null=True,
+                                        blank=True)
+
+    class Meta(object):
+        verbose_name = "маршрут навигации"
+        verbose_name_plural = "маршруты навигации"
+
+    def str(self):
+        return self.name

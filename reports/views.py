@@ -11,6 +11,7 @@ from reports.serializers import (
     ContainerUnloadFactSerializer,
     GenerateReportSerializer,
     ReportSerializer)
+from nav_client.models import (Driver, SyncDate, NavRoute)
 from reports.filter import ContainerUnloadFactFilter, ReportFilter
 from django.http import HttpResponse
 import xlsxwriter
@@ -163,6 +164,22 @@ class ExportReportView(views.APIView):
         worksheet.write_string(
             'A11', 'Коэффициент уплотнения по данным технической документации')
         worksheet.write_string('A12', 'ФИО водителя')
+        sync_date = SyncDate.objects \
+            .filter(datetime__year=report.date.year,
+                    datetime__month=report.date.month,
+                    datetime__day=report.date.day) \
+            .first()
+        navroute = NavRoute.objects \
+            .filter(sync_date=sync_date, nav_device_id=device.nav_id) \
+            .first()
+        if navroute:
+            driver = Driver.objects \
+                .filter(sync_date=sync_date, nav_id=navroute.nav_drivre_id) \
+                .first()
+            if driver:
+                full_str = f"{driver.lname or ''} {driver.fname or ''}. {driver.mname or ''}"
+                worksheet.write_string('F12', full_str, bold_text_format)
+
         worksheet.write_string(
             'A13',
             'Наименование организации, предоставляющей услуги ГЛОНАСС/GPS мониторинга')
