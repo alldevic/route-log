@@ -1,10 +1,11 @@
 import math as m
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import xlrd
 
 from nav_client.models import (FlatTableRow, GeoZone, Point)
 from reports.models import ContainerType
+from copy import deepcopy
 
 
 def parse(file, sync_date, device, container_types):
@@ -106,16 +107,38 @@ def parse(file, sync_date, device, container_types):
             if current_flats:
                 current_flats = sorted(current_flats, key=lambda x: x.utc)
 
-            fl = False
-            for flat in current_flats:
-                fl = True
-                if report_row["time_in"] is None:
-                    report_row["time_in"] = flat.utc
-                report_row["time_out"] = flat.utc
+                # 2020-05-06 07:56:46+00:00
+                for flat in current_flats:
+                    flat.utc = datetime.strptime(
+                        flat.utc, '%Y-%m-%d %H:%M:%S%z')
 
-            if fl:
-                report_row["is_unloaded"] = True
-                res.append(report_row)
+                factor_flat = []
+                prev_flat = current_flats[0]
+                temp_flats = []
+                temp_flats.append(prev_flat)
+                for flat in current_flats[1:]:
+                    if flat.utc - prev_flat.utc >= timedelta(minutes=5):
+                        factor_flat.append(temp_flats)
+                        temp_flats = []
+                    temp_flats.append(flat)
+                    prev_flat = flat
+
+                factor_flat.append(temp_flats)
+
+                for flats in factor_flat:
+                    fl = False
+                    for flat in flats:
+                        fl = True
+                        if report_row["time_in"] is None:
+                            report_row["time_in"] = flat.utc
+                        report_row["time_out"] = flat.utc
+
+                    if fl:
+                        report_row["is_unloaded"] = True
+                        tmp_row = deepcopy(report_row)
+                        tmp_row["track_points"] = flats
+
+                        res.append(tmp_row)
 
     return res
 
