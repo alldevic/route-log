@@ -14,6 +14,7 @@ from ...models import (Device, Driver, GeoZone, Point, SyncDate,
 
 from ...BulkCreateManager import BulkCreateManager
 from django.utils import timezone
+from nav_client.models import NavRoute
 
 
 class Command(BaseCommand):
@@ -248,6 +249,42 @@ class Command(BaseCommand):
             tmp.points.set(points)
             tmp.save()
 
+    def getAllRoutes(self, sync_date, dt, bulk_mgr):
+        dt0 = dt - datetime.timedelta(days=1)
+        dt0month_str = dt0.month
+        if dt0.month < 10:
+            dt0month_str = '0' + str(dt0month_str)
+
+        dt0day_str = dt0.day
+        if dt0.day < 10:
+            dt0day_str = '0' + str(dt0day_str)
+
+        dtmonth_str = dt.month
+        if dt.month < 10:
+            dtmonth_str = '0' + str(dtmonth_str)
+
+        dtday_str = dt.day
+        if dt.day < 10:
+            dtday_str = '0' + str(dtday_str)
+
+        date_from = f"{dt0.year}-{dt0month_str}-{dt0day_str}T22:00:00"
+        date_to = f"{dt.year}-{dtmonth_str}-{dtday_str}T20:59:59"
+
+        res = self.client.service.getAllRoutes(date_from, date_to)
+        self.stdout.write(self.style.SUCCESS(
+            'getAllRoutes - SOAP - SUCCESS'))
+        for item in res:
+            bulk_mgr.add(NavRoute(
+                sync_date=sync_date,
+                nav_id=item.id,
+                name=item.name,
+                from_utc=item['from'],
+                to_utc=item.to,
+                nav_device_id=item.deviceId,
+                nav_driver_id=item.driverId
+            ))
+        bulk_mgr.done()
+
     def add_arguments(self, parser):
         parser.add_argument('--date', type=self.get_date,
                             default=timezone.now())
@@ -315,6 +352,11 @@ class Command(BaseCommand):
                 self.getAllDrivers(sync_date, bulk_mgr)
                 self.stdout.write(
                     self.style.SUCCESS('getAllDrivers - SUCCESS'))
+
+            self.getAllRoutes(sync_date, sync_date.datetime, bulk_mgr)
+            self.stdout.write(
+                self.style.SUCCESS('getAllRoutes - SUCCESS'))
+
             self.getAllGeoZones(sync_date, bulk_mgr)
             self.stdout.write(
                 self.style.SUCCESS('getAllGeoZones - SUCCESS'))

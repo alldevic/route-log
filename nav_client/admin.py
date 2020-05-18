@@ -2,7 +2,7 @@ from django.contrib import admin
 from import_export.admin import ImportExportActionModelAdmin
 
 from .models import (SyncDate, Device, Driver, Point, GeoZone,
-                     FlatTableRow, FlatTable, NavMtId)
+                     FlatTableRow, FlatTable, NavMtId, NavRoute)
 
 
 class InputFilter(admin.SimpleListFilter):
@@ -92,3 +92,9 @@ class FlatTableAdmin(ImportExportActionModelAdmin):
 class NavMtIdAdmin(ImportExportActionModelAdmin):
     list_display = ('name', 'mt_id', 'sync_date')
     list_filter = ('sync_date', MtIdFilter,  NavIdFilter)
+
+
+@admin.register(NavRoute)
+class NavRouteAdmin(ImportExportActionModelAdmin):
+    list_display = ('name', 'sync_date')
+    list_filter = ('sync_date', NavIdFilter)
