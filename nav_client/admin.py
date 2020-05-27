@@ -62,7 +62,7 @@ class SyncDateAdmin(admin.ModelAdmin):
 
 @admin.register(Point)
 class PointAdmin(ImportExportActionModelAdmin):
-    list_display = ('sync_date', 'lat', 'lon')
+    list_display = ('sync_date', 'id', 'lat', 'lon')
     list_filter = ('sync_date',)
 
 
