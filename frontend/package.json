@@ -14,7 +14,7 @@
     "date-fns": "^2.9.0",
     "leaflet": "^1.6.0",
     "lodash": "^4.17.15",
-    "pug": "^2.0.4",
+    "pug": "^3.0.1",
     "pug-lint-vue": "^0.3.0",
     "pug-plain-loader": "^1.0.0",
     "tslint-to-eslint-config": "^0.2.6",
